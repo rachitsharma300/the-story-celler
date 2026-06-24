@@ -10,11 +10,11 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="mb-4">
-              <span className="font-display text-2xl font-bold text-white">
-                Mem<span className="text-amber-400">Vault</span>
+              <span className="font-display text-xl font-black text-white uppercase block">
+                THE STORY <span className="text-amber-400 font-light italic">Celler</span>
               </span>
-              <p className="text-xs text-stone-500 tracking-widest uppercase mt-1 font-sans-clean">
-                Forever in Art, Forever in Heart
+              <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase mt-1 font-sans-clean">
+                Archiving Memories
               </p>
             </div>
             <p className="text-sm text-stone-400 leading-relaxed font-sans-clean">
@@ -77,7 +77,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3 text-stone-400">
                 <Mail size={14} className="text-amber-400 shrink-0" />
-                <a href="mailto:team@memvault.in" className="hover:text-amber-400 transition-colors">team@memvault.in</a>
+                <a href="mailto:team@storyceller.in" className="hover:text-amber-400 transition-colors">team@storyceller.in</a>
               </li>
             </ul>
             <div className="mt-8 p-4 bg-stone-800 rounded-xl border border-stone-700">
@@ -90,7 +90,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-12 pt-8 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-sans-clean text-xs text-stone-500">
-            © 2025 MemVault. All rights reserved.
+            © 2026 The Story Celler. All rights reserved.
           </p>
           <p className="font-sans-clean text-xs text-stone-600">
             Made with ❤️ in India
