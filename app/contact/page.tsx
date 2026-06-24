@@ -31,7 +31,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf9f6] pt-24 pb-16">
+    <div className="min-h-screen bg-background pt-24 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero */}
         <motion.div
@@ -63,8 +63,8 @@ export default function ContactPage() {
             {
               icon: Mail,
               title: "Email Us",
-              value: "team@memvault.in",
-              link: "mailto:team@memvault.in",
+              value: "team@storyceller.in",
+              link: "mailto:team@storyceller.in",
             },
             {
               icon: Clock,

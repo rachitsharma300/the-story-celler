@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -83,7 +83,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf9f6] pt-24 pb-16">
+    <div className="min-h-screen bg-background pt-24 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10">
           <div>
@@ -281,7 +281,7 @@ export default function CartPage() {
 
               <div className="rounded-3xl border border-stone-200 bg-stone-50 p-6">
                 <h3 className="font-sans-clean text-sm font-semibold text-stone-800 uppercase tracking-widest mb-4">
-                  Why MemVault?
+                  Why The Story Celler?
                 </h3>
                 <ul className="space-y-3 text-sm text-stone-500">
                   <li>• Handcrafted design for every order</li>
