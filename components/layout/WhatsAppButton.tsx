@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MessageCircle, X } from "lucide-react";
 
 const whatsappNumber = "917903316723";
-const whatsappMessage = "Hi%20MemVault%2C%20I%20need%20help%20with%20an%20order.%20Can%20you%20please%20assist%3F";
+const whatsappMessage = "Hi%20The%20Story%20Celler%2C%20I%20need%20help%20with%20an%20order.%20Can%20you%20please%20assist%3F";
 const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
 export default function WhatsAppButton() {
@@ -19,7 +19,7 @@ export default function WhatsAppButton() {
               <p className="text-xs uppercase tracking-[0.24em] text-amber-500 font-semibold mb-2">
                 WhatsApp Help
               </p>
-              <h2 className="text-lg font-bold">Chat with MemVault</h2>
+              <h2 className="text-lg font-bold">Chat with The Story Celler</h2>
             </div>
             <button
               type="button"
