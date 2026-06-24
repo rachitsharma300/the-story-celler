@@ -136,7 +136,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf9f6] pt-24 pb-16">
+    <div className="min-h-screen bg-background pt-24 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-8">
           {/* ── SIDEBAR ── */}
