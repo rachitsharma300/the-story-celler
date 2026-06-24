@@ -1,42 +1,89 @@
 @import "tailwindcss";
 
 @theme {
-  --font-display: var(--font-playfair);
-  --font-body: var(--font-cormorant);
-  --font-sans-clean: var(--font-dm-sans);
+  --font-display: var(--font-cormorant);
+  --font-body: var(--font-jakarta);
+  --font-sans-clean: var(--font-jakarta);
+  --font-serif-vintage: var(--font-playfair);
+
+  /* Override Tailwind base palette to apply the romantic theme globally */
+  --color-amber-500: hsl(var(--primary));
+  --color-amber-600: hsl(var(--primary-dark));
+  --color-amber-100: hsl(var(--primary-light));
+  --color-amber-550: hsl(var(--primary-dark));
+  --color-amber-50: hsl(var(--primary-lightest));
+  
+  --color-stone-50: hsl(var(--cream));
+  --color-stone-100: hsl(var(--border));
+  --color-stone-200: hsl(var(--border-dark));
+  --color-stone-400: hsl(var(--muted-foreground));
+  --color-stone-500: hsl(var(--muted-foreground));
+  --color-stone-600: hsl(var(--muted-foreground-dark));
+  --color-stone-850: hsl(var(--foreground));
+  --color-stone-900: hsl(var(--foreground));
+  --color-stone-950: hsl(var(--background-dark));
+
+  /* Custom utility variables */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-accent-coral: hsl(var(--accent));
+  --color-surface: hsl(var(--surface));
 }
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 20 14% 10%;
-    --primary: 25 95% 53%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 30 20% 96%;
-    --secondary-foreground: 20 14% 10%;
-    --muted: 30 10% 94%;
-    --muted-foreground: 20 8% 46%;
-    --accent: 25 95% 53%;
-    --border: 30 15% 88%;
-    --ring: 25 95% 53%;
+    /* Premium Modern Palette - Light Mode (Apple + Vogue + Wedding + Luxury) */
+    --background: 37 21% 94%;           /* #F6F1E9: Warm paper / magazine background */
+    --surface: 38 38% 97%;              /* #FBF8F3: Secondary Background */
+    --cream: 38 100% 99%;               /* #FFFDF9: Card Background / Pure Cream */
+    --foreground: 28 28% 13%;           /* #2B2118: Primary Text (Coffee/Leather) */
+    --muted-foreground: 30 11% 41%;      /* #74685D: Muted Text */
+    --muted-foreground-dark: 30 11% 30%;
+    --primary: 33 53% 52%;              /* #C68A43: Primary Gold */
+    --primary-dark: 33 62% 58%;         /* #D49A56: Hover Gold */
+    --primary-light: 33 53% 90%;
+    --primary-lightest: 33 53% 96%;
+    --border: 34 27% 86%;               /* #E7DDD1: Border */
+    --border-dark: 34 27% 76%;
+    
+    --secondary: 38 38% 97%;            /* #FBF8F3 */
+    --secondary-foreground: 28 28% 13%;
+    --muted: 38 38% 95%;
+    --accent: 33 53% 52%;               /* #C68A43 */
+    --ring: 33 53% 52%;
     --radius: 0.75rem;
 
-    --gold: 43 96% 56%;
-    --gold-dark: 35 85% 42%;
-    --cream: 40 30% 97%;
-    --dark: 20 14% 8%;
+    --gold: 33 53% 52%;
+    --gold-dark: 33 62% 58%;
+    --dark: 28 28% 13%;
+    --background-dark: 24 12% 5%;
   }
 
   .dark {
-    --background: 20 14% 6%;
-    --foreground: 40 20% 95%;
-    --primary: 25 95% 58%;
-    --secondary: 20 12% 12%;
-    --muted: 20 10% 15%;
-    --muted-foreground: 30 10% 55%;
-    --border: 20 12% 18%;
-    --cream: 20 14% 10%;
-    --dark: 40 20% 95%;
+    /* Premium Modern Palette - Dark Mode */
+    --background: 20 18% 8%;            /* #171310: Dark background */
+    --surface: 22 13% 11%;              /* #1F1A17: Secondary background */
+    --cream: 20 18% 12%;                /* #241D19: Card background */
+    --foreground: 34 30% 93%;           /* #F4EDE5: Primary text */
+    --muted-foreground: 32 14% 68%;     /* #B8AEA3: Muted Text */
+    --border: 22 16% 20%;               /* #3A302A: Border */
+    --border-dark: 22 16% 30%;          /* Border hover/accent */
+    --primary: 35 59% 60%;              /* #D9A35C: Primary Gold */
+    --primary-dark: 36 65% 66%;         /* #E3B46F: Hover Gold */
+    --primary-light: 35 59% 18%;
+    --primary-lightest: 35 59% 12%;
+    
+    --secondary: 22 13% 11%;            /* #1F1A17 */
+    --secondary-foreground: 34 30% 93%;
+    --muted: 22 13% 14%;
+    --muted-foreground-dark: 32 14% 80%;
+    --accent: 35 59% 60%;               /* #D9A35C */
+    --ring: 35 59% 60%;
+
+    --gold: 35 59% 60%;
+    --gold-dark: 36 65% 66%;
+    --dark: 34 30% 93%;
+    --background-dark: 24 12% 4%;
   }
 
   * {
@@ -47,26 +94,44 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: var(--font-cormorant), Georgia, serif;
+    font-family: var(--font-body), sans-serif;
     -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-playfair), Georgia, serif;
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    font-family: var(--font-display), sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.025em;
   }
 }
 
 @layer utilities {
   .font-display {
-    font-family: var(--font-playfair), Georgia, serif;
+    font-family: var(--font-cormorant), var(--font-playfair), Georgia, serif;
   }
   .font-body {
-    font-family: var(--font-cormorant), Georgia, serif;
+    font-family: var(--font-jakarta), sans-serif;
   }
   .font-sans-clean {
-    font-family: var(--font-dm-sans), sans-serif;
+    font-family: var(--font-jakarta), sans-serif;
+  }
+
+  .bg-noise-overlay {
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+  
+  .dark .bg-noise-overlay {
+    opacity: 0.06;
+  }
+
+  .bg-vignette {
+    box-shadow: inset 0 0 120px rgba(43, 33, 24, 0.02);
+  }
+  
+  .dark .bg-vignette {
+    box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.45);
   }
   .text-gold {
     color: hsl(var(--gold));
@@ -122,5 +187,13 @@
       opacity: 0.4;
       transform: scale(0.92);
     }
+  }
+
+  .bg-hero-gradient {
+    background: linear-gradient(135deg, #F5F1EA 0%, #EFE7DD 50%, #F8F3EE 100%);
+  }
+
+  .dark .bg-hero-gradient {
+    background: linear-gradient(135deg, #161311 0%, #1F1A17 50%, #2A231F 100%);
   }
 }
