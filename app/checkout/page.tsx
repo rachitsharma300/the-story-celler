@@ -74,7 +74,7 @@ function CheckoutForm() {
 
   if (orderPlaced) {
     return (
-      <div className="min-h-screen bg-[#faf9f6] pt-20 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-background pt-20 flex items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -124,7 +124,7 @@ function CheckoutForm() {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf9f6] pt-20">
+    <div className="min-h-screen bg-background pt-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Back */}

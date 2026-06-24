@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 export default function OurStoryPage() {
   return (
-    <div className="min-h-screen bg-[#faf9f6] pt-24 pb-16">
+    <div className="min-h-screen bg-background pt-24 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <motion.div
@@ -54,7 +54,7 @@ export default function OurStoryPage() {
                 In 2023, we realized something beautiful: memories are fleeting. Photos sit forgotten in phones, stories fade with time, and precious moments become just blurry recollections.
               </p>
               <p className="font-sans-clean text-stone-600 leading-relaxed">
-                That's when MemVault was born. We created a platform to transform digital memories into tangible, beautiful keepsakes—custom magazines, albums, and reels that capture the essence of your moments.
+                That's when The Story Celler was born. We created a platform to transform digital memories into tangible, beautiful keepsakes—custom magazines, albums, and reels that capture the essence of your moments.
               </p>
             </div>
 

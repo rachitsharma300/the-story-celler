@@ -118,7 +118,7 @@ export default function ShopPage() {
     });
 
   return (
-    <div className="min-h-screen bg-[#faf9f6] pt-24">
+    <div className="min-h-screen bg-background pt-24">
 
       <section className="bg-gradient-to-br from-amber-50 via-stone-50 to-orange-50 py-16 border-b border-stone-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

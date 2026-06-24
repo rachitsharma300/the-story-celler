@@ -110,7 +110,7 @@ export default function TrackOrderPage() {
   const completedSteps = tracking ? tracking.timeline.filter((t) => t.done).length : 0;
 
   return (
-    <div className="min-h-screen bg-[#faf9f6] pt-24">
+    <div className="min-h-screen bg-background pt-24">
 
       {/* Header */}
       <section className="bg-gradient-to-br from-amber-50 via-stone-50 to-orange-50 py-16 border-b border-stone-100">
