@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@memvault.in");
+  const [email, setEmail] = useState("admin@storyceller.in");
   const [password, setPassword] = useState("admin123");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,7 @@ export default function AdminLoginPage() {
     setError("");
 
     // Mock authentication (replace with real API call)
-    if (email === "admin@memvault.in" && password === "admin123") {
+    if (email === "admin@storyceller.in" && password === "admin123") {
       // Set cookie
       document.cookie = "adminToken=mock-jwt-token-12345; path=/; max-age=86400";
       
@@ -45,14 +45,14 @@ export default function AdminLoginPage() {
         <div className="rounded-3xl bg-white border border-stone-200 shadow-xl p-8">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-2xl font-bold shadow-md mx-auto mb-4">
-              M
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 flex items-center justify-center text-white text-2xl font-black shadow-md mx-auto mb-4">
+              S
             </div>
             <h1 className="font-display text-2xl font-bold text-stone-900">
               Admin Dashboard
             </h1>
             <p className="font-sans-clean text-sm text-stone-500 mt-2">
-              MemVault Control Center
+              The Story Celler Control Center
             </p>
           </div>
 
@@ -68,7 +68,7 @@ export default function AdminLoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@memvault.in"
+                  placeholder="admin@storyceller.in"
                   className="w-full pl-12 pr-4 py-3 rounded-xl border border-stone-200 bg-stone-50 font-sans-clean text-sm text-stone-800 placeholder-stone-300 outline-none focus:border-amber-400 focus:bg-white transition-all"
                 />
               </div>
@@ -127,7 +127,7 @@ export default function AdminLoginPage() {
               Demo Credentials:
             </p>
             <p className="font-sans-clean text-xs text-amber-600">
-              Email: admin@memvault.in
+              Email: admin@storyceller.in
             </p>
             <p className="font-sans-clean text-xs text-amber-600">
               Password: admin123

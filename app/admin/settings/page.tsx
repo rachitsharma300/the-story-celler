@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState({
-    siteName: "MemVault",
-    siteEmail: "team@memvault.in",
+    siteName: "The Story Celler",
+    siteEmail: "team@storyceller.in",
     supportPhone: "+91 79033 16723",
     taxRate: 18,
     shippingCost: 0,
@@ -38,7 +38,7 @@ export default function SettingsPage() {
           Settings
         </h1>
         <p className="font-sans-clean text-stone-500">
-          Configure your MemVault platform
+          Configure your The Story Celler platform
         </p>
       </motion.div>
 

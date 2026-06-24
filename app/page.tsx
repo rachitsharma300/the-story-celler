@@ -90,160 +90,255 @@ const faqs = [
 ];
 
 const stats = [
-  { value: "500+", label: "Stories Captured" },
-  { value: "450+", label: "Keepsakes Delivered" },
-  { value: "100+", label: "Happy Reviews" },
+  { value: 500, suffix: "+", label: "Stories Captured" },
+  { value: 450, suffix: "+", label: "Keepsakes Delivered" },
+  { value: 100, suffix: "+", label: "Happy Reviews" },
 ];
+
+function StatCountUp({ end, suffix }: { end: number; suffix: string }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const duration = 1500; // 1.5s
+    const increment = end / (duration / 16);
+    
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= end) {
+        setCount(end);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(start));
+      }
+    }, 16);
+
+    return () => clearInterval(timer);
+  }, [end]);
+
+  return <>{count}{suffix}</>;
+}
 
 export default function HomePage() {
   return (
-    <div className="overflow-x-hidden">
+    <div className="overflow-x-hidden relative bg-background min-h-screen">
 
-      {/* ── HERO ── */}
-{/* ── HERO ── */}
-<section className="relative min-h-screen flex items-center bg-[#f5f0e8] overflow-hidden">
-  
-  {/* Background texture */}
-  <div className="absolute inset-0 opacity-30"
-    style={{ backgroundImage: "radial-gradient(circle at 20% 50%, #e8d5b7 0%, transparent 50%), radial-gradient(circle at 80% 20%, #d4c5a9 0%, transparent 40%)" }} />
+      {/* ── HERO REDESIGN ── */}
+      <section className="relative min-h-screen flex items-center bg-hero-gradient overflow-hidden">
+        
+        {/* Subtle noise paper texture overlay */}
+        <div className="bg-noise-overlay absolute inset-0 pointer-events-none" />
 
-  <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[85vh]">
+        {/* Ambient glows & cinematic lighting */}
+        <div className="absolute top-0 left-0 w-[50%] h-[50%] bg-gradient-to-br from-amber-500/10 to-transparent dark:from-amber-500/5 blur-[130px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-[50%] h-[50%] bg-gradient-to-tl from-amber-600/8 to-transparent dark:from-amber-600/5 blur-[140px] rounded-full pointer-events-none" />
+        
+        {/* Central radial gold light spotlight */}
+        <div className="absolute inset-0 bg-radial-glow pointer-events-none opacity-45 dark:opacity-60"
+             style={{ backgroundImage: "radial-gradient(circle at 50% 30%, rgba(198,138,67,0.05) 0%, transparent 60%)" }} />
 
-      {/* ── LEFT SIDE ── */}
-      <motion.div
-        initial={{ opacity: 0, x: -40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.9, ease: "easeOut" }}
-        className="flex flex-col justify-center"
-      >
-        <motion.span
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="inline-block px-4 py-1.5 bg-amber-100 text-amber-700 text-xs font-sans-clean font-bold tracking-widest uppercase rounded-full mb-6 w-fit"
-        >
-          Forever in Art, Forever in Heart
-        </motion.span>
+        {/* Subtle Vignette shadow */}
+        <div className="absolute inset-0 pointer-events-none bg-vignette" />
 
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="font-display text-5xl sm:text-6xl lg:text-7xl font-bold text-stone-900 leading-[1.05] mb-6 uppercase tracking-tight"
-        >
-          Your Memories<br />
-          <span className="text-amber-600">Archived</span><br />
-          Forever
-        </motion.h1>
+        {/* Sparkles / Particles */}
+        <div className="absolute top-1/4 right-[25%] pointer-events-none text-2xl animate-pulse text-amber-500/40 select-none hidden lg:block">✨</div>
+        <div className="absolute bottom-1/3 left-1/3 pointer-events-none text-xl animate-pulse text-amber-600/30 select-none hidden lg:block">✨</div>
+        <div className="absolute top-1/2 right-[10%] pointer-events-none w-3 h-3 bg-amber-500/15 rounded-full blur-sm animate-ping hidden lg:block" />
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45 }}
-          className="font-sans-clean text-base text-stone-500 max-w-md mb-10 leading-relaxed"
-        >
-          Your memories deserve more than a screen. We turn your stories into beautifully crafted keepsakes that you can hold, share, and cherish forever.
-        </motion.p>
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[85vh]">
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55 }}
-          className="flex flex-col sm:flex-row gap-4 mb-14"
-        >
-          <Link href="/shop?type=magazine"
-            className="px-8 py-4 bg-stone-800 hover:bg-stone-700 text-white font-sans-clean font-semibold rounded-full transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 text-center">
-            Shop Magazine
-          </Link>
-          <Link href="/shop"
-            className="px-8 py-4 bg-amber-500 hover:bg-amber-600 text-white font-sans-clean font-semibold rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-amber-200 hover:-translate-y-0.5 text-center">
-            Shop Collection
-          </Link>
-        </motion.div>
+            {/* ── LEFT COLUMN (EDITORIAL WRITER) ── */}
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.9, ease: "easeOut" }}
+              className="flex flex-col justify-center"
+            >
+              <motion.span
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="inline-flex px-4 py-1.5 border border-border bg-surface text-amber-500 font-sans-clean text-[10px] font-bold tracking-[0.25em] uppercase rounded-full mb-6 w-fit shadow-sm"
+              >
+                FOREVER IN ART, FOREVER IN HEART
+              </motion.span>
 
-        {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-          className="flex gap-10"
-        >
-          {stats.map((stat) => (
-            <div key={stat.label}>
-              <p className="font-display text-3xl font-bold text-stone-900">{stat.value}</p>
-              <p className="font-sans-clean text-xs text-stone-500 mt-0.5">{stat.label}</p>
-            </div>
-          ))}
-        </motion.div>
-      </motion.div>
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.8 }}
+                className="font-display text-5xl sm:text-6xl lg:text-7xl font-light text-stone-900 leading-[1.05] mb-6 uppercase tracking-tight"
+              >
+                YOUR MEMORIES<br />
+                <span className="text-amber-500 italic font-normal font-serif lowercase pr-3">beautifully</span>
+                <span className="font-extrabold text-amber-500 tracking-tighter">ARCHIVED</span><br />
+                FOREVER.
+              </motion.h1>
 
-      {/* ── RIGHT SIDE ── */}
-      <motion.div
-        initial={{ opacity: 0, x: 40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.9, ease: "easeOut", delay: 0.2 }}
-        className="relative flex items-center justify-center h-[500px] lg:h-[600px]"
-      >
-        {/* Static tilted albums — background */}
-        <div className="absolute inset-0 flex items-center justify-center">
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45 }}
+                className="font-sans-clean text-sm sm:text-base text-stone-500 max-w-md mb-10 leading-relaxed"
+              >
+                Your memories deserve more than a digital screen.<br className="hidden sm:inline" />
+                Transform your life's moments into timeless keepsakes.
+              </motion.p>
 
-          {/* Back album — tilted left */}
-          <motion.div
-            animate={{ rotate: [-6, -8, -6], y: [0, -8, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute left-4 top-10 w-52 h-72 rounded-xl shadow-2xl overflow-hidden border-4 border-white"
-            style={{ transform: "rotate(-8deg)" }}
-          >
-            <div className="w-full h-full bg-gradient-to-br from-amber-100 via-stone-200 to-amber-200 flex flex-col items-center justify-center p-4 relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-stone-800/20 to-transparent" />
-              <div className="w-32 h-20 bg-stone-300/60 rounded-lg mb-3 flex items-center justify-center">
-                <span className="text-2xl">🖼️</span>
-              </div>
-              <div className="text-center z-10">
-                <p className="font-display text-xs font-bold text-stone-700 uppercase tracking-widest">Our Story</p>
-                <p className="font-sans-clean text-[10px] text-stone-500 mt-1">2024 Memories</p>
-              </div>
-              <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-stone-800/20 flex items-center justify-center">
-                <span className="font-display text-[8px] font-bold text-stone-600">MS</span>
-              </div>
-            </div>
-          </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55 }}
+                className="flex flex-col sm:flex-row gap-4 mb-14"
+              >
+                <Link href="/shop"
+                  className="px-8 py-4 bg-amber-500 hover:bg-amber-600 text-white dark:text-stone-950 font-sans-clean font-bold rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:-translate-y-1 text-center text-xs tracking-widest uppercase">
+                  Explore Collection
+                </Link>
+                <Link href="/shop"
+                  className="px-8 py-4 border border-amber-500 text-amber-500 hover:bg-amber-500/5 font-sans-clean font-bold rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/5 hover:-translate-y-1 text-center text-xs tracking-widest uppercase">
+                  Create Your Story
+                </Link>
+              </motion.div>
 
-          {/* Front album — tilted right */}
-          <motion.div
-            animate={{ rotate: [5, 7, 5], y: [0, 10, 0] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute right-4 bottom-10 w-52 h-72 rounded-xl shadow-2xl overflow-hidden border-4 border-white"
-          >
-            <div className="w-full h-full bg-gradient-to-br from-rose-100 via-pink-50 to-amber-100 flex flex-col items-center justify-center p-4 relative">
-              <div className="absolute inset-0 bg-gradient-to-t from-stone-800/30 to-transparent" />
-              <div className="w-32 h-20 bg-pink-200/60 rounded-lg mb-3 flex items-center justify-center">
-                <span className="text-2xl">💑</span>
-              </div>
-              <div className="text-center z-10">
-                <p className="font-display text-xs font-bold text-stone-700 uppercase tracking-widest">Poojay</p>
-                <p className="font-sans-clean text-[10px] text-stone-500 mt-1 italic">From Engagement to Eternity</p>
-              </div>
-              <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/40 flex items-center justify-center">
-                <span className="font-display text-[8px] font-bold text-stone-600">MS</span>
-              </div>
-            </div>
-          </motion.div>
+              {/* Stats Block */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+                className="flex flex-wrap items-center gap-6 md:gap-10 mt-4"
+              >
+                {stats.map((stat, i) => (
+                  <div key={stat.label} className="flex items-center">
+                    {i > 0 && <div className="h-8 w-px bg-border mr-6 md:mr-10" />}
+                    <div>
+                      <p className="font-display text-3xl font-extrabold text-stone-900 leading-none mb-1">
+                        <StatCountUp end={stat.value} suffix={stat.suffix} />
+                      </p>
+                      <p className="font-sans-clean text-[9px] text-stone-400 uppercase tracking-widest font-semibold">{stat.label}</p>
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            </motion.div>
+
+            {/* ── RIGHT COLUMN (FLOATING 3D PHOTO FRAMES) ── */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+              className="relative flex items-center justify-center h-[520px] lg:h-[620px] w-full max-w-lg mx-auto"
+              style={{ perspective: "1200px" }}
+            >
+              {/* Frame 1: Center-Left Wedding Magazine Cover */}
+              <motion.div
+                animate={{ 
+                  y: [0, -15, 0], 
+                  rotate: [-4, -2, -4],
+                }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                whileHover={{ 
+                  scale: 1.05, 
+                  rotateX: -12, 
+                  rotateY: 12, 
+                  zIndex: 40,
+                  transition: { duration: 0.3 } 
+                }}
+                style={{ transformStyle: "preserve-3d" }}
+                className="absolute left-[3%] top-[10%] w-56 h-[320px] sm:w-64 sm:h-[360px] rounded-2xl bg-card border border-border p-3.5 shadow-2xl z-20 cursor-pointer"
+              >
+                <div className="relative w-full h-full rounded-xl overflow-hidden border border-border/20 shadow-inner flex flex-col justify-between bg-stone-100"
+                     style={{ transform: "translateZ(10px)" }}>
+                  <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&fit=crop&q=80" className="absolute inset-0 w-full h-full object-cover" alt="Wedding Magazine" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-stone-950/10 to-stone-950/35" />
+                  
+                  {/* Glass Tag */}
+                  <div className="relative z-10 p-3 flex justify-between items-start text-white">
+                    <span className="font-sans-clean text-[8px] font-bold tracking-[0.2em] bg-white/10 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/20">VOGUE STYLE</span>
+                    <span className="font-display text-[9px] font-bold text-amber-300">ED. 01</span>
+                  </div>
+                  
+                  {/* Vogue style watermark */}
+                  <div className="absolute inset-x-0 top-[35%] flex justify-center pointer-events-none">
+                    <span className="font-display text-5xl sm:text-6xl text-white/15 tracking-[0.15em] uppercase select-none font-bold">VOGUE</span>
+                  </div>
+
+                  {/* Caption */}
+                  <div className="relative z-10 p-4 text-white">
+                    <p className="font-display text-[11px] font-semibold tracking-widest text-amber-300 mb-0.5 uppercase">The Wedding Journal</p>
+                    <p className="font-display text-base font-black leading-none mb-1 tracking-tight">Amit & Priya</p>
+                    <p className="font-sans-clean text-[9px] text-stone-300">December 18, 2024</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Frame 2: Top-Right Classic Wedding Album Frame */}
+              <motion.div
+                animate={{ 
+                  y: [0, 18, 0], 
+                  rotate: [5, 7, 5],
+                }}
+                transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
+                whileHover={{ 
+                  scale: 1.05, 
+                  rotateX: -10, 
+                  rotateY: -12, 
+                  zIndex: 40,
+                  transition: { duration: 0.3 } 
+                }}
+                style={{ transformStyle: "preserve-3d" }}
+                className="absolute right-[4%] top-[6%] w-48 h-[270px] sm:w-52 sm:h-[300px] rounded-xl bg-card border-[12px] border-card shadow-2xl p-0.5 z-10 cursor-pointer border border-border"
+              >
+                <div className="relative w-full h-full rounded border border-border/40 overflow-hidden flex flex-col justify-end bg-stone-100"
+                     style={{ transform: "translateZ(8px)" }}>
+                  <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=500&auto=format&fit=crop&q=80" className="absolute inset-0 w-full h-full object-cover grayscale contrast-105 brightness-95" alt="B&W Frame" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/60 to-transparent" />
+                  <div className="relative z-10 p-3 text-white bg-stone-950/20 backdrop-blur-[1px]">
+                    <p className="font-display text-xs font-semibold tracking-wider leading-tight">Anniversary Book</p>
+                    <p className="text-[7px] text-stone-300 tracking-widest uppercase mt-0.5">Matte Fine-Art Print</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Frame 3: Center-Bottom Minimalist Travel Cover */}
+              <motion.div
+                animate={{ 
+                  y: [0, -10, 0], 
+                  rotate: [-3, -1, -3],
+                }}
+                transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
+                whileHover={{ 
+                  scale: 1.06, 
+                  rotateX: 12, 
+                  rotateY: 8, 
+                  zIndex: 40,
+                  transition: { duration: 0.3 } 
+                }}
+                style={{ transformStyle: "preserve-3d" }}
+                className="absolute left-[16%] bottom-[8%] w-44 h-[240px] sm:w-48 sm:h-[260px] rounded-2xl bg-card/65 backdrop-blur-md border border-border/80 p-3 shadow-xl z-30 cursor-pointer"
+              >
+                <div className="relative w-full h-full rounded-xl overflow-hidden flex flex-col justify-between p-3.5 bg-stone-100"
+                     style={{ transform: "translateZ(12px)" }}>
+                  <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&auto=format&fit=crop&q=80" className="absolute inset-0 w-full h-full object-cover" alt="Travel Diaries" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-transparent to-stone-950/20" />
+                  <div className="relative z-10 flex justify-end">
+                    <span className="px-2.5 py-0.5 bg-white/20 backdrop-blur-md rounded border border-white/20 text-[7px] font-sans-clean font-bold text-white uppercase tracking-wider">TRAVEL</span>
+                  </div>
+                  <div className="relative z-10 text-white">
+                    <p className="font-serif text-[10px] italic text-amber-300">Edition 08</p>
+                    <p className="font-display text-base font-bold tracking-tight">Wanderlust Days</p>
+                  </div>
+                </div>
+              </motion.div>
+
+            </motion.div>
+          </div>
         </div>
-
-        {/* CENTER — Animated Flipping Magazine */}
-        <div className="relative z-10">
-          <FlippingMagazine />
-        </div>
-
-      </motion.div>
-    </div>
-  </div>
-</section>
+      </section>
 
       {/* ── PRODUCTS ── */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -327,7 +422,7 @@ export default function HomePage() {
       </section>
 
       {/* ── REVIEWS ── */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -419,82 +514,6 @@ export default function HomePage() {
         </div>
       </section>
 
-    </div>
-  );
-}
-
-function FlippingMagazine() {
-  const pages = [
-    { bg: "from-amber-100 to-stone-200", emoji: "📖", title: "Our Journey", sub: "Chapter 1" },
-    { bg: "from-rose-100 to-pink-200", emoji: "💕", title: "Together", sub: "Always" },
-    { bg: "from-sky-100 to-blue-200", emoji: "✈️", title: "Adventures", sub: "2024" },
-    { bg: "from-green-100 to-emerald-200", emoji: "🌿", title: "Memories", sub: "Forever" },
-    { bg: "from-purple-100 to-violet-200", emoji: "⭐", title: "Our Story", sub: "Archived" },
-  ];
-
-  const [currentPage, setCurrentPage] = useState(0);
-  const [flipping, setFlipping] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFlipping(true);
-      setTimeout(() => {
-        setCurrentPage((prev) => (prev + 1) % pages.length);
-        setFlipping(false);
-      }, 400);
-    }, 2500);
-    return () => clearInterval(interval);
-  }, []);
-
-  const page = pages[currentPage];
-  const nextPage = pages[(currentPage + 1) % pages.length];
-
-  return (
-    <div className="relative w-64 h-80" style={{ perspective: "1000px" }}>
-      {/* Shadow */}
-      <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 h-6 bg-stone-900/20 rounded-full blur-md" />
-
-      {/* Book spine */}
-      <div className="absolute left-0 top-0 w-4 h-full bg-stone-700 rounded-l-sm z-20"
-        style={{ transform: "rotateY(-30deg) translateX(-6px)", transformOrigin: "left" }} />
-
-      {/* Back page */}
-      <div className={`absolute inset-0 rounded-r-xl rounded-l-sm overflow-hidden bg-gradient-to-br ${nextPage.bg} border-2 border-white shadow-xl`}>
-        <div className="flex flex-col items-center justify-center h-full p-6">
-          <span className="text-4xl mb-3">{nextPage.emoji}</span>
-          <p className="font-display text-sm font-bold text-stone-700 uppercase tracking-widest">{nextPage.title}</p>
-          <p className="font-sans-clean text-xs text-stone-500 mt-1">{nextPage.sub}</p>
-        </div>
-      </div>
-
-      {/* Front page — flips */}
-      <motion.div
-        animate={flipping
-          ? { rotateY: -180, transition: { duration: 0.5, ease: "easeInOut" } }
-          : { rotateY: 0, transition: { duration: 0.5, ease: "easeInOut" } }
-        }
-        className={`absolute inset-0 rounded-r-xl rounded-l-sm overflow-hidden bg-gradient-to-br ${page.bg} border-2 border-white shadow-2xl`}
-        style={{ transformOrigin: "left center", transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}
-      >
-        <div className="flex flex-col items-center justify-center h-full p-6">
-          <div className="w-full h-28 bg-white/40 rounded-lg mb-4 flex items-center justify-center">
-            <span className="text-5xl">{page.emoji}</span>
-          </div>
-          <p className="font-display text-sm font-bold text-stone-800 uppercase tracking-widest text-center">{page.title}</p>
-          <p className="font-sans-clean text-xs text-stone-600 mt-1 italic">{page.sub}</p>
-          <div className="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-stone-800/20 flex items-center justify-center">
-            <span className="font-display text-[9px] font-bold text-stone-700">MV</span>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Page dots */}
-      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex gap-1.5">
-        {pages.map((_, i) => (
-          <div key={i}
-            className={`rounded-full transition-all duration-300 ${i === currentPage ? "w-4 h-1.5 bg-amber-500" : "w-1.5 h-1.5 bg-stone-300"}`} />
-        ))}
-      </div>
     </div>
   );
 }

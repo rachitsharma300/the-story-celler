@@ -59,7 +59,7 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="min-h-screen bg-[#faf9f6]">
+    <div className="min-h-screen bg-background">
       {/* Sidebar */}
       <AnimatePresence mode="wait">
         {sidebarOpen && (
@@ -72,12 +72,14 @@ export default function AdminLayout({
           >
             <div className="p-6 border-b border-stone-700">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center font-bold text-sm">
-                  M
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 flex items-center justify-center font-display font-black text-base text-white shadow-md">
+                  S
                 </div>
                 <div>
-                  <h1 className="font-display text-lg font-bold">MemVault</h1>
-                  <p className="font-sans-clean text-xs text-stone-400">Admin</p>
+                  <h1 className="font-display text-base font-black tracking-tight text-white uppercase leading-none">
+                    THE STORY <span className="text-amber-500 font-light italic block mt-0.5">Celler</span>
+                  </h1>
+                  <p className="font-sans-clean text-[9px] text-stone-450 mt-1 uppercase tracking-widest">Admin Panel</p>
                 </div>
               </div>
             </div>
