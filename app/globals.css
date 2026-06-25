@@ -196,4 +196,34 @@
   .dark .bg-hero-gradient {
     background: linear-gradient(135deg, #161311 0%, #1F1A17 50%, #2A231F 100%);
   }
+
+  /* Smooth scroll support */
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+  }
+
+  /* Performance optimization: Hardware acceleration triggers */
+  .will-change-transform {
+    will-change: transform;
+    backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
+  }
+
+  /* CSS-Only High Performance Marquee */
+  @keyframes marquee {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+    100% {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  .animate-marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 25s linear infinite;
+    will-change: transform;
+  }
 }

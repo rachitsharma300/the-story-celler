@@ -1,106 +1,256 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { Star, BookOpen, ChevronDown, Heart, ArrowRight } from "lucide-react";
+import SampleFlipbookModal from "@/components/sections/SampleFlipbookModal";
 
-const products = [
+const customCollection = [
   {
-    id: 1,
+    id: "custom-magazine",
     name: "Custom Magazine",
-    price: "From ₹1,200",
-    tag: "Bestseller",
-    desc: "Fully personalized magazine with your memories & stories.",
+    slug: "custom-magazine",
+    price: "From ₹1,200.00",
+    tag: "Sale!",
+    desc: "Crafted around your memories with personalized storytelling, custom layouts, and thoughtful details.",
     emoji: "📖",
+    rating: "4.9",
+    reviewsCount: "127 reviews"
   },
   {
-    id: 2,
+    id: "photo-album",
     name: "Photo Album",
-    price: "From ₹1,500",
-    tag: "Premium",
-    desc: "Beautifully bound album with custom layouts.",
+    slug: "photo-album",
+    price: "From ₹1,500.00",
+    tag: "Sale!",
+    desc: "Beautifully bound album with custom layouts and premium paper quality.",
     emoji: "🖼️",
-  },
+    rating: "4.9",
+    reviewsCount: "94 reviews"
+  }
+];
+
+const quickCreate = [
   {
-    id: 3,
+    id: "recap-reel",
     name: "Recap Reels",
-    price: "₹550",
-    tag: "New",
-    desc: "A cinematic video reel of your best memories.",
-    emoji: "🎬",
+    slug: "recap-reel",
+    price: "₹550.00",
+    originalPrice: "₹750.00",
+    tag: "Sale!",
+    desc: "A cinematic video reel of your best memories. Perfect for sharing on socials.",
+    emoji: "🎬"
   },
   {
-    id: 4,
+    id: "custom-frame",
     name: "Custom Frame",
-    price: "₹650",
-    tag: "Popular",
-    desc: "Premium framed print to display your favorite moment.",
-    emoji: "🪞",
+    slug: "custom-frame",
+    price: "₹650.00",
+    originalPrice: "₹850.00",
+    tag: "Sale!",
+    desc: "Premium framed print to display your favorite moment on any wall.",
+    emoji: "🪞"
   },
+  {
+    id: "birthday-magazine",
+    name: "Birthday Magazine – Quick",
+    slug: "birthday-magazine",
+    price: "From ₹699.00",
+    tag: "Trending",
+    desc: "Surprise your loved one with a birthday-themed custom magazine.",
+    emoji: "🎂"
+  },
+  {
+    id: "anniversary-album",
+    name: "Anniversary Magazine – Quick",
+    slug: "anniversary-album",
+    price: "From ₹699.00",
+    tag: "Bestseller",
+    desc: "Celebrate your love story with a beautifully crafted anniversary photo album.",
+    emoji: "💑"
+  }
+];
+
+const samples = [
+  {
+    id: "wedding",
+    title: "Wedding Magazine",
+    pageText: "12 Pages",
+    emoji: "💍",
+    tagColor: "bg-rose-100 text-rose-700",
+    pdfUrl: "/samples/wedding-sample.pdf",
+    pageCount: 12
+  },
+  {
+    id: "anniversary",
+    title: "Anniversary Magazine",
+    pageText: "12 Pages",
+    emoji: "💖",
+    tagColor: "bg-amber-100 text-amber-700",
+    pdfUrl: "/samples/anniversary-sample.pdf",
+    pageCount: 12
+  },
+  {
+    id: "friendship",
+    title: "Friendship Magazine",
+    pageText: "12 Pages",
+    emoji: "👭",
+    tagColor: "bg-blue-100 text-blue-700",
+    pdfUrl: "/samples/friendship-sample.pdf",
+    pageCount: 12
+  }
 ];
 
 const reviews = [
   {
-    name: "Simran Agarwal",
-    city: "New Delhi",
-    text: "Insanely perfect! My partner loved the concept. Everything is top notch.",
+    name: "Shameena Shahin",
+    city: "Chennai",
     stars: 5,
+    text: "Their product was absolutely amazing, and working with the team was a truly pleasant experience. They provided thoughtful, understanding support every step of the way. I had a wonderful experience and I highly recommend this creative, dedicated team to anyone looking for exceptional results.✨"
   },
   {
-    name: "Pratika Karnam",
+    name: "Yashvi Changela",
     city: "Ahmedabad",
-    text: "Got a 20 pager magazine for my anniversary. The team was very helpful throughout.",
     stars: 5,
-  },
-  {
-    name: "Muskan Agarwal",
-    city: "New Delhi",
-    text: "They caught the essence I wanted and presented it in the most beautiful way. Exceeded all expectations!",
-    stars: 5,
+    text: "A heartfelt thank you to the MSA team for making my husband’s birthday so special! Your efforts created lifelong memories for us, making our evening truly unforgettable."
   },
   {
     name: "Ashwin Sharma",
     city: "Pune",
-    text: "Very good quality of work and totally worth the price!",
     stars: 5,
+    text: "Very good quality of work and totally worth the price! Lovedddd ittt"
   },
+  {
+    name: "Akanksha Razdan",
+    city: "Gurgaon",
+    stars: 5,
+    text: "Absolutely loved their work. The way they narrated the entire story and gave it a life gave me goosebumps. Every emotion was written beautifully 💗 Thankyou so much for making such a special thing for us ."
+  },
+  {
+    name: "Simran Agarwal",
+    city: "New Delhi",
+    stars: 5,
+    text: "I recently ordered my first magazine with them. It was insanely perfect♥️ My partner loved the concept. From Printing to Concept visualisation everything is top notch. Thank you team MSA"
+  },
+  {
+    name: "Pratika Karnam",
+    city: "Ahmedabad",
+    stars: 5,
+    text: "Got a 20 pager magazine done from My Story Archive for my first wedding anniversary. It has come beautifully. The team was very helpful throughout. Very patient during the planning and design phase. The end result is just amazing. I loved it. Keep up the good work guys ❤️"
+  },
+  {
+    name: "Shruti Shrivastava",
+    city: "New Delhi",
+    stars: 5,
+    text: "If you decide to gift your partner this magazine then will be the best thoughtful gift for them. The print quality of the product is very nice. People at MSA are also cooperative, they appreciate and accept the feedback gracefully."
+  },
+  {
+    name: "Muskan Agarwal",
+    city: "New Delhi",
+    stars: 5,
+    text: "My story Archive made amazing magazine for my anniversary. They caught the essence that I wanted and presented in the most beautiful way possible. Exceeded all my expectations. Great work done by the entire team!"
+  }
 ];
 
 const faqs = [
   {
     q: "What happens after I place the order?",
-    a: "Our team reviews your details and contacts you for confirmation. Once confirmed, we start working and provide updates throughout.",
+    a: "Our team will review your details and contact you for confirmation. Once confirmed, we start working on your order and provide updates throughout the process."
+  },
+  {
+    q: "What is the process for custom magazines?",
+    a: "After order confirmation, we create a dedicated WhatsApp group. You fill out our questionnaire content form (sharing layout styles, facts, milestones, quotes), and upload your photos. Our team designs a draft preview, sends it to you, and makes revisions based on your feedback until you approve it for print."
+  },
+  {
+    q: "What is the process for Recap Video?",
+    a: "You share your video clips, photos, and music preferences with us via WhatsApp. Our editor constructs a high-quality, synchronized 60-90 second cinematic recap reel. We send a draft for quick revisions and export the final reel in HD."
+  },
+  {
+    q: "How do you write content for my magazine or album?",
+    a: "We have an in-house team of creative editorial writers. Based on the notes, facts, and timelines you supply in the content form, we write customized captions, storytelling descriptions, and quotes to narrate your memories beautifully."
   },
   {
     q: "How long does the process take?",
-    a: "Magazines and albums take 7-10 days to deliver. Recap videos are ready within 2-4 days.",
+    a: "The custom design and drafting phase takes 2-4 days. Printing and assembly take 2-3 days, and shipping takes 3-5 days. Most physical orders are delivered in 7-12 days. Digital-only recap reels are ready in 2-4 days."
   },
   {
-    q: "How does payment work?",
-    a: "50% advance payment to confirm the order. Remaining 50% after design approval before dispatch.",
+    q: "How many pictures are required for magazines?",
+    a: "It varies by page selection: 8 pages require 16-25 photos, 12 pages require 25-30 photos, 16 pages require 35-40 photos, and 20 pages require 50-70 photos."
+  },
+  {
+    q: "How does the payment process work?",
+    a: "We charge a 50% advance payment to confirm your order and begin layout customization. The remaining 50% is paid after you review and approve the final digital preview, prior to printing and dispatch."
   },
   {
     q: "Is free shipping available?",
-    a: "Yes! We offer free shipping pan India on all orders.",
+    a: "Yes! Free shipping is included across India for all our catalog items."
   },
   {
-    q: "Can I request revisions?",
-    a: "Yes, up to 3-4 revisions are included. Minor tweaks are always free.",
+    q: "Is Cash on Delivery (COD) available?",
+    a: "Yes, Cash on Delivery is available for all products across India. We charge a standard COD handling fee of ₹50."
   },
+  {
+    q: "Can I fully customize my order?",
+    a: "Absolutely. You can request specific themes, color schemes, custom layouts, unique text details, and even select the specific cover styles."
+  },
+  {
+    q: "Is a hardcover available for magazines?",
+    a: "Yes, standard magazines come with a premium 300 GSM softcover, but you can upgrade to a deluxe matte-finished hardcover during the layout process."
+  },
+  {
+    q: "Can I ask for revisions?",
+    a: "Yes, up to 3-4 revision cycles are fully supported. We want your keepsake to be absolutely perfect, so we don't proceed to print until you give your final nod."
+  },
+  {
+    q: "Can I include text, quotes, or special messages in my product?",
+    a: "Definitely! You can include letters, short poems, personalized quotes, date details, and scan images of handwritten messages."
+  }
 ];
 
 const stats = [
   { value: 500, suffix: "+", label: "Stories Captured" },
   { value: 450, suffix: "+", label: "Keepsakes Delivered" },
-  { value: 100, suffix: "+", label: "Happy Reviews" },
+  { value: 100, suffix: "+", label: "Happy Reviews" }
 ];
+
+const marqueeItems = [
+  "Free Shipping on All Orders",
+  "Cash on Delivery Available",
+  "100+ Happy Clients",
+  "Easy WhatsApp Support",
+  "Perfect for Gifting",
+  "Custom Designed",
+  "Fast and Easy Process"
+];
+
+// Staggered Container Animation Settings for high-perf rendering
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const staggerItem = {
+  hidden: { opacity: 0, y: 25 },
+  show: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } 
+  }
+};
 
 function StatCountUp({ end, suffix }: { end: number; suffix: string }) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
     let start = 0;
-    const duration = 1500; // 1.5s
+    const duration = 1500;
     const increment = end / (duration / 16);
     
     const timer = setInterval(() => {
@@ -120,15 +270,32 @@ function StatCountUp({ end, suffix }: { end: number; suffix: string }) {
 }
 
 export default function HomePage() {
+  // Sample flipbook modal state
+  const [isSampleModalOpen, setIsSampleModalOpen] = useState(false);
+  const [samplePdfUrl, setSamplePdfUrl] = useState<string | undefined>(undefined);
+  const [sampleImages, setSampleImages] = useState<string[] | undefined>(undefined);
+  const [samplePageCount, setSamplePageCount] = useState(12);
+  const [sampleProductName, setSampleProductName] = useState("");
+
+  // FAQ accordion state
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+
+  const openSample = (title: string, pages: number, pdf?: string, images?: string[]) => {
+    setSampleProductName(title);
+    setSamplePageCount(pages);
+    setSamplePdfUrl(pdf);
+    setSampleImages(images);
+    setIsSampleModalOpen(true);
+  };
+
   return (
     <div className="overflow-x-hidden relative bg-background min-h-screen">
+      
+      {/* Noise paper texture overlay */}
+      <div className="bg-noise-overlay absolute inset-0 pointer-events-none z-[1]" />
 
-      {/* ── HERO REDESIGN ── */}
+      {/* ── HERO ── */}
       <section className="relative min-h-screen flex items-center bg-hero-gradient overflow-hidden">
-        
-        {/* Subtle noise paper texture overlay */}
-        <div className="bg-noise-overlay absolute inset-0 pointer-events-none" />
-
         {/* Ambient glows & cinematic lighting */}
         <div className="absolute top-0 left-0 w-[50%] h-[50%] bg-gradient-to-br from-amber-500/10 to-transparent dark:from-amber-500/5 blur-[130px] rounded-full pointer-events-none" />
         <div className="absolute bottom-0 right-0 w-[50%] h-[50%] bg-gradient-to-tl from-amber-600/8 to-transparent dark:from-amber-600/5 blur-[140px] rounded-full pointer-events-none" />
@@ -137,7 +304,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-radial-glow pointer-events-none opacity-45 dark:opacity-60"
              style={{ backgroundImage: "radial-gradient(circle at 50% 30%, rgba(198,138,67,0.05) 0%, transparent 60%)" }} />
 
-        {/* Subtle Vignette shadow */}
+        {/* Vignette shadow */}
         <div className="absolute inset-0 pointer-events-none bg-vignette" />
 
         {/* Sparkles / Particles */}
@@ -145,15 +312,15 @@ export default function HomePage() {
         <div className="absolute bottom-1/3 left-1/3 pointer-events-none text-xl animate-pulse text-amber-600/30 select-none hidden lg:block">✨</div>
         <div className="absolute top-1/2 right-[10%] pointer-events-none w-3 h-3 bg-amber-500/15 rounded-full blur-sm animate-ping hidden lg:block" />
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[85vh]">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
 
             {/* ── LEFT COLUMN (EDITORIAL WRITER) ── */}
             <motion.div
               initial={{ opacity: 0, x: -40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.9, ease: "easeOut" }}
-              className="flex flex-col justify-center"
+              className="flex flex-col justify-center text-left"
             >
               <motion.span
                 initial={{ opacity: 0, y: 15 }}
@@ -228,7 +395,7 @@ export default function HomePage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-              className="relative flex items-center justify-center h-[520px] lg:h-[620px] w-full max-w-lg mx-auto"
+              className="relative flex items-center justify-center h-[520px] lg:h-[620px] w-full max-w-lg mx-auto will-change-transform"
               style={{ perspective: "1200px" }}
             >
               {/* Frame 1: Center-Left Wedding Magazine Cover */}
@@ -246,25 +413,22 @@ export default function HomePage() {
                   transition: { duration: 0.3 } 
                 }}
                 style={{ transformStyle: "preserve-3d" }}
-                className="absolute left-[3%] top-[10%] w-56 h-[320px] sm:w-64 sm:h-[360px] rounded-2xl bg-card border border-border p-3.5 shadow-2xl z-20 cursor-pointer"
+                className="absolute left-[3%] top-[10%] w-56 h-[320px] sm:w-64 sm:h-[360px] rounded-2xl bg-card border border-border p-3.5 shadow-2xl z-20 cursor-pointer will-change-transform"
               >
                 <div className="relative w-full h-full rounded-xl overflow-hidden border border-border/20 shadow-inner flex flex-col justify-between bg-stone-100"
                      style={{ transform: "translateZ(10px)" }}>
                   <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&fit=crop&q=80" className="absolute inset-0 w-full h-full object-cover" alt="Wedding Magazine" />
                   <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-stone-950/10 to-stone-950/35" />
                   
-                  {/* Glass Tag */}
                   <div className="relative z-10 p-3 flex justify-between items-start text-white">
                     <span className="font-sans-clean text-[8px] font-bold tracking-[0.2em] bg-white/10 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/20">VOGUE STYLE</span>
                     <span className="font-display text-[9px] font-bold text-amber-300">ED. 01</span>
                   </div>
                   
-                  {/* Vogue style watermark */}
                   <div className="absolute inset-x-0 top-[35%] flex justify-center pointer-events-none">
                     <span className="font-display text-5xl sm:text-6xl text-white/15 tracking-[0.15em] uppercase select-none font-bold">VOGUE</span>
                   </div>
 
-                  {/* Caption */}
                   <div className="relative z-10 p-4 text-white">
                     <p className="font-display text-[11px] font-semibold tracking-widest text-amber-300 mb-0.5 uppercase">The Wedding Journal</p>
                     <p className="font-display text-base font-black leading-none mb-1 tracking-tight">Amit & Priya</p>
@@ -288,7 +452,7 @@ export default function HomePage() {
                   transition: { duration: 0.3 } 
                 }}
                 style={{ transformStyle: "preserve-3d" }}
-                className="absolute right-[4%] top-[6%] w-48 h-[270px] sm:w-52 sm:h-[300px] rounded-xl bg-card border-[12px] border-card shadow-2xl p-0.5 z-10 cursor-pointer border border-border"
+                className="absolute right-[4%] top-[6%] w-48 h-[270px] sm:w-52 sm:h-[300px] rounded-xl bg-card border-[12px] border-card shadow-2xl p-0.5 z-10 cursor-pointer border border-border will-change-transform"
               >
                 <div className="relative w-full h-full rounded border border-border/40 overflow-hidden flex flex-col justify-end bg-stone-100"
                      style={{ transform: "translateZ(8px)" }}>
@@ -316,7 +480,7 @@ export default function HomePage() {
                   transition: { duration: 0.3 } 
                 }}
                 style={{ transformStyle: "preserve-3d" }}
-                className="absolute left-[16%] bottom-[8%] w-44 h-[240px] sm:w-48 sm:h-[260px] rounded-2xl bg-card/65 backdrop-blur-md border border-border/80 p-3 shadow-xl z-30 cursor-pointer"
+                className="absolute left-[16%] bottom-[8%] w-44 h-[240px] sm:w-48 sm:h-[260px] rounded-2xl bg-card/65 backdrop-blur-md border border-border/80 p-3 shadow-xl z-30 cursor-pointer will-change-transform"
               >
                 <div className="relative w-full h-full rounded-xl overflow-hidden flex flex-col justify-between p-3.5 bg-stone-100"
                      style={{ transform: "translateZ(12px)" }}>
@@ -337,92 +501,181 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── PRODUCTS ── */}
-      <section className="py-24 bg-background">
+      {/* ── HIGH PERFORMANCE MARQUEE (CSS COMPOSITOR ONLY) ── */}
+      <div className="w-full overflow-hidden bg-stone-900 text-stone-200 dark:bg-stone-950 dark:text-stone-300 py-4 relative z-10 border-y border-stone-850 flex items-center shadow-lg">
+        <div className="animate-marquee gap-16 uppercase">
+          <div className="flex gap-16 items-center">
+            {marqueeItems.map((item, idx) => (
+              <span key={idx} className="flex items-center gap-3">
+                <span>{item}</span>
+                <span className="text-amber-500 text-[10px]">✦</span>
+              </span>
+            ))}
+          </div>
+          <div className="flex gap-16 items-center" aria-hidden="true">
+            {marqueeItems.map((item, idx) => (
+              <span key={idx} className="flex items-center gap-3">
+                <span>{item}</span>
+                <span className="text-amber-500 text-[10px]">✦</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── CUSTOM COLLECTION ── */}
+      <section className="py-28 bg-background relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="text-center mb-16"
+            className="text-center mb-20"
           >
-            <span className="font-sans-clean text-xs tracking-widest uppercase text-amber-500 font-semibold">Our Products</span>
-            <h2 className="font-display text-4xl lg:text-5xl font-bold text-stone-900 mt-3">
-              Craft Your Keepsake
+            <span className="font-sans-clean text-xs tracking-[0.2em] uppercase text-amber-500 font-bold block mb-4">Luxury Keepsakes</span>
+            <h2 className="font-display text-4xl lg:text-6xl font-bold text-stone-900">
+              Custom Collection
             </h2>
+            <p className="font-sans-clean text-stone-500 max-w-2xl mx-auto mt-4 text-sm sm:text-base leading-relaxed">
+              Crafted around your memories with personalized storytelling, custom layouts, and thoughtful details. Best for deeply personal keepsakes & gifts!
+            </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((p, i) => (
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto"
+          >
+            {customCollection.map((p, i) => (
               <motion.div
                 key={p.id}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                whileHover={{ y: -6 }}
-                className="group bg-stone-50 hover:bg-amber-50 rounded-2xl p-6 border border-stone-100 hover:border-amber-200 transition-all duration-300 cursor-pointer"
+                variants={staggerItem}
+                whileHover={{ y: -8 }}
+                className="group relative bg-cream border border-stone-100 hover:border-amber-300 rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between will-change-transform"
               >
-                <div className="text-4xl mb-4">{p.emoji}</div>
-                <span className="inline-block px-2.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-sans-clean font-bold tracking-wider uppercase rounded-full mb-3">
+                <div className="absolute top-6 right-6 bg-rose-500 text-white text-[10px] font-sans-clean font-extrabold tracking-wider uppercase px-3 py-1 rounded-full shadow-sm z-10">
                   {p.tag}
-                </span>
-                <h3 className="font-display text-xl font-bold text-stone-900 mb-2">{p.name}</h3>
-                <p className="font-sans-clean text-sm text-stone-500 mb-4 leading-relaxed">{p.desc}</p>
-                <p className="font-sans-clean font-bold text-amber-600 text-lg">{p.price}</p>
-                <Link href="/shop"
-                  className="mt-4 block text-center py-2.5 bg-stone-900 group-hover:bg-amber-500 text-white text-sm font-sans-clean font-semibold rounded-xl transition-all duration-300">
-                  Order Now
-                </Link>
+                </div>
+
+                <div>
+                  <div className="w-16 h-16 bg-amber-50 group-hover:bg-amber-100 text-4xl rounded-2xl flex items-center justify-center mb-6 transition-colors shadow-inner">
+                    {p.emoji}
+                  </div>
+                  
+                  {/* Reviews rating */}
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, idx) => (
+                        <Star key={idx} size={12} className="fill-amber-400 text-amber-400" />
+                      ))}
+                    </div>
+                    <span className="font-sans-clean text-xs text-stone-400 font-semibold">{p.rating} ({p.reviewsCount})</span>
+                  </div>
+
+                  <h3 className="font-display text-2xl lg:text-3xl font-bold text-stone-900 mb-3 group-hover:text-amber-600 transition-colors">
+                    {p.name}
+                  </h3>
+                  <p className="font-sans-clean text-stone-500 text-sm leading-relaxed mb-6">
+                    {p.desc}
+                  </p>
+                </div>
+
+                <div>
+                  <div className="border-t border-stone-100 pt-5 mt-4">
+                    <p className="font-sans-clean text-[10px] text-stone-400 tracking-wider uppercase mb-1">Price Details</p>
+                    <p className="font-display text-3xl font-extrabold text-stone-900 group-hover:text-amber-500 transition-colors">{p.price}</p>
+                    <p className="font-sans-clean text-[10px] text-stone-400 leading-tight mt-2 italic">
+                      This product has multiple variants. The options may be chosen on the product page.
+                    </p>
+                  </div>
+                  
+                  <Link href={`/product/${p.slug}`}
+                    className="mt-6 flex items-center justify-center gap-2 w-full py-4 bg-stone-900 hover:bg-amber-500 text-white dark:text-stone-950 text-xs tracking-widest font-sans-clean font-bold uppercase rounded-xl transition-all duration-300 shadow-md">
+                    Select options <ArrowRight size={14} />
+                  </Link>
+                </div>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ── */}
-      <section className="py-24 bg-stone-50">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ── QUICK CREATE ── */}
+      <section className="py-28 bg-stone-50 relative border-y border-stone-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-20"
           >
-            <span className="font-sans-clean text-xs tracking-widest uppercase text-amber-500 font-semibold">Simple Process</span>
-            <h2 className="font-display text-4xl lg:text-5xl font-bold text-stone-900 mt-3">How It Works</h2>
+            <span className="font-sans-clean text-xs tracking-[0.2em] uppercase text-amber-500 font-bold block mb-4">Fast Keepsakes</span>
+            <h2 className="font-display text-4xl lg:text-6xl font-bold text-stone-900">
+              Quick Create
+            </h2>
+            <p className="font-sans-clean text-stone-500 max-w-2xl mx-auto mt-4 text-sm sm:text-base leading-relaxed">
+              Choose a design, upload your memories, and create meaningful keepsakes in just a few clicks. Best for last-minute gifting.
+            </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { step: "01", title: "Place Order", desc: "Choose your product and pay 50% advance to confirm.", icon: "🛒" },
-              { step: "02", title: "Share Content", desc: "Send us your photos, videos and memories via WhatsApp.", icon: "📤" },
-              { step: "03", title: "We Design", desc: "Our team crafts your personalized keepsake in 24-48 hrs.", icon: "🎨" },
-              { step: "04", title: "Delivered!", desc: "Approve the design and receive your keepsake at home.", icon: "📦" },
-            ].map((item, i) => (
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          >
+            {quickCreate.map((p, i) => (
               <motion.div
-                key={item.step}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.15 }}
-                className="text-center"
+                key={p.id}
+                variants={staggerItem}
+                whileHover={{ y: -6 }}
+                className="group bg-cream border border-stone-100 hover:border-amber-200 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between will-change-transform"
               >
-                <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4">
-                  {item.icon}
+                <div>
+                  <div className="flex justify-between items-start mb-4">
+                    <span className="text-3xl bg-stone-50 p-2.5 rounded-xl border border-stone-100 group-hover:bg-amber-50 transition-colors">{p.emoji}</span>
+                    <span className="px-2.5 py-0.5 bg-rose-500 text-white text-[9px] font-sans-clean font-bold tracking-wider uppercase rounded-full shadow-sm">
+                      {p.tag}
+                    </span>
+                  </div>
+
+                  <h3 className="font-display text-lg font-bold text-stone-900 mb-2 group-hover:text-amber-500 transition-colors">
+                    {p.name}
+                  </h3>
+                  <p className="font-sans-clean text-xs text-stone-500 mb-6 leading-relaxed">
+                    {p.desc}
+                  </p>
                 </div>
-                <span className="font-sans-clean text-xs text-amber-400 font-bold tracking-widest">{item.step}</span>
-                <h3 className="font-display text-xl font-bold text-stone-900 mt-1 mb-2">{item.title}</h3>
-                <p className="font-sans-clean text-sm text-stone-500 leading-relaxed">{item.desc}</p>
+
+                <div>
+                  <div className="border-t border-stone-100 pt-4 mb-4">
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-display text-xl font-black text-stone-900">{p.price}</span>
+                      {p.originalPrice && (
+                        <span className="font-sans-clean text-xs text-stone-400 line-through">{p.originalPrice}</span>
+                      )}
+                    </div>
+                    <p className="font-sans-clean text-[9px] text-stone-400 mt-1.5 italic">
+                      Variants available on checkout.
+                    </p>
+                  </div>
+                  <Link href={`/product/${p.slug}`}
+                    className="block text-center py-3 bg-stone-900 group-hover:bg-amber-500 text-white dark:text-stone-950 text-[10px] tracking-wider font-sans-clean font-bold uppercase rounded-lg transition-all duration-300">
+                    Select options
+                  </Link>
+                </div>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* ── REVIEWS ── */}
-      <section className="py-24 bg-background">
+      {/* ── MAGAZINE SAMPLES ── */}
+      <section className="py-28 bg-background relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -430,89 +683,359 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <span className="font-sans-clean text-xs tracking-widest uppercase text-amber-500 font-semibold">Testimonials</span>
-            <h2 className="font-display text-4xl lg:text-5xl font-bold text-stone-900 mt-3">What People Say</h2>
+            <span className="font-sans-clean text-amber-500 text-xs font-bold tracking-[0.25em] uppercase block mb-4">Sample Designs</span>
+            <h2 className="font-display text-4xl lg:text-6xl font-bold text-stone-900">
+              Magazine Samples
+            </h2>
+            <p className="font-sans-clean text-stone-500 max-w-xl mx-auto mt-3 text-sm">
+              Click on any sample cover below to view real sample pages using our interactive 3D flipbook page turner.
+            </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {reviews.map((r, i) => (
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto"
+          >
+            {samples.map((sample, i) => (
               <motion.div
-                key={r.name}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="bg-stone-50 rounded-2xl p-6 border border-stone-100"
+                key={sample.id}
+                variants={staggerItem}
+                onClick={() => openSample(sample.title, sample.pageCount, sample.pdfUrl)}
+                className="group cursor-pointer"
               >
-                <div className="flex gap-0.5 mb-4">
-                  {[...Array(r.stars)].map((_, j) => (
-                    <span key={j} className="text-amber-400 text-sm">★</span>
-                  ))}
-                </div>
-                <p className="font-sans-clean text-sm text-stone-600 leading-relaxed mb-4">"{r.text}"</p>
-                <div>
-                  <p className="font-sans-clean font-semibold text-stone-900 text-sm">{r.name}</p>
-                  <p className="font-sans-clean text-xs text-stone-400">{r.city}</p>
+                <div className="relative rounded-3xl border border-stone-200/60 bg-cream p-4 hover:shadow-2xl hover:border-amber-300 transition-all duration-300 flex flex-col hover:-translate-y-2 h-full will-change-transform">
+                  <div className="relative h-64 sm:h-72 bg-stone-950 rounded-2xl overflow-hidden flex items-center justify-center border border-stone-800">
+                    <div className="absolute inset-0 bg-cover bg-center opacity-60 filter grayscale contrast-125 hover:scale-105 transition-transform duration-700" 
+                         style={{ backgroundImage: `url('https://images.unsplash.com/photo-1519741497674-611481863552?w=400&auto=format&fit=crop&q=80')` }} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/80" />
+                    
+                    <div className="relative z-10 text-center p-6 flex flex-col justify-between h-full w-full">
+                      <div className="flex justify-between items-start">
+                        <span className="text-white/40 font-display text-[9px] uppercase tracking-widest font-bold">THE JOURNAL</span>
+                        <span className="px-2 py-0.5 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[8px] uppercase tracking-wider rounded font-bold">{sample.pageText}</span>
+                      </div>
+                      
+                      <div className="my-auto">
+                        <span className="text-5xl block mb-2">{sample.emoji}</span>
+                        <h4 className="font-display text-white text-xl sm:text-2xl font-bold uppercase tracking-wide">
+                          {sample.title}
+                        </h4>
+                        <div className="h-0.5 w-12 bg-amber-500 mx-auto mt-3" />
+                      </div>
+                      
+                      <span className="text-[9px] text-amber-400 font-sans-clean font-bold tracking-widest uppercase flex items-center justify-center gap-1.5 hover:text-white transition-colors">
+                        <BookOpen size={12} /> Click to View Sample
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-4 text-center mt-3">
+                    <h3 className="font-display text-lg font-bold text-stone-900 group-hover:text-amber-500 transition-colors">
+                      {sample.title}
+                    </h3>
+                    <p className="font-sans-clean text-xs text-stone-400 mt-1 font-semibold">{sample.pageText} • Digital & Print</p>
+                  </div>
                 </div>
               </motion.div>
             ))}
+          </motion.div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-16">
+            <Link href="/product/custom-magazine"
+              className="px-8 py-4 bg-amber-500 hover:bg-amber-600 text-white dark:text-stone-950 font-sans-clean font-bold rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 text-xs tracking-wider uppercase text-center w-full sm:w-auto">
+              Customize My Magazine
+            </Link>
+            <Link href="/samples"
+              className="px-8 py-4 border border-stone-200 hover:border-amber-500 hover:bg-amber-50/5 text-stone-700 font-sans-clean font-bold rounded-xl transition-all duration-300 text-xs tracking-wider uppercase text-center w-full sm:w-auto">
+              View More Samples
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ── FAQ ── */}
-      <section className="py-24 bg-stone-50">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ── PRODUCT FEATURES ── */}
+      <section className="py-28 bg-stone-50 border-y border-stone-100 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-20"
           >
-            <span className="font-sans-clean text-xs tracking-widest uppercase text-amber-500 font-semibold">FAQ</span>
-            <h2 className="font-display text-4xl lg:text-5xl font-bold text-stone-900 mt-3">Common Questions</h2>
+            <span className="font-sans-clean text-xs tracking-[0.2em] uppercase text-amber-500 font-bold block mb-4">Why Choose Us</span>
+            <h2 className="font-display text-4xl lg:text-6xl font-bold text-stone-900">
+              Product Features
+            </h2>
           </motion.div>
 
-          <div className="space-y-4">
-            {faqs.map((faq, i) => (
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          >
+            {[
+              {
+                title: "Custom-Made Designs",
+                desc: "Every product is crafted from your memories, tailored to your story.",
+                icon: "🎨"
+              },
+              {
+                title: "Best For Gifting",
+                desc: "Every order is packed and designed to wow! perfect for birthdays, weddings, or surprises.",
+                icon: "💝"
+              },
+              {
+                title: "Fast & Friendly Process",
+                desc: "WhatsApp support, easy forms, and 7-12 day delivery on most orders.",
+                icon: "⚡"
+              }
+            ].map((feature, idx) => (
               <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
-                className="bg-white rounded-2xl p-6 border border-stone-100"
+                key={idx}
+                variants={staggerItem}
+                className="bg-cream p-8 rounded-3xl border border-stone-100 shadow-sm text-center flex flex-col justify-between items-center will-change-transform hover:shadow-md transition-all duration-300"
               >
-                <h3 className="font-sans-clean font-semibold text-stone-900 mb-2">{faq.q}</h3>
-                <p className="font-sans-clean text-sm text-stone-500 leading-relaxed">{faq.a}</p>
+                <div>
+                  <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-inner mx-auto">
+                    {feature.icon}
+                  </div>
+                  <h3 className="font-display text-xl font-bold text-stone-900 mb-3">{feature.title}</h3>
+                  <p className="font-sans-clean text-sm text-stone-500 leading-relaxed mb-6">{feature.desc}</p>
+                </div>
+                <Link href="/shop"
+                  className="inline-flex items-center gap-1.5 text-xs text-amber-500 hover:text-amber-600 font-bold font-sans-clean uppercase tracking-wider">
+                  Shop Now <ArrowRight size={12} />
+                </Link>
               </motion.div>
             ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── COMBO PROMO ── */}
+      <section className="py-24 bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 text-white relative overflow-hidden">
+        <div className="absolute right-0 top-0 w-96 h-96 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute left-[-10%] bottom-[-10%] w-96 h-96 bg-amber-600/5 rounded-full blur-[100px] pointer-events-none" />
+        
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
+            
+            <div className="md:col-span-7 flex flex-col items-start text-left">
+              <span className="px-3.5 py-1 bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-sans-clean font-bold tracking-[0.2em] uppercase rounded-full mb-6">
+                Premium Combo Pack
+              </span>
+              
+              <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-light leading-tight tracking-tight mb-6">
+                Flip the Pages,<br />
+                <span className="font-black text-amber-500">Scan the Moments</span>
+              </h2>
+              
+              <p className="font-sans-clean text-stone-400 text-sm sm:text-base leading-relaxed mb-8 max-w-xl">
+                Get the best of both worlds! A beautifully designed magazine filled with memories and a recap reel video linked through a scannable QR. Perfect for gifts, surprises, and forever moments.
+              </p>
+              
+              <a href="https://wa.me/917903316723?text=Hi!%20I%20want%20to%20order%20the%20Combo%20(Magazine%20%2B%20Recap%20Reel)%20seen%20on%20your%20website."
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="px-8 py-4 bg-amber-500 hover:bg-amber-600 text-white font-sans-clean font-bold text-xs tracking-wider uppercase rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/25 hover:-translate-y-0.5 flex items-center gap-2">
+                💬 Get My Combo
+              </a>
+            </div>
+
+            <div className="md:col-span-5 flex justify-center relative">
+              <div className="relative w-72 h-80 bg-stone-800 rounded-3xl p-4 border border-stone-700 shadow-2xl flex flex-col justify-between overflow-hidden will-change-transform">
+                <div className="absolute inset-0 bg-gradient-to-tr from-stone-900/90 to-amber-500/10 pointer-events-none" />
+                <div className="flex justify-between items-center text-white/50 text-[10px] tracking-widest font-sans-clean font-bold">
+                  <span>MAGAZINE</span>
+                  <span>+ REEL</span>
+                </div>
+                
+                <div className="w-32 h-32 bg-white/95 backdrop-blur-md rounded-2xl mx-auto flex items-center justify-center p-3.5 shadow-xl relative border border-white/20">
+                  <div className="w-full h-full border-4 border-stone-900 border-dashed opacity-85 flex items-center justify-center">
+                    <span className="text-xl">🎬</span>
+                  </div>
+                  <motion.div 
+                    className="absolute left-0 right-0 h-0.5 bg-amber-500/80 shadow-md shadow-amber-500"
+                    animate={{ top: ["10%", "90%", "10%"] }}
+                    transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                  />
+                </div>
+
+                <div className="text-center">
+                  <p className="font-display text-base font-bold text-white mb-0.5">Scannable Experience</p>
+                  <p className="font-sans-clean text-[10px] text-amber-400">Scan QR Code inside book to play Recap Reel</p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section className="py-24 bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900">
+      {/* ── REVIEWS ── */}
+      <section className="py-28 bg-background relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-20"
+          >
+            <span className="font-sans-clean text-xs tracking-[0.2em] uppercase text-amber-500 font-bold block mb-4">Customer Love</span>
+            <h2 className="font-display text-4xl lg:text-6xl font-bold text-stone-900">
+              Our Reviews
+            </h2>
+            <p className="font-sans-clean text-stone-500 max-w-2xl mx-auto mt-4 text-sm sm:text-base">
+              Every review is a love letter from someone who trusted us with their most personal moments and loved what they got back.
+            </p>
+          </motion.div>
+
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto"
+          >
+            {reviews.map((r, i) => (
+              <motion.div
+                key={i}
+                variants={staggerItem}
+                className="bg-cream p-6 rounded-3xl border border-stone-155 shadow-sm flex flex-col justify-between h-fit hover:shadow-lg transition-all duration-300 will-change-transform"
+              >
+                <div>
+                  <div className="flex gap-0.5 mb-4 text-amber-400 text-sm">
+                    {[...Array(r.stars)].map((_, idx) => (
+                      <span key={idx}>★</span>
+                    ))}
+                  </div>
+                  <p className="font-sans-clean text-stone-600 text-xs sm:text-sm leading-relaxed mb-6 italic">
+                    "{r.text}"
+                  </p>
+                </div>
+                
+                <div className="flex justify-between items-center border-t border-stone-100 pt-4">
+                  <div>
+                    <h5 className="font-sans-clean font-bold text-stone-900 text-xs sm:text-sm">{r.name}</h5>
+                    <p className="font-sans-clean text-[10px] text-stone-400 mt-0.5">{r.city}</p>
+                  </div>
+                  <span className="text-rose-500 opacity-60"><Heart size={14} className="fill-rose-500" /></span>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── THE STORY OF MYSTORYARCHIVE ── */}
+      <section className="py-28 bg-stone-50 border-t border-stone-100 relative">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-display text-4xl lg:text-6xl font-bold text-white mb-6">
-              Ready to Archive Your{" "}
-              <span className="text-amber-400 italic">Story?</span>
+            <span className="font-sans-clean text-xs tracking-[0.2em] uppercase text-amber-500 font-bold block mb-4">Our Narrative</span>
+            
+            <h2 className="font-display text-4xl lg:text-6xl font-bold text-stone-900 mb-8">
+              The Story Of MyStoryArchive
             </h2>
-            <p className="font-sans-clean text-stone-400 text-lg mb-10 max-w-xl mx-auto">
-              Join 500+ happy customers who turned their memories into forever keepsakes.
+            
+            <p className="font-sans-clean text-stone-500 text-sm sm:text-base leading-relaxed mb-6 max-w-2xl mx-auto">
+              At MyStoryArchive, we believe that every story, every moment deserves to be told beautifully. Whether it’s celebrating love, friendships, milestones, or adventures, we capture the essence of your memories and turn them into one-of-a-kind keepsakes.
             </p>
-            <Link href="/shop"
-              className="inline-block px-10 py-4 bg-amber-500 hover:bg-amber-400 text-white font-sans-clean font-bold text-lg rounded-full transition-all duration-300 hover:shadow-2xl hover:shadow-amber-500/30 hover:-translate-y-1">
-              Start Your Order
+            
+            <p className="font-sans-clean text-stone-500 text-sm sm:text-base leading-relaxed mb-10 max-w-2xl mx-auto">
+              A team of highly creative minds working together to create special keepsakes for lifelong memory.
+            </p>
+            
+            <Link href="/our-story"
+              className="inline-block px-10 py-4 bg-stone-900 hover:bg-amber-500 text-white dark:text-stone-950 font-sans-clean font-bold text-xs tracking-widest uppercase rounded-xl transition-all duration-300 shadow-md">
+              Join Our Journey
             </Link>
           </motion.div>
         </div>
       </section>
+
+      {/* ── FAQs ── */}
+      <section className="py-28 bg-background relative border-t border-stone-100">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <span className="font-sans-clean text-xs tracking-[0.2em] uppercase text-amber-500 font-bold block mb-4">Learn More</span>
+            <h2 className="font-display text-4xl lg:text-6xl font-bold text-stone-900">
+              Frequently Asked Questions (FAQs)
+            </h2>
+            <p className="font-sans-clean text-stone-500 max-w-2xl mx-auto mt-4 text-xs sm:text-sm">
+              From design timelines to payment queries, Browse answers to popular questions about timelines, customization, shipping, and more.
+            </p>
+          </motion.div>
+
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            className="space-y-4 max-w-3xl mx-auto"
+          >
+            {faqs.map((faq, idx) => {
+              const isOpen = expandedFaq === idx;
+              return (
+                <motion.div
+                  key={idx}
+                  variants={staggerItem}
+                  className="bg-cream border border-stone-155 rounded-2xl overflow-hidden shadow-sm"
+                >
+                  <button
+                    onClick={() => setExpandedFaq(isOpen ? null : idx)}
+                    className="w-full flex justify-between items-center p-5 text-left font-sans-clean font-bold text-sm text-stone-855 hover:bg-stone-50 transition-colors"
+                  >
+                    <span>{faq.q}</span>
+                    <ChevronDown
+                      size={16}
+                      className={`text-stone-400 shrink-0 transition-transform duration-250 ${isOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease: "easeInOut" }}
+                      >
+                        <div className="p-5 border-t border-stone-100 bg-stone-50/50 font-sans-clean text-xs sm:text-sm text-stone-500 leading-relaxed">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* SAMPLE FLIPBOOK PREVIEW MODAL */}
+      <SampleFlipbookModal
+        isOpen={isSampleModalOpen}
+        onClose={() => setIsSampleModalOpen(false)}
+        pdfUrl={samplePdfUrl}
+        images={sampleImages}
+        pageCount={samplePageCount}
+        productName={sampleProductName}
+      />
 
     </div>
   );
