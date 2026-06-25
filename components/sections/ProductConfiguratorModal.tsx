@@ -255,7 +255,7 @@ export default function ProductConfiguratorModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-md transition-all">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md transition-all">
       <div className="relative w-full max-w-4xl h-full max-h-[92vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col m-4">
         {/* MODAL CLOSE */}
         <button
@@ -619,7 +619,7 @@ export default function ProductConfiguratorModal({
                             <img src={photo.url} alt={photo.name} className="w-full h-full object-cover" />
 
                             {/* Control overlay */}
-                            <div className="absolute inset-0 bg-stone-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
                               {/* Remove */}
                               <button
                                 onClick={() => removeItem(index)}
@@ -637,7 +637,7 @@ export default function ProductConfiguratorModal({
                                 >
                                   <ArrowLeft size={10} className="-rotate-90" />
                                 </button>
-                                <span className="text-[10px] text-white font-bold bg-stone-900/80 px-2 py-0.5 rounded">
+                                <span className="text-[10px] text-white font-bold bg-black/85 px-2 py-0.5 rounded">
                                   {index + 1}
                                 </span>
                                 <button
@@ -677,7 +677,7 @@ export default function ProductConfiguratorModal({
                     {frontCoverPhoto ? (
                       <div className="relative w-64 h-80 rounded-2xl overflow-hidden border border-stone-200 shadow-lg group">
                         <img src={frontCoverPhoto.url} alt="Cover Preview" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
                           <button
                             onClick={() => setFrontCoverPhoto(null)}
                             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-sans-clean text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors"
@@ -803,7 +803,7 @@ export default function ProductConfiguratorModal({
             {currentStep < steps.length ? (
               <button
                 onClick={handleNext}
-                className="px-6 py-3 bg-stone-900 hover:bg-stone-800 text-white text-sm font-bold rounded-xl transition-all flex items-center gap-1"
+                className="px-6 py-3 bg-stone-900 hover:bg-stone-800 text-white dark:text-stone-950 text-sm font-bold rounded-xl transition-all flex items-center gap-1"
               >
                 Next <ArrowRight size={16} />
               </button>
