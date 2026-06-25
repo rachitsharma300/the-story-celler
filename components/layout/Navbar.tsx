@@ -68,9 +68,8 @@ export default function Navbar() {
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="relative w-9 h-9 flex items-center justify-center bg-gradient-to-br from-[#C68A43] via-[#D49A56] to-[#C68A43] dark:from-[#D9A35C] dark:to-[#E3B46F] rounded-xl shadow-md overflow-hidden group-hover:rotate-6 transition-all duration-300">
-                <span className="text-white dark:text-stone-950 font-display font-black text-sm tracking-tighter">SC</span>
-                <div className="absolute inset-0 border border-white/20 rounded-xl pointer-events-none" />
+              <div className="relative w-9 h-9 flex items-center justify-center rounded-xl overflow-hidden group-hover:rotate-6 transition-all duration-300">
+                <img src="/story_celler_logo.png" alt="The Story Celler Logo" className="w-full h-full object-contain" />
               </div>
               <div>
                 <span className="font-display text-base font-extrabold text-stone-900 tracking-tight block leading-none">
