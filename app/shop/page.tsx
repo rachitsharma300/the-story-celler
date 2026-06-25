@@ -251,7 +251,7 @@ export default function ShopPage() {
         </div>
       </section>
 
-      <section className="py-16 bg-stone-900 mt-12">
+      <section className="py-16 bg-stone-900 dark:bg-stone-950 mt-12 border-t dark:border-stone-850">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="font-display text-3xl lg:text-4xl font-bold text-white mb-4">
             Not sure what to pick?

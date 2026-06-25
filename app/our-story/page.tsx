@@ -132,7 +132,7 @@ export default function OurStoryPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="bg-stone-900 rounded-3xl p-12 text-white text-center mb-16"
+          className="bg-stone-900 dark:bg-stone-950/60 border border-transparent dark:border-stone-850 rounded-3xl p-12 text-white text-center mb-16"
         >
           <h2 className="font-display text-3xl font-bold mb-12">
             Our Impact So Far

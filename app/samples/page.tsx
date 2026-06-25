@@ -317,7 +317,7 @@ export default function SamplesPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-20 rounded-3xl bg-stone-900 p-12 text-center text-white"
+          className="mt-20 rounded-3xl bg-stone-900 dark:bg-stone-950/60 border border-transparent dark:border-stone-850 p-12 text-center text-white"
         >
           <h2 className="font-display text-3xl font-bold mb-4">
             Ready to Create Your Own?
