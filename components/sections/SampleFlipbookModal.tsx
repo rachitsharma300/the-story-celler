@@ -11,6 +11,7 @@ interface SampleFlipbookModalProps {
   isOpen: boolean;
   onClose: () => void;
   pdfUrl?: string;
+  images?: string[]; // Direct image URLs support
   pageCount: number;
   productName: string;
 }
@@ -19,6 +20,7 @@ export default function SampleFlipbookModal({
   isOpen,
   onClose,
   pdfUrl,
+  images,
   pageCount,
   productName,
 }: SampleFlipbookModalProps) {
@@ -40,6 +42,13 @@ export default function SampleFlipbookModal({
     setError(null);
     setCurrentPage(0);
     setZoom(1);
+
+    // If pre-rendered image URLs are supplied, load them instantly
+    if (images && images.length > 0) {
+      setPages(images);
+      setLoading(false);
+      return;
+    }
 
     if (!pdfUrl) {
       // Generate premium placeholder pages if no PDF URL is supplied
@@ -275,13 +284,13 @@ export default function SampleFlipbookModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/90 backdrop-blur-md transition-opacity duration-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md transition-opacity duration-300">
       <div
         ref={containerRef}
         className="relative flex flex-col w-full h-full max-w-6xl max-h-[92vh] bg-stone-950 text-white rounded-3xl overflow-hidden shadow-2xl p-6 md:p-8"
       >
         {/* HEADER BAR */}
-        <div className="flex items-center justify-between border-b border-stone-800 pb-4 mb-4">
+        <div className="flex items-center justify-between border-b border-stone-900 pb-4 mb-4">
           <div>
             <h3 className="font-display text-xl font-bold text-amber-500">{productName} Sample</h3>
             <p className="font-sans-clean text-xs text-stone-400">
@@ -334,7 +343,7 @@ export default function SampleFlipbookModal({
         </div>
 
         {/* WORKSPACE AREA */}
-        <div className="flex-1 flex items-center justify-center relative overflow-hidden select-none bg-stone-900 rounded-2xl border border-stone-800">
+        <div className="flex-1 flex items-center justify-center relative overflow-hidden select-none bg-stone-950 rounded-2xl border border-stone-900">
           {loading ? (
             <div className="flex flex-col items-center gap-3">
               <Loader2 size={36} className="text-amber-500 animate-spin" />
@@ -412,7 +421,7 @@ export default function SampleFlipbookModal({
             >
               Previous
             </button>
-            <span className="px-4 py-2 bg-stone-900 border border-stone-800 text-xs text-stone-300 rounded-lg">
+            <span className="px-4 py-2 bg-stone-950 border border-stone-900 text-xs text-stone-300 rounded-lg">
               {currentPage + 1} / {pages.length}
             </span>
             <button
