@@ -631,7 +631,7 @@ export default function ProductPage() {
                 </a>
                 <a
                   href="tel:+917903316723"
-                  className="py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white text-xs font-sans-clean font-bold rounded-xl text-center transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                  className="py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white dark:text-stone-950 text-xs font-sans-clean font-bold rounded-xl text-center transition-all flex items-center justify-center gap-1.5 shadow-sm"
                 >
                   <Phone size={12} /> Book via Call
                 </a>

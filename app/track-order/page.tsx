@@ -334,7 +334,7 @@ export default function TrackOrderPage() {
               </div>
 
               {/* Help Section */}
-              <div className="mt-6 bg-stone-900 rounded-2xl p-6 text-center">
+              <div className="mt-6 bg-stone-900 dark:bg-stone-950/60 border border-transparent dark:border-stone-850 rounded-2xl p-6 text-center">
                 <p className="font-sans-clean text-stone-300 text-sm mb-4">
                   Need help with your order? Contact us directly.
                 </p>
