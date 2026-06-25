@@ -1,4 +1,10 @@
 package com.thestoryceller.backend.entity.enums;
 
-public class OrderStatus {
+public enum OrderStatus {
+    PENDING,
+    DESIGNING,
+    REVIEW,
+    PRINTING,
+    SHIPPED,
+    DELIVERED
 }
