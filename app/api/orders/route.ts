@@ -1,3 +1,25 @@
+/**
+ * DEPRECATED: This local API route handler is deprecated.
+ * Use the Spring Boot backend OrderController endpoints instead.
+ */
+
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  return NextResponse.json(
+    { success: false, error: "This endpoint is deprecated. Use the Spring Boot backend instead." },
+    { status: 501 }
+  );
+}
+
+export async function POST() {
+  return NextResponse.json(
+    { success: false, error: "This endpoint is deprecated. Use the Spring Boot backend instead." },
+    { status: 501 }
+  );
+}
+
+/*
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import Order from "@/lib/models/Order";
@@ -78,3 +100,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+*/
+
