@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, ArrowRight, ArrowLeft, Upload, FileUp, Trash2, ArrowUp, ArrowDown, Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
+import api from "@/lib/axios";
+
 
 interface ProductConfiguratorModalProps {
   isOpen: boolean;
@@ -229,24 +231,30 @@ export default function ProductConfiguratorModal({
         advanceAmount: advanceAmount,
       };
 
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const res = await api.post("/api/orders", payload);
+      const responseData = res.data;
 
-      const responseData = await res.json();
-      if (responseData.success) {
-        setOrderPlaced(responseData.data);
+      const statusMap: Record<string, string> = {
+        PENDING: "Pending",
+        DESIGNING: "Designing",
+        REVIEW: "Review",
+        PRINTING: "Printing",
+        SHIPPED: "Shipped",
+        DELIVERED: "Delivered",
+      };
+
+      if (responseData && responseData.orderId) {
+        if (responseData.status) {
+          responseData.status = statusMap[responseData.status] || responseData.status;
+        }
+        setOrderPlaced(responseData);
         toast.success("Order Created Successfully!");
       } else {
-        throw new Error(responseData.error || "Order creation failed");
+        throw new Error("Order creation failed");
       }
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || "Failed to submit configurator order");
+      toast.error(err.response?.data?.message || err.message || "Failed to submit configurator order");
     } finally {
       setLoading(false);
     }
