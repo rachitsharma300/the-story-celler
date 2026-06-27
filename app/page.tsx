@@ -6,6 +6,38 @@ import { useState, useEffect } from "react";
 import { Star, BookOpen, ChevronDown, Heart, ArrowRight } from "lucide-react";
 import SampleFlipbookModal from "@/components/sections/SampleFlipbookModal";
 
+function AutoImageSlider({ images, className = "" }: { images: string[]; className?: string }) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (!images || images.length <= 1) return;
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % images.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [images]);
+
+  return (
+    <div className={`relative overflow-hidden rounded-2xl ${className}`}>
+      <div 
+        className="flex w-full h-full transition-transform duration-700 ease-in-out"
+        style={{ transform: `translateX(-${index * 100}%)` }}
+      >
+        {images.map((src, idx) => (
+          <div key={idx} className="w-full h-full flex-shrink-0 relative animate-fade-in">
+            <img
+              src={src}
+              alt={`Slide ${idx + 1}`}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const customCollection = [
   {
     id: "custom-magazine",
@@ -14,7 +46,10 @@ const customCollection = [
     price: "From ₹1,200.00",
     tag: "Sale!",
     desc: "Crafted around your memories with personalized storytelling, custom layouts, and thoughtful details.",
-    emoji: "📖",
+    images: [
+      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=200&auto=format&fit=crop&q=80"
+    ],
     rating: "4.9",
     reviewsCount: "127 reviews"
   },
@@ -25,7 +60,10 @@ const customCollection = [
     price: "From ₹1,500.00",
     tag: "Sale!",
     desc: "Beautifully bound album with custom layouts and premium paper quality.",
-    emoji: "🖼️",
+    images: [
+      "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=200&auto=format&fit=crop&q=80"
+    ],
     rating: "4.9",
     reviewsCount: "94 reviews"
   }
@@ -40,7 +78,10 @@ const quickCreate = [
     originalPrice: "₹750.00",
     tag: "Sale!",
     desc: "A cinematic video reel of your best memories. Perfect for sharing on socials.",
-    emoji: "🎬"
+    images: [
+      "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=200&auto=format&fit=crop&q=80"
+    ]
   },
   {
     id: "custom-frame",
@@ -50,7 +91,10 @@ const quickCreate = [
     originalPrice: "₹850.00",
     tag: "Sale!",
     desc: "Premium framed print to display your favorite moment on any wall.",
-    emoji: "🪞"
+    images: [
+      "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=200&auto=format&fit=crop&q=80"
+    ]
   },
   {
     id: "birthday-magazine",
@@ -59,7 +103,10 @@ const quickCreate = [
     price: "From ₹699.00",
     tag: "Trending",
     desc: "Surprise your loved one with a birthday-themed custom magazine.",
-    emoji: "🎂"
+    images: [
+      "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?w=200&auto=format&fit=crop&q=80"
+    ]
   },
   {
     id: "anniversary-album",
@@ -68,37 +115,121 @@ const quickCreate = [
     price: "From ₹699.00",
     tag: "Bestseller",
     desc: "Celebrate your love story with a beautifully crafted anniversary photo album.",
-    emoji: "💑"
+    images: [
+      "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=200&auto=format&fit=crop&q=80"
+    ]
   }
 ];
 
 const samples = [
   {
-    id: "wedding",
-    title: "Wedding Magazine",
+    id: "wedding-nandita",
+    title: "Nandita's Wedding",
     pageText: "12 Pages",
-    emoji: "💍",
+    coverImage: "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&fit=crop&q=80",
     tagColor: "bg-rose-100 text-rose-700",
-    pdfUrl: "/samples/wedding-sample.pdf",
+    pdfUrl: "/samples/nandita-wedding.pdf",
     pageCount: 12
   },
   {
-    id: "anniversary",
-    title: "Anniversary Magazine",
+    id: "anniversary-ashish",
+    title: "Ashish's Anniversary",
     pageText: "12 Pages",
-    emoji: "💖",
+    coverImage: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=500&auto=format&fit=crop&q=80",
     tagColor: "bg-amber-100 text-amber-700",
-    pdfUrl: "/samples/anniversary-sample.pdf",
+    pdfUrl: "/samples/ashish-anniversary.pdf",
     pageCount: 12
   },
   {
-    id: "friendship",
-    title: "Friendship Magazine",
+    id: "wedding-timeless",
+    title: "Timeless Wedding",
     pageText: "12 Pages",
-    emoji: "👭",
-    tagColor: "bg-blue-100 text-blue-700",
-    pdfUrl: "/samples/friendship-sample.pdf",
+    coverImage: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=500&auto=format&fit=crop&q=80",
+    tagColor: "bg-rose-100 text-rose-700",
+    pdfUrl: "/samples/timeless-wedding.pdf",
     pageCount: 12
+  },
+  {
+    id: "birthday-sonali",
+    title: "Sonali's Birthday",
+    pageText: "16 Pages",
+    coverImage: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=500&auto=format&fit=crop&q=80",
+    tagColor: "bg-yellow-100 text-yellow-700",
+    pdfUrl: "/samples/sonali-birthday.pdf",
+    pageCount: 16
+  },
+  {
+    id: "travel-amandeep",
+    title: "Amandeep's Travel",
+    pageText: "20 Pages",
+    coverImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&auto=format&fit=crop&q=80",
+    tagColor: "bg-emerald-100 text-emerald-700",
+    pdfUrl: "/samples/amandeep-travel.pdf",
+    pageCount: 20
+  },
+  {
+    id: "engagement-fenil",
+    title: "Fenil's Engagement",
+    pageText: "16 Pages",
+    coverImage: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=500&auto=format&fit=crop&q=80",
+    tagColor: "bg-purple-100 text-purple-700",
+    pdfUrl: "/samples/fenil-engagement.pdf",
+    pageCount: 16
+  },
+  {
+    id: "honeymoon-sarthak",
+    title: "Sarthak's Honeymoon",
+    pageText: "12 Pages",
+    coverImage: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=500&auto=format&fit=crop&q=80",
+    tagColor: "bg-indigo-100 text-indigo-700",
+    pdfUrl: "/samples/sarthak-honeymoon.pdf",
+    pageCount: 12
+  },
+  {
+    id: "engagement-denish",
+    title: "Denish's Engagement",
+    pageText: "20 Pages",
+    coverImage: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&auto=format&fit=crop&q=80",
+    tagColor: "bg-rose-100 text-rose-700",
+    pdfUrl: "/samples/denish-engagement.pdf",
+    pageCount: 20
+  },
+  {
+    id: "prewedding-parsha",
+    title: "Parsha's Pre-Wedding",
+    pageText: "12 Pages",
+    coverImage: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500&auto=format&fit=crop&q=80",
+    tagColor: "bg-slate-100 text-slate-700",
+    pdfUrl: "/samples/parsha-prewedding.pdf",
+    pageCount: 12
+  },
+  {
+    id: "valentines-aditi",
+    title: "Aditi's Valentine",
+    pageText: "16 Pages",
+    coverImage: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=500&auto=format&fit=crop&q=80",
+    tagColor: "bg-sky-100 text-sky-700",
+    pdfUrl: "/samples/aditi-valentines.pdf",
+    pageCount: 16
+  },
+  {
+    id: "birthday-yash",
+    title: "Yash's Birthday",
+    pageText: "12 Pages",
+    coverImage: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&auto=format&fit=crop&q=80",
+    tagColor: "bg-teal-100 text-teal-700",
+    pdfUrl: "/samples/yash-birthday.pdf",
+    pageCount: 12
+  },
+  {
+    id: "travel-yashanjli",
+    title: "Yashanjli's Travel",
+    pageText: "8 Pages",
+    coverImage: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=500&auto=format&fit=crop&q=80",
+    tagColor: "bg-amber-100 text-amber-700",
+    pdfUrl: "/samples/yashanjli-travel.pdf",
+    pageCount: 8
   }
 ];
 
@@ -280,6 +411,36 @@ export default function HomePage() {
   // FAQ accordion state
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
+  // Carousel states for Magazine Samples (12 items, showing 3 on desktop, 2 on tablet, 1 on mobile)
+  const [sampleIndex, setSampleIndex] = useState(0);
+  const [itemsToShow, setItemsToShow] = useState(3);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setItemsToShow(1);
+      } else if (window.innerWidth < 1024) {
+        setItemsToShow(2);
+      } else {
+        setItemsToShow(3);
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (samples.length <= itemsToShow) return;
+    const timer = setInterval(() => {
+      setSampleIndex((prev) => {
+        const next = prev + 1;
+        return next >= samples.length - itemsToShow + 1 ? 0 : next;
+      });
+    }, 4500); // auto-scrolling speed (4.5s)
+    return () => clearInterval(timer);
+  }, [itemsToShow]);
+
   const openSample = (title: string, pages: number, pdf?: string, images?: string[]) => {
     setSampleProductName(title);
     setSamplePageCount(pages);
@@ -417,7 +578,7 @@ export default function HomePage() {
               >
                 <div className="relative w-full h-full rounded-xl overflow-hidden border border-border/20 shadow-inner flex flex-col justify-between bg-stone-100"
                      style={{ transform: "translateZ(10px)" }}>
-                  <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&fit=crop&q=80" className="absolute inset-0 w-full h-full object-cover" alt="Wedding Magazine" />
+                  <AutoImageSlider images={["https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&fit=crop&q=80", "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=500&auto=format&fit=crop&q=80"]} className="absolute inset-0 w-full h-full" />
                   <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-stone-950/10 to-stone-950/35" />
                   
                   <div className="relative z-10 p-3 flex justify-between items-start text-white">
@@ -456,7 +617,7 @@ export default function HomePage() {
               >
                 <div className="relative w-full h-full rounded border border-border/40 overflow-hidden flex flex-col justify-end bg-stone-100"
                      style={{ transform: "translateZ(8px)" }}>
-                  <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=500&auto=format&fit=crop&q=80" className="absolute inset-0 w-full h-full object-cover grayscale contrast-105 brightness-95" alt="B&W Frame" />
+                  <AutoImageSlider images={["https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=500&auto=format&fit=crop&q=80", "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=500&auto=format&fit=crop&q=80"]} className="absolute inset-0 w-full h-full grayscale contrast-105 brightness-95" />
                   <div className="absolute inset-0 bg-gradient-to-t from-stone-950/60 to-transparent" />
                   <div className="relative z-10 p-3 text-white bg-stone-950/20 backdrop-blur-[1px]">
                     <p className="font-display text-xs font-semibold tracking-wider leading-tight">Anniversary Book</p>
@@ -484,7 +645,7 @@ export default function HomePage() {
               >
                 <div className="relative w-full h-full rounded-xl overflow-hidden flex flex-col justify-between p-3.5 bg-stone-100"
                      style={{ transform: "translateZ(12px)" }}>
-                  <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&auto=format&fit=crop&q=80" className="absolute inset-0 w-full h-full object-cover" alt="Travel Diaries" />
+                  <AutoImageSlider images={["https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&auto=format&fit=crop&q=80", "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=500&auto=format&fit=crop&q=80"]} className="absolute inset-0 w-full h-full" />
                   <div className="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-transparent to-stone-950/20" />
                   <div className="relative z-10 flex justify-end">
                     <span className="px-2.5 py-0.5 bg-white/20 backdrop-blur-md rounded border border-white/20 text-[7px] font-sans-clean font-bold text-white uppercase tracking-wider">TRAVEL</span>
@@ -561,8 +722,9 @@ export default function HomePage() {
                 </div>
 
                 <div>
-                  <div className="w-16 h-16 bg-amber-50 group-hover:bg-amber-100 text-4xl rounded-2xl flex items-center justify-center mb-6 transition-colors shadow-inner">
-                    {p.emoji}
+                  {/* Photo Album Style Container */}
+                  <div className="relative w-full aspect-[4/3] sm:aspect-square mb-6 bg-white p-3.5 pb-5 shadow-lg rounded-r-2xl rounded-l-sm border-l-[10px] border-stone-900 overflow-hidden flex flex-col justify-center before:absolute before:left-0 before:top-0 before:bottom-0 before:w-2.5 before:bg-black/20 before:z-10 shadow-[8px_8px_15px_-3px_rgba(0,0,0,0.15)] outline outline-1 outline-stone-200/50">
+                    <AutoImageSlider images={p.images} className="w-full h-full rounded shadow-inner" />
                   </div>
                   
                   {/* Reviews rating */}
@@ -636,9 +798,10 @@ export default function HomePage() {
                 className="group bg-cream border border-stone-100 hover:border-amber-200 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between will-change-transform"
               >
                 <div>
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="text-3xl bg-stone-50 p-2.5 rounded-xl border border-stone-100 group-hover:bg-amber-50 transition-colors">{p.emoji}</span>
-                    <span className="px-2.5 py-0.5 bg-rose-500 text-white text-[9px] font-sans-clean font-bold tracking-wider uppercase rounded-full shadow-sm">
+                  {/* Photo Frame Style Container */}
+                  <div className="relative w-full h-56 mb-4 bg-white p-3 border-[10px] border-stone-900 shadow-xl rounded-sm overflow-hidden flex flex-col justify-center">
+                    <AutoImageSlider images={p.images} className="w-full h-full rounded-sm" />
+                    <span className="absolute top-4 right-4 px-2.5 py-0.5 bg-rose-500 text-white text-[9px] font-sans-clean font-bold tracking-wider uppercase rounded-full shadow-md z-10">
                       {p.tag}
                     </span>
                   </div>
@@ -692,56 +855,66 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto"
-          >
-            {samples.map((sample, i) => (
-              <motion.div
-                key={sample.id}
-                variants={staggerItem}
-                onClick={() => openSample(sample.title, sample.pageCount, sample.pdfUrl)}
-                className="group cursor-pointer"
-              >
-                <div className="relative rounded-3xl border border-stone-200/60 bg-cream p-4 hover:shadow-2xl hover:border-amber-300 transition-all duration-300 flex flex-col hover:-translate-y-2 h-full will-change-transform">
-                  <div className="relative h-64 sm:h-72 bg-stone-950 rounded-2xl overflow-hidden flex items-center justify-center border border-stone-800">
-                    <div className="absolute inset-0 bg-cover bg-center opacity-60 filter grayscale contrast-125 hover:scale-105 transition-transform duration-700" 
-                         style={{ backgroundImage: `url('https://images.unsplash.com/photo-1519741497674-611481863552?w=400&auto=format&fit=crop&q=80')` }} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/80" />
-                    
-                    <div className="relative z-10 text-center p-6 flex flex-col justify-between h-full w-full">
-                      <div className="flex justify-between items-start">
-                        <span className="text-white/40 font-display text-[9px] uppercase tracking-widest font-bold">THE JOURNAL</span>
-                        <span className="px-2 py-0.5 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[8px] uppercase tracking-wider rounded font-bold">{sample.pageText}</span>
+          {/* Carousel Viewport Container */}
+          <div className="relative w-full overflow-hidden max-w-6xl mx-auto px-1 py-4">
+            <motion.div 
+              className="flex transition-transform duration-700 ease-in-out"
+              style={{
+                transform: `translateX(-${sampleIndex * (100 / samples.length)}%)`,
+                width: `${(samples.length / itemsToShow) * 100}%`
+              }}
+            >
+              {samples.map((sample, i) => (
+                <div 
+                  key={sample.id} 
+                  style={{ width: `${100 / samples.length}%` }}
+                  className="px-3.5 flex-shrink-0"
+                >
+                  <motion.div
+                    onClick={() => openSample(sample.title, sample.pageCount, sample.pdfUrl)}
+                    className="group cursor-pointer h-full"
+                  >
+                    <div className="relative rounded-3xl border border-stone-200/60 bg-cream p-4 hover:shadow-2xl hover:border-amber-300 transition-all duration-300 flex flex-col hover:-translate-y-2 h-full will-change-transform">
+                      {/* Photo Frame Style Container */}
+                      <div className="relative h-64 sm:h-72 bg-white border-[10px] border-white shadow-lg rounded-2xl overflow-hidden flex items-center justify-center outline outline-1 outline-stone-200/50 group-hover:shadow-2xl transition-shadow">
+                        <div className="absolute inset-0 bg-cover bg-center opacity-70 group-hover:scale-105 transition-transform duration-700" 
+                             style={{ backgroundImage: `url('${sample.coverImage}')` }} />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/75" />
+                        
+                        <div className="relative z-10 text-center p-4 flex flex-col justify-between h-full w-full">
+                          <div className="flex justify-between items-start">
+                            <span className="text-white/50 font-display text-[9px] uppercase tracking-widest font-bold bg-black/20 px-2 py-0.5 rounded backdrop-blur-sm">THE JOURNAL</span>
+                            <span className="px-2 py-0.5 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[8px] uppercase tracking-wider rounded font-bold backdrop-blur-sm">{sample.pageText}</span>
+                          </div>
+                          
+                          <div className="my-auto">
+                            <div className="w-14 h-14 bg-amber-500/20 border border-amber-500/40 rounded-full flex items-center justify-center text-amber-400 mx-auto mb-3 shadow-lg backdrop-blur-sm group-hover:scale-110 transition-transform">
+                              <BookOpen size={22} />
+                            </div>
+                            <h4 className="font-display text-white text-lg font-bold uppercase tracking-wide px-2 leading-tight">
+                              {sample.title}
+                            </h4>
+                            <div className="h-0.5 w-10 bg-amber-500 mx-auto mt-2.5" />
+                          </div>
+                          
+                          <span className="text-[8px] text-amber-400 font-sans-clean font-bold tracking-widest uppercase flex items-center justify-center gap-1 hover:text-white transition-colors">
+                            <BookOpen size={10} /> View Sample
+                          </span>
+                        </div>
                       </div>
-                      
-                      <div className="my-auto">
-                        <span className="text-5xl block mb-2">{sample.emoji}</span>
-                        <h4 className="font-display text-white text-xl sm:text-2xl font-bold uppercase tracking-wide">
-                          {sample.title}
-                        </h4>
-                        <div className="h-0.5 w-12 bg-amber-500 mx-auto mt-3" />
-                      </div>
-                      
-                      <span className="text-[9px] text-amber-400 font-sans-clean font-bold tracking-widest uppercase flex items-center justify-center gap-1.5 hover:text-white transition-colors">
-                        <BookOpen size={12} /> Click to View Sample
-                      </span>
-                    </div>
-                  </div>
 
-                  <div className="p-4 text-center mt-3">
-                    <h3 className="font-display text-lg font-bold text-stone-900 group-hover:text-amber-500 transition-colors">
-                      {sample.title}
-                    </h3>
-                    <p className="font-sans-clean text-xs text-stone-400 mt-1 font-semibold">{sample.pageText} • Digital & Print</p>
-                  </div>
+                      <div className="p-4 text-center mt-3 flex-grow flex flex-col justify-between">
+                        <h3 className="font-display text-lg font-bold text-stone-900 group-hover:text-amber-500 transition-colors">
+                          {sample.title}
+                        </h3>
+                        <p className="font-sans-clean text-xs text-stone-400 mt-1 font-semibold">{sample.pageText} • Digital & Print</p>
+                      </div>
+                    </div>
+                  </motion.div>
                 </div>
-              </motion.div>
-            ))}
-          </motion.div>
+              ))}
+            </motion.div>
+          </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-16">
             <Link href="/product/custom-magazine"
@@ -782,17 +955,26 @@ export default function HomePage() {
               {
                 title: "Custom-Made Designs",
                 desc: "Every product is crafted from your memories, tailored to your story.",
-                icon: "🎨"
+                images: [
+                  "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=200&auto=format&fit=crop&q=80",
+                  "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=200&auto=format&fit=crop&q=80"
+                ]
               },
               {
                 title: "Best For Gifting",
                 desc: "Every order is packed and designed to wow! perfect for birthdays, weddings, or surprises.",
-                icon: "💝"
+                images: [
+                  "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200&auto=format&fit=crop&q=80",
+                  "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?w=200&auto=format&fit=crop&q=80"
+                ]
               },
               {
                 title: "Fast & Friendly Process",
                 desc: "WhatsApp support, easy forms, and 7-12 day delivery on most orders.",
-                icon: "⚡"
+                images: [
+                  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&auto=format&fit=crop&q=80",
+                  "https://images.unsplash.com/photo-1616469829581-73993eb86b02?w=200&auto=format&fit=crop&q=80"
+                ]
               }
             ].map((feature, idx) => (
               <motion.div
@@ -801,8 +983,9 @@ export default function HomePage() {
                 className="bg-cream p-8 rounded-3xl border border-stone-100 shadow-sm text-center flex flex-col justify-between items-center will-change-transform hover:shadow-md transition-all duration-300"
               >
                 <div>
-                  <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-inner mx-auto">
-                    {feature.icon}
+                  {/* Photo Frame Style for Feature Card */}
+                  <div className="relative w-full h-48 mb-6 bg-white p-3 border-[8px] border-white shadow-md rounded-xl overflow-hidden flex flex-col justify-center outline outline-1 outline-stone-200/40">
+                    <AutoImageSlider images={feature.images} className="w-full h-full rounded" />
                   </div>
                   <h3 className="font-display text-xl font-bold text-stone-900 mb-3">{feature.title}</h3>
                   <p className="font-sans-clean text-sm text-stone-500 leading-relaxed mb-6">{feature.desc}</p>

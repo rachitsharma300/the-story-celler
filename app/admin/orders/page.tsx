@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Search, Eye, Edit2, Download, Filter, FileText, Check, Loader2, RefreshCw, Upload } from "lucide-react";
+import { Search, Eye, Edit2, Download, Filter, FileText, Check, Loader2, RefreshCw, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
+import api from "@/lib/axios";
+
 
 interface Order {
   orderId: string;
@@ -67,13 +69,24 @@ export default function OrdersPage() {
   async function fetchOrders() {
     setLoading(true);
     try {
-      const res = await fetch("/api/orders");
-      const json = await res.json();
-      if (json.success) {
-        setOrders(json.data);
-      } else {
-        throw new Error(json.error || "Failed to load orders");
-      }
+      const response = await api.get("/api/orders");
+      const data = response.data;
+      
+      const statusMap: Record<string, Order["status"]> = {
+        PENDING: "Pending",
+        DESIGNING: "Designing",
+        REVIEW: "Review",
+        PRINTING: "Printing",
+        SHIPPED: "Shipped",
+        DELIVERED: "Delivered",
+      };
+
+      const normalized = data.map((order: any) => ({
+        ...order,
+        status: statusMap[order.status] || order.status,
+      }));
+
+      setOrders(normalized);
     } catch (err: any) {
       console.error(err);
       toast.error("Error fetching live orders, displaying cached mock data.");
@@ -120,35 +133,51 @@ export default function OrdersPage() {
     ];
   }
 
-  // Handle Order patch (status & final PDF)
+  // Handle Order status & final PDF updates using Spring Boot PUT endpoints
   async function handleUpdateOrder() {
     if (!selectedOrder) return;
     setActionLoading(true);
     try {
-      const res = await fetch(`/api/orders/${selectedOrder.orderId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          status: updatingStatus,
-          finalPdfUrl: pdfUrlInput,
-        }),
-      });
-      const json = await res.json();
-      if (json.success) {
-        toast.success("Order updated successfully!");
-        setSelectedOrder(json.data);
-        // Refresh local orders list
-        setOrders((prev) =>
-          prev.map((o) => (o.orderId === selectedOrder.orderId ? json.data : o))
-        );
-      } else {
-        throw new Error(json.error || "Update failed");
+      const statusMap: Record<string, Order["status"]> = {
+        PENDING: "Pending",
+        DESIGNING: "Designing",
+        REVIEW: "Review",
+        PRINTING: "Printing",
+        SHIPPED: "Shipped",
+        DELIVERED: "Delivered",
+      };
+
+      let updatedOrder = { ...selectedOrder };
+
+      // Update status if it changed
+      if (updatingStatus !== selectedOrder.status) {
+        const res = await api.put(`/api/orders/${selectedOrder.orderId}/status`, {
+          status: updatingStatus.toUpperCase(),
+        });
+        updatedOrder = res.data;
       }
+
+      // Update final PDF URL if it changed
+      if (pdfUrlInput !== (selectedOrder.finalPdfUrl || "")) {
+        const res = await api.put(`/api/orders/${selectedOrder.orderId}/pdf`, {
+          pdfUrl: pdfUrlInput,
+        });
+        updatedOrder = res.data;
+      }
+
+      // Normalize status back to Title Case
+      updatedOrder.status = statusMap[updatedOrder.status] || updatedOrder.status;
+
+      toast.success("Order updated successfully!");
+      setSelectedOrder(updatedOrder);
+      
+      // Refresh local orders list
+      setOrders((prev) =>
+        prev.map((o) => (o.orderId === selectedOrder.orderId ? updatedOrder : o))
+      );
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || "Failed to update order details.");
+      toast.error(err.response?.data?.message || err.message || "Failed to update order details.");
     } finally {
       setActionLoading(false);
     }
@@ -209,7 +238,7 @@ export default function OrdersPage() {
         {loading ? (
           <div className="text-center py-20 flex flex-col items-center justify-center gap-3">
             <Loader2 size={32} className="text-amber-500 animate-spin" />
-            <p className="text-stone-450 font-sans-clean text-sm">Fetching orders from MongoDB...</p>
+            <p className="text-stone-450 font-sans-clean text-sm">Fetching orders from Spring Boot...</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
