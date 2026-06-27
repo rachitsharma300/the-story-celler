@@ -1,3 +1,9 @@
+/**
+ * DEPRECATED: This mongoose model is deprecated.
+ * The database entity is now managed by the Spring Boot backend as Order entity.
+ */
+
+/*
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IOrder extends Document {
@@ -58,7 +64,12 @@ const OrderSchema: Schema = new Schema(
   }
 );
 
-// If the model exists, use it, otherwise compile it
 const Order: Model<IOrder> = mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema);
 
 export default Order;
+*/
+
+// Export a dummy object to prevent import breakages
+const Order = {} as any;
+export default Order;
+
