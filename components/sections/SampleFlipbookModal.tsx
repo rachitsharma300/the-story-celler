@@ -353,21 +353,22 @@ export default function SampleFlipbookModal({
             <p className="font-sans-clean text-red-400">{error}</p>
           ) : (
             <div
-              className="transition-transform duration-300 ease-out"
+              className="transition-transform duration-300 ease-out flex items-center justify-center w-full max-w-5xl h-[70vh]"
               style={{ transform: `scale(${zoom})` }}
             >
               {pages.length > 0 && (
                 <HTMLFlipBook
                   ref={flipbookRef}
-                  width={380}
-                  height={520}
+                  width={460}
+                  height={620}
                   size="stretch"
-                  minWidth={280}
-                  maxWidth={500}
+                  minWidth={300}
+                  maxWidth={800}
                   minHeight={400}
-                  maxHeight={700}
+                  maxHeight={1100}
                   maxShadowOpacity={0.4}
                   showCover={true}
+                  usePortrait={false}
                   mobileScrollSupport={true}
                   onFlip={(e: any) => setCurrentPage(e.data)}
                   className="shadow-2xl rounded-sm"
