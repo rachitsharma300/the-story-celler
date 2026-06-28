@@ -20,37 +20,8 @@ type CartItem = {
   tagColor: string;
 };
 
-const initialCartItems: CartItem[] = [
-  {
-    slug: "custom-magazine",
-    name: "Custom Magazine",
-    emoji: "📖",
-    price: 1200,
-    originalPrice: 1800,
-    qty: 1,
-    occasion: "Anniversary",
-    deliveryDays: "7-10 days",
-    pages: "10-30 pages",
-    tag: "Bestseller",
-    tagColor: "bg-amber-100 text-amber-700",
-  },
-  {
-    slug: "recap-reel",
-    name: "Recap Reel",
-    emoji: "🎬",
-    price: 550,
-    originalPrice: 800,
-    qty: 2,
-    occasion: "Birthday",
-    deliveryDays: "2-4 days",
-    pages: "60-90 sec",
-    tag: "New",
-    tagColor: "bg-green-100 text-green-700",
-  },
-];
-
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   const subtotal = useMemo(
     () => cartItems.reduce((sum, item) => sum + item.price * item.qty, 0),

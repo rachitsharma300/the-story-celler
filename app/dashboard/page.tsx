@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -19,8 +19,12 @@ import {
   ChevronRight,
   ArrowRight,
   Plus,
+  Loader2,
+  KeyRound
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useUserStore } from "@/store/userStore";
+import toast from "react-hot-toast";
 
 type TabType = "orders" | "profile" | "wishlist" | "settings";
 
@@ -126,14 +130,174 @@ const statusConfig: Record<string, { label: string; color: string; bg: string }>
 };
 
 export default function DashboardPage() {
+  const { user, isAuthenticated, initializeAuth, logout, sendOtp, verifyOtp, loading } = useUserStore();
+
   const [activeTab, setActiveTab] = useState<TabType>("orders");
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profile, setProfile] = useState(mockProfile);
   const [showPassword, setShowPassword] = useState(false);
 
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
+
+  useEffect(() => {
+    if (user) {
+      setProfile({
+        name: user.name,
+        email: user.email,
+        phone: "+91 98765 43210",
+        joinDate: "June 2026",
+        address: "123 Memory Lane, Apartment 4B",
+        city: "New Delhi",
+        state: "Delhi",
+        pincode: "110001",
+      });
+    }
+  }, [user]);
+
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocalError(null);
+    if (!email) {
+      setLocalError("Email address is required.");
+      return;
+    }
+    toast.loading("Sending verification OTP...", { id: "otp" });
+    const result = await sendOtp(email);
+    if (result.success) {
+      toast.success("OTP sent to your email!", { id: "otp" });
+      setOtpSent(true);
+    } else {
+      toast.error(result.error || "Failed to send OTP.", { id: "otp" });
+      setLocalError(result.error || "Failed to send OTP.");
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocalError(null);
+    if (!otp) {
+      setLocalError("Verification OTP is required.");
+      return;
+    }
+    toast.loading("Verifying OTP...", { id: "otp" });
+    const result = await verifyOtp(email, otp);
+    if (result.success) {
+      toast.success("Welcome back!", { id: "otp" });
+    } else {
+      toast.error(result.error || "Invalid OTP code.", { id: "otp" });
+      setLocalError(result.error || "Invalid OTP code.");
+    }
+  };
+
   const handleProfileChange = (field: keyof UserProfile, value: string) => {
     setProfile({ ...profile, [field]: value });
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background pt-28 pb-16 flex items-center justify-center relative">
+        {/* Background Decorative Circles */}
+        <div className="absolute top-[20%] right-[10%] w-72 h-72 bg-amber-500/10 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute bottom-[20%] left-[10%] w-72 h-72 bg-rose-500/10 rounded-full blur-[80px] pointer-events-none" />
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md mx-4 p-8 bg-cream border border-stone-200/60 shadow-2xl rounded-3xl relative z-10"
+        >
+          {/* Card Spine Decor for Photo Album Feel */}
+          <div className="absolute left-0 top-0 bottom-0 w-2 bg-stone-900 rounded-l-3xl before:absolute before:inset-0 before:bg-gradient-to-r before:from-black/20 before:to-transparent" />
+
+          <div className="text-center mb-8 pl-2">
+            <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/25 rounded-2xl flex items-center justify-center text-amber-500 mx-auto mb-4 shadow-sm">
+              <KeyRound size={28} />
+            </div>
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
+              MyStory<span className="text-amber-500 font-light italic">Archive</span>
+            </h2>
+            <p className="font-sans-clean text-xs text-stone-500 mt-2">
+              Enter your email to verify your identity and access your dashboard.
+            </p>
+          </div>
+
+          <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp} className="space-y-5 pl-2">
+            <div>
+              <label className="block font-sans-clean text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={otpSent || loading}
+                required
+                className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-sm text-stone-900 focus:outline-none transition-all duration-300 disabled:opacity-60"
+              />
+            </div>
+
+            {otpSent && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className="space-y-2"
+              >
+                <label className="block font-sans-clean text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
+                  Verification OTP
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter 6-digit OTP"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  disabled={loading}
+                  maxLength={6}
+                  required
+                  className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-sm tracking-[0.2em] font-bold text-center text-stone-900 focus:outline-none transition-all duration-300"
+                />
+              </motion.div>
+            )}
+
+            {localError && (
+              <p className="font-sans-clean text-xs font-semibold text-rose-500 bg-rose-50 p-3 rounded-lg border border-rose-100">
+                ⚠️ {localError}
+              </p>
+            )}
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full py-4 bg-stone-900 hover:bg-amber-500 text-white font-sans-clean font-bold uppercase text-xs tracking-wider rounded-xl transition-all duration-300 shadow-md flex items-center justify-center gap-2"
+            >
+              {loading && <Loader2 size={16} className="animate-spin" />}
+              {otpSent ? "Verify & Login" : "Send Login OTP"}
+            </Button>
+
+            {otpSent && (
+              <div className="text-center mt-4">
+                <button
+                  type="button"
+                  onClick={() => setOtpSent(false)}
+                  disabled={loading}
+                  className="font-sans-clean text-xs text-stone-500 hover:text-amber-600 transition-colors uppercase tracking-wider font-bold"
+                >
+                  ← Back to Email
+                </button>
+              </div>
+            )}
+          </form>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pt-24 pb-16">
@@ -181,7 +345,7 @@ export default function DashboardPage() {
             </nav>
 
             <div className="mt-8 pt-6 border-t border-stone-200">
-              <Button variant="destructive" size="sm" className="w-full justify-start gap-3">
+              <Button onClick={logout} variant="destructive" size="sm" className="w-full justify-start gap-3">
                 <LogOut size={16} />
                 Logout
               </Button>

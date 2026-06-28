@@ -11,26 +11,7 @@ interface WishlistItem {
   tagColor: string;
 }
 
-const mockWishlist: WishlistItem[] = [
-  {
-    slug: "anniversary-album",
-    name: "Anniversary Album",
-    emoji: "💑",
-    price: 1800,
-    originalPrice: 2500,
-    tag: "Premium",
-    tagColor: "bg-purple-100 text-purple-700",
-  },
-  {
-    slug: "birthday-magazine",
-    name: "Birthday Magazine",
-    emoji: "🎂",
-    price: 1400,
-    originalPrice: 2000,
-    tag: "Trending",
-    tagColor: "bg-amber-100 text-amber-700",
-  },
-];
+const mockWishlist: WishlistItem[] = [];
 
 export default function WishlistPage() {
   return (

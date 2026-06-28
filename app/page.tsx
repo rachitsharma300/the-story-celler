@@ -417,13 +417,16 @@ export default function HomePage() {
 
   useEffect(() => {
     const handleResize = () => {
+      let currentItemsToShow = 3;
       if (window.innerWidth < 640) {
-        setItemsToShow(1);
+        currentItemsToShow = 1;
       } else if (window.innerWidth < 1024) {
-        setItemsToShow(2);
+        currentItemsToShow = 2;
       } else {
-        setItemsToShow(3);
+        currentItemsToShow = 3;
       }
+      setItemsToShow(currentItemsToShow);
+      setSampleIndex((prev) => Math.min(prev, Math.max(0, samples.length - currentItemsToShow)));
     };
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -556,7 +559,7 @@ export default function HomePage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-              className="relative flex items-center justify-center h-[520px] lg:h-[620px] w-full max-w-lg mx-auto will-change-transform"
+              className="relative flex items-center justify-center h-[400px] sm:h-[520px] lg:h-[620px] w-full max-w-lg mx-auto will-change-transform"
               style={{ perspective: "1200px" }}
             >
               {/* Frame 1: Center-Left Wedding Magazine Cover */}
@@ -574,7 +577,7 @@ export default function HomePage() {
                   transition: { duration: 0.3 } 
                 }}
                 style={{ transformStyle: "preserve-3d" }}
-                className="absolute left-[3%] top-[10%] w-56 h-[320px] sm:w-64 sm:h-[360px] rounded-2xl bg-card border border-border p-3.5 shadow-2xl z-20 cursor-pointer will-change-transform"
+                className="absolute left-1/2 -translate-x-1/2 sm:left-[3%] sm:translate-x-0 top-[10%] w-56 h-[320px] sm:w-64 sm:h-[360px] rounded-2xl bg-card border border-border p-3.5 shadow-2xl z-20 cursor-pointer will-change-transform"
               >
                 <div className="relative w-full h-full rounded-xl overflow-hidden border border-border/20 shadow-inner flex flex-col justify-between bg-stone-100"
                      style={{ transform: "translateZ(10px)" }}>
@@ -582,12 +585,12 @@ export default function HomePage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-stone-950/10 to-stone-950/35" />
                   
                   <div className="relative z-10 p-3 flex justify-between items-start text-white">
-                    <span className="font-sans-clean text-[8px] font-bold tracking-[0.2em] bg-white/10 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/20">VOGUE STYLE</span>
-                    <span className="font-display text-[9px] font-bold text-amber-300">ED. 01</span>
+                     <span className="font-sans-clean text-[8px] font-bold tracking-[0.2em] bg-white/10 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/20">VOGUE STYLE</span>
+                     <span className="font-display text-[9px] font-bold text-amber-300">ED. 01</span>
                   </div>
                   
                   <div className="absolute inset-x-0 top-[35%] flex justify-center pointer-events-none">
-                    <span className="font-display text-5xl sm:text-6xl text-white/15 tracking-[0.15em] uppercase select-none font-bold">VOGUE</span>
+                     <span className="font-display text-5xl sm:text-6xl text-white/15 tracking-[0.15em] uppercase select-none font-bold">VOGUE</span>
                   </div>
 
                   <div className="relative z-10 p-4 text-white">
@@ -613,7 +616,7 @@ export default function HomePage() {
                   transition: { duration: 0.3 } 
                 }}
                 style={{ transformStyle: "preserve-3d" }}
-                className="absolute right-[4%] top-[6%] w-48 h-[270px] sm:w-52 sm:h-[300px] rounded-xl bg-card border-[12px] border-card shadow-2xl p-0.5 z-10 cursor-pointer border border-border will-change-transform"
+                className="hidden sm:block absolute right-[4%] top-[6%] w-48 h-[270px] sm:w-52 sm:h-[300px] rounded-xl bg-card border-[12px] border-card shadow-2xl p-0.5 z-10 cursor-pointer border border-border will-change-transform"
               >
                 <div className="relative w-full h-full rounded border border-border/40 overflow-hidden flex flex-col justify-end bg-stone-100"
                      style={{ transform: "translateZ(8px)" }}>
@@ -641,7 +644,7 @@ export default function HomePage() {
                   transition: { duration: 0.3 } 
                 }}
                 style={{ transformStyle: "preserve-3d" }}
-                className="absolute left-[16%] bottom-[8%] w-44 h-[240px] sm:w-48 sm:h-[260px] rounded-2xl bg-card/65 backdrop-blur-md border border-border/80 p-3 shadow-xl z-30 cursor-pointer will-change-transform"
+                className="hidden sm:block absolute left-[16%] bottom-[8%] w-44 h-[240px] sm:w-48 sm:h-[260px] rounded-2xl bg-card/65 backdrop-blur-md border border-border/80 p-3 shadow-xl z-30 cursor-pointer will-change-transform"
               >
                 <div className="relative w-full h-full rounded-xl overflow-hidden flex flex-col justify-between p-3.5 bg-stone-100"
                      style={{ transform: "translateZ(12px)" }}>
