@@ -32,58 +32,56 @@
 
 @layer base {
   :root {
-    /* Premium Modern Palette - Light Mode (Apple + Vogue + Wedding + Luxury) */
-    --background: 37 21% 94%;           /* #F6F1E9: Warm paper / magazine background */
-    --surface: 38 38% 97%;              /* #FBF8F3: Secondary Background */
-    --cream: 38 100% 99%;               /* #FFFDF9: Card Background / Pure Cream */
-    --foreground: 28 28% 13%;           /* #2B2118: Primary Text (Coffee/Leather) */
-    --muted-foreground: 30 11% 41%;      /* #74685D: Muted Text */
-    --muted-foreground-dark: 30 11% 30%;
-    --primary: 33 53% 52%;              /* #C68A43: Primary Gold */
-    --primary-dark: 33 62% 58%;         /* #D49A56: Hover Gold */
-    --primary-light: 33 53% 90%;
-    --primary-lightest: 33 53% 96%;
-    --border: 34 27% 86%;               /* #E7DDD1: Border */
-    --border-dark: 34 27% 76%;
-    
-    --secondary: 38 38% 97%;            /* #FBF8F3 */
-    --secondary-foreground: 28 28% 13%;
-    --muted: 38 38% 95%;
-    --accent: 33 53% 52%;               /* #C68A43 */
-    --ring: 33 53% 52%;
+    --background: 22 30% 95%;
+    --surface: 20 40% 98%;
+    --cream: 20 40% 99%;
+    --foreground: 14 32% 13%;
+    --muted-foreground: 16 14% 39%;
+    --muted-foreground-dark: 16 14% 28%;
+    --primary: 354 33% 55%;
+    --primary-dark: 349 40% 62%;
+    --primary-light: 354 33% 90%;
+    --primary-lightest: 354 33% 96%;
+    --border: 15 33% 85%;
+    --border-dark: 15 33% 74%;
+    --accent: 340 44% 72%;
+    --gold: 33 55% 50%;
+    --gold-dark: 33 62% 56%;
+    --secondary: 20 40% 98%;
+    --secondary-foreground: 14 32% 13%;
+    --muted: 20 30% 95%;
+    --ring: 354 33% 55%;
     --radius: 0.75rem;
-
-    --gold: 33 53% 52%;
-    --gold-dark: 33 62% 58%;
-    --dark: 28 28% 13%;
-    --background-dark: 24 12% 5%;
+    --dark: 14 32% 13%;
+    --background-dark: 14 30% 5%;
   }
 
   .dark {
-    /* Premium Modern Palette - Dark Mode */
-    --background: 20 18% 8%;            /* #171310: Dark background */
-    --surface: 22 13% 11%;              /* #1F1A17: Secondary background */
-    --cream: 20 18% 12%;                /* #241D19: Card background */
-    --foreground: 34 30% 93%;           /* #F4EDE5: Primary text */
-    --muted-foreground: 32 14% 68%;     /* #B8AEA3: Muted Text */
-    --border: 22 16% 20%;               /* #3A302A: Border */
-    --border-dark: 22 16% 30%;          /* Border hover/accent */
-    --primary: 35 59% 60%;              /* #D9A35C: Primary Gold */
-    --primary-dark: 36 65% 66%;         /* #E3B46F: Hover Gold */
-    --primary-light: 35 59% 18%;
-    --primary-lightest: 35 59% 12%;
-    
-    --secondary: 22 13% 11%;            /* #1F1A17 */
-    --secondary-foreground: 34 30% 93%;
-    --muted: 22 13% 14%;
-    --muted-foreground-dark: 32 14% 80%;
-    --accent: 35 59% 60%;               /* #D9A35C */
-    --ring: 35 59% 60%;
+    --background: 10 22% 6%;
+    --surface: 10 25% 10%;
+    --cream: 10 25% 13%;
+    --foreground: 20 33% 94%;
+    --muted-foreground: 22 18% 57%;
+    --muted-foreground-dark: 22 18% 72%;
+    --border: 14 25% 18%;
+    --border-dark: 14 25% 26%;
+    --primary: 342 42% 66%;
+    --primary-dark: 342 52% 73%;
+    --primary-light: 342 42% 22%;
+    --primary-lightest: 342 42% 14%;
+    --accent: 338 38% 60%;
+    --gold: 38 60% 56%;
+    --gold-dark: 38 68% 63%;
+    --secondary: 10 25% 10%;
+    --secondary-foreground: 20 33% 94%;
+    --muted: 10 25% 13%;
+    --ring: 342 42% 66%;
+    --dark: 20 33% 94%;
+    --background-dark: 10 18% 3%;
+  }
 
-    --gold: 35 59% 60%;
-    --gold-dark: 36 65% 66%;
-    --dark: 34 30% 93%;
-    --background-dark: 24 12% 4%;
+  html {
+    scroll-behavior: smooth;
   }
 
   * {
@@ -190,11 +188,10 @@
   }
 
   .bg-hero-gradient {
-    background: linear-gradient(135deg, #F5F1EA 0%, #EFE7DD 50%, #F8F3EE 100%);
+    background: linear-gradient(135deg, #F8F3EE 0%, #F0E4DC 50%, #F5EEE8 100%);
   }
-
   .dark .bg-hero-gradient {
-    background: linear-gradient(135deg, #161311 0%, #1F1A17 50%, #2A231F 100%);
+    background: linear-gradient(135deg, #1A0F0D 0%, #261510 50%, #1F1210 100%);
   }
 
   /* Smooth scroll support */
