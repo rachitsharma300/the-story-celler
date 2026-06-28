@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, Menu, X, Heart, User, Package, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,9 +17,14 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
+  const isAdminPage = pathname.startsWith("/admin");
+
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [theme, setTheme] = useState("light");
+  
+  if (isAdminPage) return null;
   const cartCount = 0; // zustand connection placeholder
 
   // Initialize theme from localStorage on client-side mount
