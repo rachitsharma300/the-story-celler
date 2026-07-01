@@ -32,4 +32,13 @@ public class SampleController {
         Sample saved = sampleRepository.save(sample);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSample(@PathVariable Long id) {
+        if (!sampleRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        sampleRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
 }
