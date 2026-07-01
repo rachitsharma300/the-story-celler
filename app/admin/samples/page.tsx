@@ -1,99 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Plus, Edit2, Trash2, Eye } from "lucide-react";
+import { Plus, Trash2, Eye, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import api from "@/lib/axios";
+import toast from "react-hot-toast";
 
 interface Sample {
   id: number;
-  name: string;
-  category: string;
-  price: number;
-  originalPrice: number;
-  pages: number;
-  emoji: string;
-  isActive: boolean;
-  orders: number;
+  title: string;
+  pdfUrl: string;
+  coverImageUrl?: string;
+  category?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-const mockSamples: Sample[] = [
-  {
-    id: 1,
-    name: "Custom Magazine",
-    category: "Magazine",
-    price: 1200,
-    originalPrice: 1800,
-    pages: 20,
-    emoji: "📖",
-    isActive: true,
-    orders: 145,
-  },
-  {
-    id: 2,
-    name: "Photo Album",
-    category: "Album",
-    price: 1500,
-    originalPrice: 2000,
-    pages: 30,
-    emoji: "🖼️",
-    isActive: true,
-    orders: 98,
-  },
-  {
-    id: 3,
-    name: "Recap Reel",
-    category: "Video",
-    price: 550,
-    originalPrice: 800,
-    pages: 1,
-    emoji: "🎬",
-    isActive: true,
-    orders: 67,
-  },
-  {
-    id: 4,
-    name: "Custom Frame",
-    category: "Frame",
-    price: 650,
-    originalPrice: 900,
-    pages: 1,
-    emoji: "🪞",
-    isActive: true,
-    orders: 43,
-  },
-  {
-    id: 5,
-    name: "Birthday Magazine",
-    category: "Magazine",
-    price: 1400,
-    originalPrice: 2000,
-    pages: 20,
-    emoji: "🎂",
-    isActive: true,
-    orders: 52,
-  },
-  {
-    id: 6,
-    name: "Anniversary Album",
-    category: "Album",
-    price: 1800,
-    originalPrice: 2500,
-    pages: 30,
-    emoji: "💑",
-    isActive: true,
-    orders: 38,
-  },
-];
-
 export default function SamplesPage() {
-  const [samples, setSamples] = useState(mockSamples);
+  const [samples, setSamples] = useState<Sample[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("all");
 
+  useEffect(() => {
+    fetchSamples();
+  }, []);
+
+  const fetchSamples = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get<Sample[]>("/api/samples");
+      setSamples(response.data || []);
+    } catch (error) {
+      console.error("Error fetching samples:", error);
+      toast.error("Failed to load samples from backend");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this sample?")) return;
+
+    try {
+      await api.delete(`/api/samples/${id}`);
+      setSamples(samples.filter((s) => s.id !== id));
+      toast.success("Sample deleted successfully");
+    } catch (error) {
+      console.error("Error deleting sample:", error);
+      toast.error("Failed to delete sample");
+    }
+  };
+
   const filteredSamples = samples.filter((sample) => {
-    const matchesSearch = sample.name
+    const matchesSearch = sample.title
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesCategory =
@@ -101,13 +63,9 @@ export default function SamplesPage() {
     return matchesSearch && matchesCategory;
   });
 
-  const handleDelete = (id: number) => {
-    setSamples(samples.filter((s) => s.id !== id));
-  };
-
   const categories = [
     "all",
-    ...Array.from(new Set(samples.map((s) => s.category))),
+    ...Array.from(new Set(samples.map((s) => s.category).filter(Boolean) as string[])),
   ];
 
   return (
@@ -123,12 +81,12 @@ export default function SamplesPage() {
             Samples Management
           </h1>
           <p className="font-sans-clean text-stone-500">
-            Manage your product samples and templates
+            Manage your product PDF samples and collections
           </p>
         </div>
         <Button asChild size="lg" variant="default">
           <Link href="/admin/samples/new">
-            <Plus size={18} />
+            <Plus size={18} className="mr-1" />
             Add Sample
           </Link>
         </Button>
@@ -144,7 +102,7 @@ export default function SamplesPage() {
         <div className="flex-1 relative">
           <input
             type="text"
-            placeholder="Search samples..."
+            placeholder="Search samples by title..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-3 rounded-lg border border-stone-200 bg-white font-sans-clean text-sm text-stone-800 placeholder-stone-300 outline-none focus:border-amber-400 transition-all"
@@ -164,95 +122,90 @@ export default function SamplesPage() {
         </select>
       </motion.div>
 
-      {/* Samples Grid */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
-        {filteredSamples.map((sample, i) => (
+      {/* Loading State */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20">
+          <Loader2 size={40} className="animate-spin text-amber-500 mb-4" />
+          <p className="font-sans-clean text-stone-500">Loading samples from database...</p>
+        </div>
+      ) : (
+        <>
+          {/* Samples Grid */}
           <motion.div
-            key={sample.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-            className="rounded-2xl border border-stone-200 bg-white overflow-hidden hover:shadow-lg transition-all group"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {/* Image Area */}
-            <div className="relative h-40 bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center overflow-hidden">
-              <span className="text-6xl group-hover:scale-110 transition-transform">
-                {sample.emoji}
-              </span>
-              <div className="absolute top-3 right-3">
-                <span
-                  className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
-                    sample.isActive
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-100 text-gray-700"
-                  }`}
-                >
-                  {sample.isActive ? "Active" : "Inactive"}
-                </span>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="p-5">
-              <h3 className="font-display text-lg font-bold text-stone-900 mb-1">
-                {sample.name}
-              </h3>
-              <p className="font-sans-clean text-xs text-stone-500 mb-4">
-                {sample.category} • {sample.pages} page{sample.pages > 1 ? "s" : ""}
-              </p>
-
-              <div className="flex items-center justify-between mb-4 pb-4 border-b border-stone-200">
-                <div>
-                  <p className="font-sans-clean text-xs text-stone-500">Price</p>
-                  <p className="font-display font-bold text-stone-900">
-                    ₹{sample.price.toLocaleString()}
-                  </p>
+            {filteredSamples.map((sample, i) => (
+              <motion.div
+                key={sample.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="rounded-2xl border border-stone-200 bg-white overflow-hidden hover:shadow-lg transition-all group"
+              >
+                {/* Image Area */}
+                <div className="relative h-48 bg-stone-100 flex items-center justify-center overflow-hidden border-b border-stone-100">
+                  {sample.coverImageUrl ? (
+                    <img
+                      src={sample.coverImageUrl}
+                      alt={sample.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-stone-400">
+                      <span className="text-6xl group-hover:scale-110 transition-transform duration-500">📖</span>
+                      <span className="text-xs">No Cover Image</span>
+                    </div>
+                  )}
+                  {sample.category && (
+                    <div className="absolute top-3 left-3">
+                      <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                        {sample.category}
+                      </span>
+                    </div>
+                  )}
                 </div>
-                <div className="text-right">
-                  <p className="font-sans-clean text-xs text-stone-500">Orders</p>
-                  <p className="font-display font-bold text-stone-900">
-                    {sample.orders}
-                  </p>
-                </div>
-              </div>
 
-              {/* Actions */}
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1">
-                  <Eye size={16} />
-                  View
-                </Button>
-                <Button variant="outline" size="sm" className="flex-1">
-                  <Edit2 size={16} />
-                  Edit
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDelete(sample.id)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                >
-                  <Trash2 size={16} />
-                </Button>
-              </div>
-            </div>
+                {/* Content */}
+                <div className="p-5">
+                  <h3 className="font-display text-lg font-bold text-stone-900 mb-4 line-clamp-1">
+                    {sample.title}
+                  </h3>
+
+                  {/* Actions */}
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="flex-1" asChild>
+                      <a href={sample.pdfUrl} target="_blank" rel="noopener noreferrer">
+                        <Eye size={16} className="mr-1" />
+                        View PDF
+                      </a>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(sample.id)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </motion.div>
-        ))}
-      </motion.div>
 
-      {filteredSamples.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-12"
-        >
-          <p className="font-sans-clean text-stone-500">No samples found</p>
-        </motion.div>
+          {filteredSamples.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-12"
+            >
+              <p className="font-sans-clean text-stone-500">No samples found</p>
+            </motion.div>
+          )}
+        </>
       )}
     </div>
   );
