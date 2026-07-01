@@ -68,4 +68,43 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid email or password"));
         }
     }
+
+    @PostMapping("/send-otp")
+    public ResponseEntity<?> sendOtp(@RequestParam String email) {
+        try {
+            userService.generateAndSendOtp(email);
+            return ResponseEntity.ok(Map.of("message", "OTP sent successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp) {
+        try {
+            boolean isValid = userService.verifyOtp(email, otp);
+            if (!isValid) {
+                return ResponseEntity.status(401).body(Map.of("error", "Invalid or expired OTP"));
+            }
+
+            User user = userService.getUserByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+            // Manually set authentication for the OTP verified user
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    user, null, user.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            String jwt = tokenProvider.generateToken(authentication);
+
+            return ResponseEntity.ok(new AuthResponse(
+                    jwt,
+                    user.getEmail(),
+                    user.getName(),
+                    user.getRole()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }
