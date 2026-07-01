@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -8,6 +8,7 @@ import { ChevronLeft, Check, Star, Shield, Truck, RefreshCw, BookOpen, Sparkles,
 import { Button } from "@/components/ui/button";
 import SampleFlipbookModal from "@/components/sections/SampleFlipbookModal";
 import ProductConfiguratorModal from "@/components/sections/ProductConfiguratorModal";
+import api from "@/lib/axios";
 
 // Types
 interface FAQ { question: string; answer: string }
@@ -65,7 +66,7 @@ const productData: Record<string, Product> = {
     occasions: ["Birthday", "Anniversary", "Farewell", "Friendship", "Wedding", "Custom"],
     steps: ["Place order and pay 50% advance", "Share your photos and stories via WhatsApp", "Receive design preview in 24-48 hrs", "Approve and pay remaining 50%", "Delivered to your doorstep"],
     pageOptions: PAGE_OPTIONS_DEFAULT,
-    samplePdf: "/samples/magazine-sample.pdf",
+    samplePdf: "/samples/nandita-wedding.pdf",
   },
   "photo-album": {
     name: "Photo Album",
@@ -85,7 +86,7 @@ const productData: Record<string, Product> = {
     occasions: ["Wedding", "Anniversary", "Birthday", "Travel", "Family", "Custom"],
     steps: ["Place order and pay 50% advance", "Share your photos via WhatsApp", "Receive design preview in 24-48 hrs", "Approve and pay remaining 50%", "Delivered to your doorstep"],
     pageOptions: PAGE_OPTIONS_DEFAULT,
-    samplePdf: "/samples/album-sample.pdf",
+    samplePdf: "/samples/timeless-wedding.pdf",
   },
   "recap-reel": {
     name: "Recap Reel",
@@ -138,7 +139,7 @@ const productData: Record<string, Product> = {
     occasions: ["Birthday", "Milestone Birthday", "Surprise Gift", "Custom"],
     steps: ["Place order and pay 50% advance", "Share photos and messages via WhatsApp", "Receive design preview in 24-48 hrs", "Approve and pay remaining 50%", "Delivered to your doorstep"],
     pageOptions: PAGE_OPTIONS_DEFAULT,
-    samplePdf: "/samples/birthday-sample.pdf",
+    samplePdf: "/samples/sonali-birthday.pdf",
   },
   "anniversary-album": {
     name: "Anniversary Album",
@@ -158,7 +159,7 @@ const productData: Record<string, Product> = {
     occasions: ["1st Anniversary", "25th Anniversary", "50th Anniversary", "Valentine", "Custom"],
     steps: ["Place order and pay 50% advance", "Share your photos and story via WhatsApp", "Receive design preview in 24-48 hrs", "Approve and pay remaining 50%", "Delivered to your doorstep"],
     pageOptions: PAGE_OPTIONS_DEFAULT,
-    samplePdf: "/samples/anniversary-sample.pdf",
+    samplePdf: "/samples/ashish-anniversary.pdf",
   },
 };
 
@@ -172,6 +173,63 @@ export default function ProductPage() {
   const params = useParams();
   const slug = params.slug as string;
   const product = productData[slug];
+
+  // Dynamic samples from database
+  const [dbSamples, setDbSamples] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadSamples() {
+      try {
+        const res = await api.get("/api/samples");
+        setDbSamples(res.data || []);
+      } catch (err) {
+        console.error("Failed to load samples for product page:", err);
+      }
+    }
+    loadSamples();
+  }, []);
+
+  const resolvedSamplePdf = useMemo(() => {
+    if (!product || !product.samplePdf) return undefined;
+    
+    // Resolve dynamically from database if samples exist
+    if (dbSamples.length > 0) {
+      let matched = dbSamples.find(s => {
+        const titleLower = s.title.toLowerCase();
+        const categoryLower = (s.category || "").toLowerCase();
+        
+        if (slug === "custom-magazine") {
+          return categoryLower === "magazine" || titleLower.includes("magazine");
+        }
+        if (slug === "photo-album") {
+          return categoryLower === "album" || titleLower.includes("album");
+        }
+        if (slug === "birthday-magazine") {
+          return titleLower.includes("birthday") || categoryLower === "birthday";
+        }
+        if (slug === "anniversary-album") {
+          return titleLower.includes("anniversary") || categoryLower === "anniversary";
+        }
+        return false;
+      });
+
+      if (!matched) {
+        if (slug.includes("magazine")) {
+          matched = dbSamples.find(s => (s.category || "").toLowerCase() === "magazine" || s.title.toLowerCase().includes("magazine"));
+        } else if (slug.includes("album")) {
+          matched = dbSamples.find(s => (s.category || "").toLowerCase() === "album" || s.title.toLowerCase().includes("album"));
+        }
+      }
+
+      if (!matched) {
+        matched = dbSamples[0];
+      }
+
+      if (matched) return matched.pdfUrl;
+    }
+    
+    return product.samplePdf;
+  }, [product, dbSamples, slug]);
 
   // Modals visibility states
   const [isSampleModalOpen, setIsSampleModalOpen] = useState(false);
@@ -678,7 +736,7 @@ export default function ProductPage() {
       <SampleFlipbookModal
         isOpen={isSampleModalOpen}
         onClose={() => setIsSampleModalOpen(false)}
-        pdfUrl={product.samplePdf}
+        pdfUrl={resolvedSamplePdf}
         pageCount={selectedSamplePages}
         productName={product.name}
       />
