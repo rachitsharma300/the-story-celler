@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Star, BookOpen, ChevronDown, Heart, ArrowRight } from "lucide-react";
 import SampleFlipbookModal from "@/components/sections/SampleFlipbookModal";
+import api from "@/lib/axios";
 
 function AutoImageSlider({ images, className = "" }: { images: string[]; className?: string }) {
   const [index, setIndex] = useState(0);
@@ -122,7 +123,7 @@ const quickCreate = [
   }
 ];
 
-const samples = [
+const staticSamples = [
   {
     id: "wedding-nandita",
     title: "Nandita's Wedding",
@@ -415,6 +416,31 @@ export default function HomePage() {
   const [sampleIndex, setSampleIndex] = useState(0);
   const [itemsToShow, setItemsToShow] = useState(3);
 
+  const [samplesList, setSamplesList] = useState(staticSamples);
+
+  useEffect(() => {
+    async function loadDbSamples() {
+      try {
+        const response = await api.get("/api/samples");
+        if (response.data && response.data.length > 0) {
+          const formatted = response.data.map((s: any) => ({
+            id: `db-${s.id}`,
+            title: s.title,
+            pageText: "12 Pages",
+            coverImage: s.coverImageUrl || "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&fit=crop&q=80",
+            tagColor: "bg-amber-100 text-amber-700",
+            pdfUrl: s.pdfUrl,
+            pageCount: 12
+          }));
+          setSamplesList(formatted);
+        }
+      } catch (error) {
+        console.error("Failed to fetch database samples, falling back to static assets:", error);
+      }
+    }
+    loadDbSamples();
+  }, []);
+
   useEffect(() => {
     const handleResize = () => {
       let currentItemsToShow = 3;
@@ -426,23 +452,23 @@ export default function HomePage() {
         currentItemsToShow = 3;
       }
       setItemsToShow(currentItemsToShow);
-      setSampleIndex((prev) => Math.min(prev, Math.max(0, samples.length - currentItemsToShow)));
+      setSampleIndex((prev) => Math.min(prev, Math.max(0, samplesList.length - currentItemsToShow)));
     };
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [samplesList]);
 
   useEffect(() => {
-    if (samples.length <= itemsToShow) return;
+    if (samplesList.length <= itemsToShow) return;
     const timer = setInterval(() => {
       setSampleIndex((prev) => {
         const next = prev + 1;
-        return next >= samples.length - itemsToShow + 1 ? 0 : next;
+        return next >= samplesList.length - itemsToShow + 1 ? 0 : next;
       });
     }, 4500); // auto-scrolling speed (4.5s)
     return () => clearInterval(timer);
-  }, [itemsToShow]);
+  }, [itemsToShow, samplesList]);
 
   const openSample = (title: string, pages: number, pdf?: string, images?: string[]) => {
     setSampleProductName(title);
@@ -858,19 +884,18 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          {/* Carousel Viewport Container */}
           <div className="relative w-full overflow-hidden max-w-6xl mx-auto px-1 py-4">
             <motion.div 
               className="flex transition-transform duration-700 ease-in-out"
               style={{
-                transform: `translateX(-${sampleIndex * (100 / samples.length)}%)`,
-                width: `${(samples.length / itemsToShow) * 100}%`
+                transform: `translateX(-${sampleIndex * (100 / samplesList.length)}%)`,
+                width: `${(samplesList.length / itemsToShow) * 100}%`
               }}
             >
-              {samples.map((sample, i) => (
+              {samplesList.map((sample, i) => (
                 <div 
                   key={sample.id} 
-                  style={{ width: `${100 / samples.length}%` }}
+                  style={{ width: `${100 / samplesList.length}%` }}
                   className="px-3.5 flex-shrink-0"
                 >
                   <motion.div
