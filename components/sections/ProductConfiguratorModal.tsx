@@ -143,7 +143,6 @@ export default function ProductConfiguratorModal({
 
     if (!files || files.length === 0) return;
 
-    // Simulate upload progress
     setUploadProgress(0);
     const validFiles: { id: string; url: string; name: string; size: number }[] = [];
 
@@ -155,16 +154,33 @@ export default function ProductConfiguratorModal({
         continue;
       }
 
-      // Upload progress simulation
-      setUploadProgress(Math.round(((i + 1) / files.length) * 100));
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("folder", `storyceller/orders/${productSlug}`);
 
-      const objectUrl = URL.createObjectURL(file);
-      validFiles.push({
-        id: Math.random().toString(36).substring(7),
-        url: objectUrl,
-        name: file.name,
-        size: file.size,
-      });
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error("Upload failed");
+
+        const data = await response.json();
+        if (data.success && data.url) {
+          validFiles.push({
+            id: Math.random().toString(36).substring(7),
+            url: data.url,
+            name: file.name,
+            size: file.size,
+          });
+        }
+      } catch (err) {
+        console.error("Error uploading file:", err);
+        toast.error(`Failed to upload ${file.name}`);
+      }
+
+      setUploadProgress(Math.round(((i + 1) / files.length) * 100));
     }
 
     setUploadedPhotos((prev) => [...prev, ...validFiles]);
@@ -172,7 +188,7 @@ export default function ProductConfiguratorModal({
   }
 
   // Handle Cover Page Photo Upload
-  function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -182,11 +198,35 @@ export default function ProductConfiguratorModal({
       return;
     }
 
-    setFrontCoverPhoto({
-      url: URL.createObjectURL(file),
-      name: file.name,
-    });
-    toast.success("Cover image selected successfully!");
+    setUploadProgress(10);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", `storyceller/orders/${productSlug}/covers`);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const data = await response.json();
+      if (data.success && data.url) {
+        setFrontCoverPhoto({
+          url: data.url,
+          name: file.name,
+        });
+        toast.success("Cover image uploaded successfully!");
+      } else {
+        throw new Error(data.error || "Failed to upload cover image");
+      }
+    } catch (err) {
+      console.error("Error uploading cover:", err);
+      toast.error("Failed to upload cover image");
+    } finally {
+      setUploadProgress(null);
+    }
   }
 
   // Reorder list items
