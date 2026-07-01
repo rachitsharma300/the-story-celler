@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -14,6 +17,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -28,5 +32,47 @@ public class UserService {
             user.setRole("USER");
         }
         return userRepository.save(user);
+    }
+
+    public void generateAndSendOtp(String email) {
+        User user = userRepository.findByEmail(email).orElseGet(() -> {
+            // Create user placeholder for first-time OTP registration
+            User newUser = new User();
+            newUser.setEmail(email);
+            newUser.setName(email.split("@")[0]);
+            newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+            newUser.setRole("USER");
+            return newUser;
+        });
+
+        // Generate 6-digit OTP
+        String otp = String.format("%06d", new Random().nextInt(1000000));
+        user.setOtp(otp);
+        user.setOtpExpiry(LocalDateTime.now().plusMinutes(5));
+
+        userRepository.save(user);
+        emailService.sendOtpEmail(email, otp);
+    }
+
+    public boolean verifyOtp(String email, String otp) {
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+
+        User user = userOpt.get();
+        if (user.getOtp() == null || !user.getOtp().equals(otp)) {
+            return false;
+        }
+
+        if (user.getOtpExpiry() == null || user.getOtpExpiry().isBefore(LocalDateTime.now())) {
+            return false;
+        }
+
+        // Clear OTP once verified
+        user.setOtp(null);
+        user.setOtpExpiry(null);
+        userRepository.save(user);
+        return true;
     }
 }
