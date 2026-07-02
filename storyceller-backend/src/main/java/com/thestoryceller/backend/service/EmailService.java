@@ -1,19 +1,44 @@
 package com.thestoryceller.backend.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 public class EmailService {
 
+    @Autowired(required = false)
+    private JavaMailSender mailSender;
+
     public void sendOtpEmail(String toEmail, String otp) {
-        // Temporarily disabled until SMTP/email setup is ready.
-        // SimpleMailMessage message = new SimpleMailMessage();
-        // message.setTo(toEmail);
-        // message.setSubject("MyStoryArchive - Your OTP Code");
-        // message.setText("Hello,\n\nYour One-Time Password (OTP) code is: " + otp + "\n\nThis OTP is valid for 5 minutes. Please do not share it with anyone.\n\nWarm regards,\nMyStoryArchive Team");
-        // mailSender.send(message);
-        log.info("Email sending disabled. OTP for {} is {}", toEmail, otp);
+        String subject = "MyStoryArchive - Your OTP Code";
+        String content = "Hello,\n\nYour One-Time Password (OTP) code is: " + otp 
+                + "\n\nThis OTP is valid for 5 minutes. Please do not share it with anyone.\n\nWarm regards,\nMyStoryArchive Team";
+
+        if (mailSender != null) {
+            try {
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setTo(toEmail);
+                message.setSubject(subject);
+                message.setText(content);
+                mailSender.send(message);
+                log.info("OTP email successfully sent to {}", toEmail);
+                return;
+            } catch (Exception e) {
+                log.error("Failed to send email via SMTP: {}. Falling back to console log.", e.getMessage());
+            }
+        } else {
+            log.warn("JavaMailSender bean is not available. SMTP email config is disabled.");
+        }
+        
+        // Fallback for local testing or failure
+        log.info("\n==================================================\n" +
+                 "  [EMAIL VERIFICATION OTP FALLBACK]\n" +
+                 "  To: {}\n" +
+                 "  OTP: {}\n" +
+                 "==================================================\n", toEmail, otp);
     }
 }
