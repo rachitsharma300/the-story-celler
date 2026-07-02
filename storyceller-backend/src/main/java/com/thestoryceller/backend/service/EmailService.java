@@ -2,6 +2,7 @@ package com.thestoryceller.backend.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,9 @@ public class EmailService {
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
+    @Value("${spring.mail.username:noreply@mystoryarchive.in}")
+    private String fromEmail;
+
     public void sendOtpEmail(String toEmail, String otp) {
         String subject = "MyStoryArchive - Your OTP Code";
         String content = "Hello,\n\nYour One-Time Password (OTP) code is: " + otp 
@@ -21,6 +25,7 @@ public class EmailService {
         if (mailSender != null) {
             try {
                 SimpleMailMessage message = new SimpleMailMessage();
+                message.setFrom(fromEmail);
                 message.setTo(toEmail);
                 message.setSubject(subject);
                 message.setText(content);
