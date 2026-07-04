@@ -25,6 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useUserStore } from "@/store/userStore";
 import toast from "react-hot-toast";
+import api from "@/lib/axios";
 
 type TabType = "orders" | "profile" | "wishlist" | "settings";
 
@@ -124,8 +125,12 @@ const mockProfile: UserProfile = {
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
   pending: { label: "Pending", color: "text-blue-600", bg: "bg-blue-50" },
   processing: { label: "Processing", color: "text-purple-600", bg: "bg-purple-50" },
+  designing: { label: "Designing", color: "text-purple-600", bg: "bg-purple-50" },
   designed: { label: "Design Ready", color: "text-amber-600", bg: "bg-amber-50" },
+  review: { label: "Under Review", color: "text-amber-600", bg: "bg-amber-50" },
+  printing: { label: "Printing", color: "text-amber-600", bg: "bg-amber-50" },
   dispatched: { label: "Dispatched", color: "text-orange-600", bg: "bg-orange-50" },
+  shipped: { label: "Shipped", color: "text-orange-600", bg: "bg-orange-50" },
   delivered: { label: "Delivered", color: "text-green-600", bg: "bg-green-50" },
 };
 
@@ -141,25 +146,73 @@ export default function DashboardPage() {
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [orders, setOrders] = useState<any[]>([]);
 
   useEffect(() => {
     initializeAuth();
   }, [initializeAuth]);
 
   useEffect(() => {
-    if (user) {
-      setProfile({
-        name: user.name,
-        email: user.email,
-        phone: "+91 98765 43210",
-        joinDate: "June 2026",
-        address: "123 Memory Lane, Apartment 4B",
-        city: "New Delhi",
-        state: "Delhi",
-        pincode: "110001",
-      });
+    if (isAuthenticated) {
+      // Fetch profile details
+      api.get("/api/users/me")
+        .then(res => {
+          const u = res.data;
+          setProfile({
+            name: u.name || "",
+            email: u.email || "",
+            phone: u.phone || "",
+            joinDate: "June 2026",
+            address: u.address || "",
+            city: u.city || "",
+            state: u.state || "",
+            pincode: u.pincode || "",
+          });
+        })
+        .catch(err => {
+          console.error("Failed to load user profile:", err);
+        });
+
+      // Fetch user orders
+      api.get("/api/orders")
+        .then(res => {
+          setOrders(res.data || []);
+        })
+        .catch(err => {
+          console.error("Failed to load orders:", err);
+        });
     }
-  }, [user]);
+  }, [isAuthenticated]);
+
+  const handleSaveProfile = async () => {
+    if (isEditingProfile) {
+      toast.loading("Saving profile details...", { id: "profile" });
+      try {
+        await api.put("/api/users/me", {
+          name: profile.name,
+          phone: profile.phone,
+          address: profile.address,
+          city: profile.city,
+          state: profile.state,
+          pincode: profile.pincode
+        });
+        toast.success("Profile updated successfully!", { id: "profile" });
+      } catch (err: any) {
+        toast.error(err.response?.data?.error || "Failed to update profile.", { id: "profile" });
+      }
+    }
+    setIsEditingProfile(!isEditingProfile);
+  };
+
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "Just now";
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString("en-IN", { day: '2-digit', month: 'short', year: 'numeric' });
+    } catch (e) {
+      return dateStr;
+    }
+  };
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -371,7 +424,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="space-y-4">
-                  {mockOrders.length === 0 ? (
+                  {orders.length === 0 ? (
                     <div className="rounded-3xl border border-stone-200 bg-white p-10 text-center">
                       <p className="text-5xl mb-4">📦</p>
                       <p className="font-display text-2xl font-bold text-stone-900 mb-2">
@@ -388,11 +441,13 @@ export default function DashboardPage() {
                       </Link>
                     </div>
                   ) : (
-                    mockOrders.map((order, i) => {
-                      const config = statusConfig[order.status];
+                    orders.map((order, i) => {
+                      const statusKey = (order.status || "pending").toLowerCase();
+                      const config = statusConfig[statusKey] || statusConfig.pending;
+                      const emoji = order.productName?.toLowerCase().includes("album") ? "📁" : "📖";
                       return (
                         <motion.div
-                          key={order.id}
+                          key={order.orderId}
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: i * 0.1 }}
@@ -400,15 +455,15 @@ export default function DashboardPage() {
                         >
                           <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-4 items-center">
                             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-stone-50 text-4xl">
-                              {order.emoji}
+                              {emoji}
                             </div>
 
                             <div>
                               <p className="font-display text-lg font-bold text-stone-900">
-                                {order.product}
+                                {order.productName}
                               </p>
                               <p className="font-sans-clean text-sm text-stone-500">
-                                Order #{order.id} • {order.date}
+                                Order #{order.orderId} • {formatDate(order.createdAt)}
                               </p>
                               <div className="mt-2 flex items-center gap-2">
                                 <span
@@ -421,13 +476,13 @@ export default function DashboardPage() {
 
                             <div className="text-right">
                               <p className="font-display text-2xl font-bold text-stone-900">
-                                ₹{order.total.toLocaleString()}
+                                ₹{(order.totalAmount || 0).toLocaleString()}
                               </p>
                               <p className="font-sans-clean text-xs text-stone-400 mt-1">
-                                Advance paid: ₹{order.advance.toLocaleString()}
+                                Advance paid: ₹{(order.advanceAmount || 0).toLocaleString()}
                               </p>
                               <Link
-                                href={`/track-order?order=${order.id}`}
+                                href={`/track-order?order=${order.orderId}`}
                                 className="inline-flex items-center gap-1 mt-3 text-amber-600 hover:text-amber-700 font-sans-clean text-sm font-semibold transition-colors"
                               >
                                 Track <ChevronRight size={14} />
@@ -460,7 +515,7 @@ export default function DashboardPage() {
                       Personal Information
                     </h2>
                   <Button
-                    onClick={() => setIsEditingProfile(!isEditingProfile)}
+                    onClick={handleSaveProfile}
                     variant="outline"
                     size="sm"
                     className="text-amber-600"
