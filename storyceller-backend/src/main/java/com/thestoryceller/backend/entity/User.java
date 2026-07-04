@@ -39,6 +39,21 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "otp_expiry")
     private java.time.LocalDateTime otpExpiry;
 
+    @Column(name = "phone")
+    private String phone;
+
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "city")
+    private String city;
+
+    @Column(name = "state")
+    private String state;
+
+    @Column(name = "pincode")
+    private String pincode;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
