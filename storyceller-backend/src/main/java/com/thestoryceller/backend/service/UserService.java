@@ -75,4 +75,16 @@ public class UserService {
         userRepository.save(user);
         return true;
     }
+
+    public User updateUserProfile(String email, User updatedData) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setName(updatedData.getName());
+        user.setPhone(updatedData.getPhone());
+        user.setAddress(updatedData.getAddress());
+        user.setCity(updatedData.getCity());
+        user.setState(updatedData.getState());
+        user.setPincode(updatedData.getPincode());
+        return userRepository.save(user);
+    }
 }
