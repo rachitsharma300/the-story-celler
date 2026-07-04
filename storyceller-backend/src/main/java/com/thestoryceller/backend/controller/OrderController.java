@@ -1,11 +1,15 @@
 package com.thestoryceller.backend.controller;
 
 import com.thestoryceller.backend.entity.Order;
+import com.thestoryceller.backend.entity.User;
 import com.thestoryceller.backend.entity.enums.OrderStatus;
+import com.thestoryceller.backend.repository.UserRepository;
 import com.thestoryceller.backend.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,10 +22,17 @@ import java.util.Map;
 public class OrderController {
 
     private final OrderService orderService;
+    private final UserRepository userRepository;
 
     @GetMapping
-    public ResponseEntity<List<Order>> getAllOrders() {
-        return ResponseEntity.ok(orderService.getAllOrders());
+    public ResponseEntity<?> getAllOrders(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
+        return userRepository.findByEmail(userDetails.getUsername())
+                .map(user -> ResponseEntity.ok(orderService.getOrdersByUser(user)))
+                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
     @GetMapping("/{orderId}")
@@ -32,9 +43,19 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
-        Order created = orderService.createOrder(order);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    public ResponseEntity<?> createOrder(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody Order order) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
+        return userRepository.findByEmail(userDetails.getUsername())
+                .map(user -> {
+                    Order created = orderService.createOrder(order, user);
+                    return ResponseEntity.status(HttpStatus.CREATED).body(created);
+                })
+                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
     @PutMapping("/{orderId}/status")
