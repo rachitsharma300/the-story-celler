@@ -159,7 +159,7 @@ const productData: Record<string, Product> = {
     occasions: ["1st Anniversary", "25th Anniversary", "50th Anniversary", "Valentine", "Custom"],
     steps: ["Place order and pay 50% advance", "Share your photos and story via WhatsApp", "Receive design preview in 24-48 hrs", "Approve and pay remaining 50%", "Delivered to your doorstep"],
     pageOptions: PAGE_OPTIONS_DEFAULT,
-    samplePdf: "/samples/ashish-anniversary.pdf",
+    samplePdf: "https://res.cloudinary.com/hco2g9ee/raw/upload/v1783178727/storyceller/samples/gdccmqgxonnqgq3qp0rr",
   },
 };
 
