@@ -14,7 +14,7 @@ public class EmailService {
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
-    @Value("${spring.mail.username:noreply@mystoryarchive.in}")
+    @Value("${spring.mail.from:${spring.mail.username:noreply@mystoryarchive.in}}")
     private String fromEmail;
 
     public void sendOtpEmail(String toEmail, String otp) {
