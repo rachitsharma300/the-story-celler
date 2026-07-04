@@ -139,7 +139,7 @@ const staticSamples = [
     pageText: "12 Pages",
     coverImage: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=500&auto=format&fit=crop&q=80",
     tagColor: "bg-amber-100 text-amber-700",
-    pdfUrl: "/samples/ashish-anniversary.pdf",
+    pdfUrl: "https://res.cloudinary.com/hco2g9ee/raw/upload/v1783178727/storyceller/samples/gdccmqgxonnqgq3qp0rr",
     pageCount: 12
   },
   {
@@ -166,7 +166,7 @@ const staticSamples = [
     pageText: "20 Pages",
     coverImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&auto=format&fit=crop&q=80",
     tagColor: "bg-emerald-100 text-emerald-700",
-    pdfUrl: "/samples/amandeep-travel.pdf",
+    pdfUrl: "https://res.cloudinary.com/hco2g9ee/raw/upload/v1783178723/storyceller/samples/jytelrhvgoj40zm9hson",
     pageCount: 20
   },
   {
@@ -211,7 +211,7 @@ const staticSamples = [
     pageText: "16 Pages",
     coverImage: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=500&auto=format&fit=crop&q=80",
     tagColor: "bg-sky-100 text-sky-700",
-    pdfUrl: "/samples/aditi-valentines.pdf",
+    pdfUrl: "https://res.cloudinary.com/hco2g9ee/raw/upload/v1783178717/storyceller/samples/iho5yfy91fveahxahuk9",
     pageCount: 16
   },
   {
