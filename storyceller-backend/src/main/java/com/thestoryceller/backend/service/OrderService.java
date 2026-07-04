@@ -1,6 +1,7 @@
 package com.thestoryceller.backend.service;
 
 import com.thestoryceller.backend.entity.Order;
+import com.thestoryceller.backend.entity.User;
 import com.thestoryceller.backend.entity.enums.OrderStatus;
 import com.thestoryceller.backend.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,17 +21,22 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
+    public List<Order> getOrdersByUser(User user) {
+        return orderRepository.findByUser(user);
+    }
+
     public Optional<Order> getOrderByOrderId(String orderId) {
         return orderRepository.findByOrderId(orderId);
     }
 
-    public Order createOrder(Order order) {
+    public Order createOrder(Order order, User user) {
         int currentYear = LocalDate.now().getYear();
         long count = orderRepository.count();
         String sequentialNum = String.format("%04d", count + 1);
         String orderId = "MV-" + currentYear + "-" + sequentialNum;
         
         order.setOrderId(orderId);
+        order.setUser(user);
         if (order.getStatus() == null) {
             order.setStatus(OrderStatus.PENDING);
         }
