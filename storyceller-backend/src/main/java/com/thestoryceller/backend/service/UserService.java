@@ -87,4 +87,25 @@ public class UserService {
         user.setPincode(updatedData.getPincode());
         return userRepository.save(user);
     }
+
+    public void resetPassword(String email, String otp, String newPassword) {
+        if (!verifyOtp(email, otp)) {
+            throw new IllegalArgumentException("Invalid or expired OTP");
+        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    public User registerGoogleUser(String email, String name) {
+        return userRepository.findByEmail(email).orElseGet(() -> {
+            User newUser = new User();
+            newUser.setEmail(email);
+            newUser.setName(name);
+            newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+            newUser.setRole("USER");
+            return userRepository.save(newUser);
+        });
+    }
 }
