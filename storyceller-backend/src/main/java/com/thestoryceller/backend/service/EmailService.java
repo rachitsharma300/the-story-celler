@@ -14,13 +14,13 @@ public class EmailService {
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
-    @Value("${spring.mail.from:${spring.mail.username:noreply@mystoryarchive.in}}")
+    @Value("${spring.mail.from:${spring.mail.username:noreply@thestoryceller.in}}")
     private String fromEmail;
 
     public void sendOtpEmail(String toEmail, String otp) {
-        String subject = "MyStoryArchive - Your OTP Code";
+        String subject = "The Story Celler - Your OTP Code";
         String content = "Hello,\n\nYour One-Time Password (OTP) code is: " + otp 
-                + "\n\nThis OTP is valid for 5 minutes. Please do not share it with anyone.\n\nWarm regards,\nMyStoryArchive Team";
+                + "\n\nThis OTP is valid for 5 minutes. Please do not share it with anyone.\n\nWarm regards,\nThe Story Celler Team";
 
         if (mailSender != null) {
             try {
