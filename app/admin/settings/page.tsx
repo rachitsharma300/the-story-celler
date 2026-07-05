@@ -9,7 +9,7 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState({
     siteName: "The Story Celler",
     siteEmail: "team@storyceller.in",
-    supportPhone: "+91 79033 16723",
+    supportPhone: "+91 98718 74041",
     taxRate: 18,
     shippingCost: 0,
     advancePercentage: 50,
