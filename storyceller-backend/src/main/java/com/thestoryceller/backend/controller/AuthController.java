@@ -107,4 +107,72 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            String otp = request.get("otp");
+            String newPassword = request.get("newPassword");
+            
+            userService.resetPassword(email, otp, newPassword);
+            return ResponseEntity.ok(Map.of("message", "Password reset successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> request) {
+        try {
+            String idToken = request.get("credential");
+            if (idToken == null || idToken.isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Google credential is required"));
+            }
+
+            // Verify Google token via Google API
+            java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+            java.net.http.HttpRequest httpRequest = java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create("https://oauth2.googleapis.com/tokeninfo?id_token=" + idToken))
+                    .GET()
+                    .build();
+
+            java.net.http.HttpResponse<String> response = client.send(httpRequest, java.net.http.HttpResponse.BodyHandlers.ofString());
+            
+            if (response.statusCode() != 200) {
+                return ResponseEntity.status(401).body(Map.of("error", "Invalid Google ID token"));
+            }
+
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            Map<String, Object> payload = mapper.readValue(response.body(), Map.class);
+
+            String email = (String) payload.get("email");
+            String name = (String) payload.get("name");
+            
+            if (email == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Failed to retrieve email from Google profile"));
+            }
+
+            if (name == null || name.isBlank()) {
+                name = email.split("@")[0];
+            }
+
+            User user = userService.registerGoogleUser(email, name);
+
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    user, null, user.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            String jwt = tokenProvider.generateToken(authentication);
+
+            return ResponseEntity.ok(new AuthResponse(
+                    jwt,
+                    user.getEmail(),
+                    user.getName(),
+                    user.getRole()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Internal Google Auth failure: " + e.getMessage()));
+        }
+    }
 }
