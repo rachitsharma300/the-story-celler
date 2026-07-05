@@ -79,7 +79,7 @@ export default function Navbar() {
               </div>
               <div>
                 <span className="font-display text-base font-extrabold text-stone-900 tracking-tight block leading-none">
-                  Story<span className="text-amber-500 font-light italic">Cellar</span>
+                  Story<span className="text-amber-500 font-light italic">Celler</span>
                 </span>
                 <p className="text-[8px] text-stone-400 font-sans-clean tracking-[0.2em] uppercase mt-0.5">
                   Archiving Memories
