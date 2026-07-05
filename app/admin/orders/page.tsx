@@ -7,12 +7,19 @@ import { Search, Eye, Edit2, Download, Filter, FileText, Check, Loader2, Refresh
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 
 interface Order {
   orderId: string;
-  customer: string;
-  email: string;
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  customerAddress?: string;
+  customerCity?: string;
+  customerState?: string;
+  customerPincode?: string;
   productSlug: string;
   productName: string;
   quantity: number;
@@ -64,12 +71,63 @@ export default function OrdersPage() {
   const [updatingStatus, setUpdatingStatus] = useState<string>("");
   const [pdfUrlInput, setPdfUrlInput] = useState<string>("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [zipping, setZipping] = useState(false);
+
+  const downloadPhotosAsZip = async (order: Order) => {
+    const urls = [...order.uploadedPhotos];
+    if (order.frontCoverPhoto) {
+      urls.push(order.frontCoverPhoto);
+    }
+    
+    if (urls.length === 0) {
+      toast.error("This order has no uploaded photos.");
+      return;
+    }
+    
+    setZipping(true);
+    toast.loading("Downloading and zipping files...", { id: "zip-download" });
+    
+    try {
+      const zip = new JSZip();
+      
+      const downloadPromises = urls.map(async (url, index) => {
+        try {
+          const response = await fetch(url);
+          const blob = await response.blob();
+          
+          let ext = "jpg";
+          const match = url.match(/\.([a-zA-Z0-9]+)(?:[\?#]|$)/);
+          if (match) {
+            ext = match[1];
+          }
+          
+          const isCover = url === order.frontCoverPhoto;
+          const fileName = isCover ? `front_cover.${ext}` : `photo_${index + 1}.${ext}`;
+          
+          zip.file(fileName, blob);
+        } catch (err) {
+          console.error(`Failed to fetch photo from url: ${url}`, err);
+        }
+      });
+      
+      await Promise.all(downloadPromises);
+      
+      const content = await zip.generateAsync({ type: "blob" });
+      saveAs(content, `order_${order.orderId}_photos.zip`);
+      toast.success("Photos zipped and downloaded successfully!", { id: "zip-download" });
+    } catch (err) {
+      console.error("Zipping failed:", err);
+      toast.error("Failed to package photos into a ZIP file.", { id: "zip-download" });
+    } finally {
+      setZipping(false);
+    }
+  };
 
   // Fetch orders from backend API
   async function fetchOrders() {
     setLoading(true);
     try {
-      const response = await api.get("/api/orders");
+      const response = await api.get("/api/admin/orders");
       const data = response.data;
       
       const statusMap: Record<string, Order["status"]> = {
@@ -105,8 +163,13 @@ export default function OrdersPage() {
     return [
       {
         orderId: "MV-2026-0001",
-        customer: "Rahul Sharma",
-        email: "rahul@example.com",
+        customerName: "Rahul Sharma",
+        customerEmail: "rahul@example.com",
+        customerPhone: "+91 98718 74041",
+        customerAddress: "Flat 402, Block A, Green Meadows Apartments",
+        customerCity: "Gurugram",
+        customerState: "Haryana",
+        customerPincode: "122018",
         productSlug: "custom-magazine",
         productName: "Custom Magazine",
         quantity: 1,
@@ -151,7 +214,7 @@ export default function OrdersPage() {
 
       // Update status if it changed
       if (updatingStatus !== selectedOrder.status) {
-        const res = await api.put(`/api/orders/${selectedOrder.orderId}/status`, {
+        const res = await api.put(`/api/admin/orders/${selectedOrder.orderId}/status`, {
           status: updatingStatus.toUpperCase(),
         });
         updatedOrder = res.data;
@@ -159,7 +222,7 @@ export default function OrdersPage() {
 
       // Update final PDF URL if it changed
       if (pdfUrlInput !== (selectedOrder.finalPdfUrl || "")) {
-        const res = await api.put(`/api/orders/${selectedOrder.orderId}/pdf`, {
+        const res = await api.put(`/api/admin/orders/${selectedOrder.orderId}/pdf`, {
           pdfUrl: pdfUrlInput,
         });
         updatedOrder = res.data;
@@ -262,9 +325,9 @@ export default function OrdersPage() {
                     <td className="px-6 py-4">
                       <div>
                         <p className="font-sans-clean font-semibold text-stone-900">
-                          {order.personalDetails?.name || "N/A"}
+                          {order.customerName || "Guest Customer"}
                         </p>
-                        <p className="font-sans-clean text-xs text-stone-400">{order.email || "N/A"}</p>
+                        <p className="font-sans-clean text-xs text-stone-400">{order.customerEmail || "N/A"}</p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -389,12 +452,42 @@ export default function OrdersPage() {
                   </div>
                 </div>
 
-                {/* Personal Details */}
-                <div className="space-y-3">
-                  <h3 className="font-display text-base font-bold text-stone-900 border-b pb-2">Customer & Story Details</h3>
+                {/* Customer / Buyer & Shipping Details */}
+                <div className="space-y-3 bg-stone-50 p-5 rounded-2xl border border-stone-250">
+                  <h3 className="font-display text-sm font-bold text-stone-900 uppercase tracking-wider">
+                    👤 Buyer & Shipping Address
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <span className="text-stone-400 block text-xs">Customer Name:</span>
+                      <span className="text-stone-400 block text-xs font-semibold">Account Buyer Name:</span>
+                      <span className="font-bold text-stone-800">{selectedOrder.customerName || "Guest Customer"}</span>
+                    </div>
+                    <div>
+                      <span className="text-stone-400 block text-xs font-semibold">Contact Email:</span>
+                      <span className="font-bold text-stone-800">{selectedOrder.customerEmail || "N/A"}</span>
+                    </div>
+                    <div>
+                      <span className="text-stone-400 block text-xs font-semibold">Contact Phone:</span>
+                      <span className="font-bold text-stone-800">{selectedOrder.customerPhone || "N/A"}</span>
+                    </div>
+                    <div>
+                      <span className="text-stone-400 block text-xs font-semibold">Shipping Destination:</span>
+                      <span className="font-bold text-stone-800 text-xs block leading-relaxed">
+                        {selectedOrder.customerAddress || "N/A"}
+                        {selectedOrder.customerCity && `, ${selectedOrder.customerCity}`}
+                        {selectedOrder.customerState && `, ${selectedOrder.customerState}`}
+                        {selectedOrder.customerPincode && ` - ${selectedOrder.customerPincode}`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Personal Details */}
+                <div className="space-y-3">
+                  <h3 className="font-display text-base font-bold text-stone-900 border-b pb-2">Keepsake Story Target Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-stone-400 block text-xs">Gift Target Name:</span>
                       <span className="font-bold text-stone-800">{selectedOrder.personalDetails?.name}</span>
                     </div>
                     <div>
@@ -452,6 +545,21 @@ export default function OrdersPage() {
                 <div className="space-y-3">
                   <h3 className="font-display text-base font-bold text-stone-900 border-b pb-2 flex justify-between items-center">
                     <span>Uploaded Photo Gallery ({selectedOrder.uploadedPhotos.length} files)</span>
+                    <Button
+                      onClick={() => downloadPhotosAsZip(selectedOrder)}
+                      disabled={zipping}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs bg-amber-500 hover:bg-amber-600 text-white border-0 font-bold px-4 py-1.5 rounded-xl h-auto"
+                    >
+                      {zipping ? (
+                        <>
+                          <Loader2 size={12} className="animate-spin mr-1" /> Zipping...
+                        </>
+                      ) : (
+                        "📥 Download All as ZIP"
+                      )}
+                    </Button>
                   </h3>
                   {selectedOrder.uploadedPhotos.length > 0 ? (
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">

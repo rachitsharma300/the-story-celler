@@ -1,79 +1,91 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ShoppingCart, Users, TrendingUp, Package } from "lucide-react";
+import { ShoppingCart, Users, TrendingUp, Package, Loader2 } from "lucide-react";
 import Link from "next/link";
-
-const stats = [
-  {
-    label: "Total Orders",
-    value: "450+",
-    icon: ShoppingCart,
-    color: "bg-blue-50 text-blue-600",
-    link: "/admin/orders",
-  },
-  {
-    label: "Active Users",
-    value: "156",
-    icon: Users,
-    color: "bg-purple-50 text-purple-600",
-    link: "/admin/users",
-  },
-  {
-    label: "Total Revenue",
-    value: "₹5.4L",
-    icon: TrendingUp,
-    color: "bg-green-50 text-green-600",
-    link: "/admin/analytics",
-  },
-  {
-    label: "Samples Available",
-    value: "30",
-    icon: Package,
-    color: "bg-orange-50 text-orange-600",
-    link: "/admin/samples",
-  },
-];
-
-const recentOrders = [
-  {
-    id: "MV001",
-    customer: "Rahul Sharma",
-    product: "Custom Magazine",
-    amount: "₹1,200",
-    status: "dispatched",
-  },
-  {
-    id: "MV002",
-    customer: "Priya Singh",
-    product: "Photo Album",
-    amount: "₹1,500",
-    status: "delivered",
-  },
-  {
-    id: "MV003",
-    customer: "Muskan Agarwal",
-    product: "Recap Reel",
-    amount: "₹550",
-    status: "processing",
-  },
-  {
-    id: "MV004",
-    customer: "Ashwin Sharma",
-    product: "Custom Frame",
-    amount: "₹650",
-    status: "pending",
-  },
-];
+import api from "@/lib/axios";
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-700",
-  processing: "bg-blue-100 text-blue-700",
-  dispatched: "bg-purple-100 text-purple-700",
+  designing: "bg-blue-100 text-blue-700",
+  review: "bg-purple-100 text-purple-700",
+  printing: "bg-orange-100 text-orange-700",
+  shipped: "bg-amber-100 text-amber-700",
   delivered: "bg-green-100 text-green-700",
 };
 
 export default function AdminDashboard() {
+  const [statsData, setStatsData] = useState({
+    totalOrders: 0,
+    totalUsers: 0,
+    totalRevenue: 0.0,
+    pendingOrders: 0,
+    designingOrders: 0,
+    deliveredOrders: 0,
+  });
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadDashboardData() {
+      try {
+        const statsRes = await api.get("/api/admin/stats");
+        setStatsData(statsRes.data);
+
+        const ordersRes = await api.get("/api/admin/orders");
+        // Sort orders by orderId descending to show the newest orders first
+        const sorted = (ordersRes.data || []).sort((a: any, b: any) => b.orderId.localeCompare(a.orderId));
+        setRecentOrders(sorted.slice(0, 5));
+      } catch (err) {
+        console.error("Failed to fetch dashboard data:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadDashboardData();
+  }, []);
+
+  const stats = [
+    {
+      label: "Total Orders",
+      value: statsData.totalOrders.toString(),
+      icon: ShoppingCart,
+      color: "bg-blue-50 text-blue-600",
+      link: "/admin/orders",
+    },
+    {
+      label: "Registered Users",
+      value: statsData.totalUsers.toString(),
+      icon: Users,
+      color: "bg-purple-50 text-purple-600",
+      link: "/admin/users",
+    },
+    {
+      label: "Total Revenue",
+      value: "₹" + statsData.totalRevenue.toLocaleString("en-IN"),
+      icon: TrendingUp,
+      color: "bg-green-50 text-green-600",
+      link: "/admin/analytics",
+    },
+    {
+      label: "Pending Approvals",
+      value: statsData.pendingOrders.toString(),
+      icon: Package,
+      color: "bg-orange-50 text-orange-600",
+      link: "/admin/orders",
+    },
+  ];
+
+  if (loading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <Loader2 className="animate-spin text-amber-500 mr-2" size={28} />
+        <span className="font-sans-clean text-sm text-stone-500">Loading admin statistics...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* Stats Grid */}
@@ -127,58 +139,63 @@ export default function AdminDashboard() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-stone-50 border-b border-stone-200">
-              <tr>
-                <th className="px-6 py-3 text-left font-sans-clean font-semibold text-stone-700 text-sm">
-                  Order ID
-                </th>
-                <th className="px-6 py-3 text-left font-sans-clean font-semibold text-stone-700 text-sm">
-                  Customer
-                </th>
-                <th className="px-6 py-3 text-left font-sans-clean font-semibold text-stone-700 text-sm">
-                  Product
-                </th>
-                <th className="px-6 py-3 text-left font-sans-clean font-semibold text-stone-700 text-sm">
-                  Amount
-                </th>
-                <th className="px-6 py-3 text-left font-sans-clean font-semibold text-stone-700 text-sm">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentOrders.map((order, i) => (
-                <tr
-                  key={order.id}
-                  className="border-b border-stone-200 hover:bg-stone-50 transition-colors"
-                >
-                  <td className="px-6 py-4 font-sans-clean font-semibold text-stone-900">
-                    {order.id}
-                  </td>
-                  <td className="px-6 py-4 font-sans-clean text-stone-600">
-                    {order.customer}
-                  </td>
-                  <td className="px-6 py-4 font-sans-clean text-stone-600">
-                    {order.product}
-                  </td>
-                  <td className="px-6 py-4 font-sans-clean font-semibold text-stone-900">
-                    {order.amount}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${
-                        statusColors[order.status as keyof typeof statusColors]
-                      }`}
-                    >
-                      {order.status.charAt(0).toUpperCase() +
-                        order.status.slice(1)}
-                    </span>
-                  </td>
+          {recentOrders.length === 0 ? (
+            <div className="p-8 text-center text-stone-500 font-sans-clean">
+              No orders placed in the system yet.
+            </div>
+          ) : (
+            <table className="w-full">
+              <thead className="bg-stone-50 border-b border-stone-200">
+                <tr>
+                  <th className="px-6 py-3 text-left font-sans-clean font-semibold text-stone-700 text-sm">
+                    Order ID
+                  </th>
+                  <th className="px-6 py-3 text-left font-sans-clean font-semibold text-stone-700 text-sm">
+                    Customer
+                  </th>
+                  <th className="px-6 py-3 text-left font-sans-clean font-semibold text-stone-700 text-sm">
+                    Product
+                  </th>
+                  <th className="px-6 py-3 text-left font-sans-clean font-semibold text-stone-700 text-sm">
+                    Amount
+                  </th>
+                  <th className="px-6 py-3 text-left font-sans-clean font-semibold text-stone-700 text-sm">
+                    Status
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {recentOrders.map((order) => (
+                  <tr
+                    key={order.orderId}
+                    className="border-b border-stone-200 hover:bg-stone-50 transition-colors"
+                  >
+                    <td className="px-6 py-4 font-sans-clean font-semibold text-stone-900">
+                      {order.orderId}
+                    </td>
+                    <td className="px-6 py-4 font-sans-clean text-stone-600">
+                      {order.personalDetails?.name || "Guest Customer"}
+                    </td>
+                    <td className="px-6 py-4 font-sans-clean text-stone-600">
+                      {order.productName}
+                    </td>
+                    <td className="px-6 py-4 font-sans-clean font-semibold text-stone-900">
+                      ₹{order.totalAmount.toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${
+                          statusColors[order.status.toLowerCase() as keyof typeof statusColors] || "bg-stone-100 text-stone-700"
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </motion.div>
 
@@ -191,34 +208,34 @@ export default function AdminDashboard() {
       >
         <div className="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 p-6">
           <h3 className="font-display text-lg font-bold text-stone-900 mb-3">
-            📊 This Month
+            📊 System Performance
           </h3>
           <div className="space-y-2">
             <p className="font-sans-clean text-sm text-stone-600">
-              <span className="font-semibold">45</span> orders placed
+              <span className="font-semibold">{statsData.totalOrders}</span> total processed orders
             </p>
             <p className="font-sans-clean text-sm text-stone-600">
-              <span className="font-semibold">₹1.2L</span> revenue generated
+              <span className="font-semibold">₹{statsData.totalRevenue.toLocaleString()}</span> lifetime sales volume
             </p>
             <p className="font-sans-clean text-sm text-stone-600">
-              <span className="font-semibold">32</span> new customers
+              <span className="font-semibold">{statsData.totalUsers}</span> active community accounts
             </p>
           </div>
         </div>
 
         <div className="rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 p-6">
           <h3 className="font-display text-lg font-bold text-stone-900 mb-3">
-            ✅ Top Performing
+            ✅ Order Workflow
           </h3>
           <div className="space-y-2">
             <p className="font-sans-clean text-sm text-stone-600">
-              <span className="font-semibold">Custom Magazine</span> - Best seller
+              <span className="font-semibold">{statsData.pendingOrders}</span> orders waiting for approval
             </p>
             <p className="font-sans-clean text-sm text-stone-600">
-              <span className="font-semibold">Anniversary</span> - Most popular occasion
+              <span className="font-semibold">{statsData.designingOrders}</span> keepsakes in active layout design phase
             </p>
             <p className="font-sans-clean text-sm text-stone-600">
-              <span className="font-semibold">98%</span> customer satisfaction
+              <span className="font-semibold">{statsData.deliveredOrders}</span> memories happily preserved and delivered
             </p>
           </div>
         </div>

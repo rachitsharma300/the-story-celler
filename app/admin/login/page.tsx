@@ -5,9 +5,12 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Lock, Mail, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useUserStore } from "@/store/userStore";
+import toast from "react-hot-toast";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const { loginWithPassword, logout } = useUserStore();
   const [email, setEmail] = useState("admin@storyceller.in");
   const [password, setPassword] = useState("admin123");
   const [showPassword, setShowPassword] = useState(false);
@@ -19,17 +22,27 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError("");
 
-    // Mock authentication (replace with real API call)
-    if (email === "admin@storyceller.in" && password === "admin123") {
-      // Set cookie
-      document.cookie = "adminToken=mock-jwt-token-12345; path=/; max-age=86400";
-      
-      // Redirect to admin dashboard
-      setTimeout(() => {
-        router.push("/admin");
-      }, 500);
+    toast.loading("Authenticating admin...", { id: "admin-login" });
+    const result = await loginWithPassword(email, password);
+    if (result.success) {
+      // Fetch user profile from the store state to verify their role
+      const currentUser = useUserStore.getState().user;
+      if (currentUser && currentUser.role === "ADMIN") {
+        const token = useUserStore.getState().token;
+        document.cookie = `adminToken=${token}; path=/; max-age=86400`;
+        toast.success("Welcome, Administrator!", { id: "admin-login" });
+        setTimeout(() => {
+          router.push("/admin");
+        }, 500);
+      } else {
+        logout();
+        setError("Access Denied: You do not have admin permissions.");
+        toast.error("Access Denied.", { id: "admin-login" });
+        setLoading(false);
+      }
     } else {
-      setError("Invalid email or password");
+      setError(result.error || "Invalid email or password");
+      toast.error(result.error || "Authentication failed", { id: "admin-login" });
       setLoading(false);
     }
   };
