@@ -16,12 +16,17 @@
   --color-stone-50: hsl(var(--cream));
   --color-stone-100: hsl(var(--border));
   --color-stone-200: hsl(var(--border-dark));
+  --color-stone-300: hsl(var(--border-dark));
   --color-stone-400: hsl(var(--muted-foreground));
   --color-stone-500: hsl(var(--muted-foreground));
   --color-stone-600: hsl(var(--muted-foreground-dark));
+  --color-stone-700: hsl(var(--muted-foreground-dark));
+  --color-stone-800: hsl(var(--foreground));
   --color-stone-850: hsl(var(--foreground));
   --color-stone-900: hsl(var(--foreground));
   --color-stone-950: hsl(var(--background-dark));
+
+  --color-white: hsl(var(--surface));
 
   /* Custom utility variables */
   --color-background: hsl(var(--background));
