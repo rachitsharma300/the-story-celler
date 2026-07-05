@@ -65,7 +65,7 @@ export default function SampleFlipbookModal({
         // Use CDN worker for ease of Next.js App router bundling
         pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-        const loadingTask = pdfjs.getDocument(pdfUrl);
+        const loadingTask = pdfjs.getDocument(pdfUrl!);
         const pdf = await loadingTask.promise;
 
         const renderedPages: string[] = [];
