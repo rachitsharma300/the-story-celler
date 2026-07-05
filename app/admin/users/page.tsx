@@ -1,95 +1,81 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Mail, Phone, Calendar, Ban, Check } from "lucide-react";
+import { Search, Mail, Phone, ShieldCheck, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import api from "@/lib/axios";
+import toast from "react-hot-toast";
 
-interface User {
-  id: string;
+interface UserProfile {
+  id: number;
   name: string;
   email: string;
+  role: string;
   phone: string;
-  totalOrders: number;
-  totalSpent: number;
-  joinDate: string;
-  isActive: boolean;
-  lastOrder: string;
+  city: string;
+  state: string;
 }
 
-const mockUsers: User[] = [
-  {
-    id: "U001",
-    name: "Rahul Sharma",
-    email: "rahul@example.com",
-    phone: "+91 98765 43210",
-    totalOrders: 5,
-    totalSpent: 6800,
-    joinDate: "2024-03-15",
-    isActive: true,
-    lastOrder: "2025-06-05",
-  },
-  {
-    id: "U002",
-    name: "Priya Singh",
-    email: "priya@example.com",
-    phone: "+91 87654 32109",
-    totalOrders: 3,
-    totalSpent: 4500,
-    joinDate: "2024-05-20",
-    isActive: true,
-    lastOrder: "2025-05-28",
-  },
-  {
-    id: "U003",
-    name: "Muskan Agarwal",
-    email: "muskan@example.com",
-    phone: "+91 76543 21098",
-    totalOrders: 8,
-    totalSpent: 9200,
-    joinDate: "2024-01-10",
-    isActive: true,
-    lastOrder: "2025-06-08",
-  },
-  {
-    id: "U004",
-    name: "Ashwin Sharma",
-    email: "ashwin@example.com",
-    phone: "+91 65432 10987",
-    totalOrders: 2,
-    totalSpent: 2100,
-    joinDate: "2024-06-01",
-    isActive: false,
-    lastOrder: "2025-04-15",
-  },
-];
-
 export default function UsersPage() {
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+
+  async function fetchUsers() {
+    try {
+      const response = await api.get("/api/admin/users");
+      setUsers(response.data || []);
+    } catch (err) {
+      console.error("Failed to fetch users:", err);
+      toast.error("Could not retrieve user list");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleDeleteUser = async (userId: number, userName: string) => {
+    const confirmed = window.confirm(`Are you sure you want to remove user "${userName}"? This action cannot be undone.`);
+    if (!confirmed) return;
+
+    toast.loading("Removing user account...", { id: "user-delete" });
+    try {
+      await api.delete(`/api/admin/users/${userId}`);
+      toast.success("User account removed successfully", { id: "user-delete" });
+      setUsers(users.filter((u) => u.id !== userId));
+    } catch (err: any) {
+      console.error("Failed to delete user:", err);
+      const errMsg = err.response?.data?.error || "Could not delete user account.";
+      toast.error(errMsg, { id: "user-delete" });
+    }
+  };
 
   const filteredUsers = users.filter((user) => {
     return (
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.id.includes(searchTerm)
+      user.id.toString().includes(searchTerm)
     );
   });
 
-  const handleToggleStatus = (id: string) => {
-    setUsers(
-      users.map((user) =>
-        user.id === id ? { ...user, isActive: !user.isActive } : user
-      )
-    );
-  };
-
   const stats = {
     total: users.length,
-    active: users.filter((u) => u.isActive).length,
-    totalSpent: users.reduce((sum, u) => sum + u.totalSpent, 0),
-    totalOrders: users.reduce((sum, u) => sum + u.totalOrders, 0),
+    admins: users.filter((u) => u.role === "ADMIN").length,
+    customers: users.filter((u) => u.role !== "ADMIN").length,
   };
+
+  if (loading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <Loader2 className="animate-spin text-amber-500 mr-2" size={28} />
+        <span className="font-sans-clean text-sm text-stone-500">Retrieving system accounts...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -102,7 +88,7 @@ export default function UsersPage() {
           Users Management
         </h1>
         <p className="font-sans-clean text-stone-500">
-          View and manage all registered users
+          View and manage registered user accounts. Administrators are protected from deletion.
         </p>
       </motion.div>
 
@@ -111,27 +97,18 @@ export default function UsersPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-4"
+        className="grid grid-cols-1 sm:grid-cols-3 gap-4"
       >
         {[
-          { label: "Total Users", value: stats.total, color: "bg-blue-50" },
-          { label: "Active Users", value: stats.active, color: "bg-green-50" },
-          {
-            label: "Total Revenue",
-            value: `₹${(stats.totalSpent / 100000).toFixed(1)}L`,
-            color: "bg-purple-50",
-          },
-          {
-            label: "Total Orders",
-            value: stats.totalOrders,
-            color: "bg-orange-50",
-          },
+          { label: "Total Registered", value: stats.total, color: "bg-blue-50 text-blue-800" },
+          { label: "Administrators", value: stats.admins, color: "bg-purple-50 text-purple-800" },
+          { label: "Standard Customers", value: stats.customers, color: "bg-orange-50 text-orange-800" },
         ].map((stat) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`rounded-lg ${stat.color} p-4 border border-stone-200`}
+            className={`rounded-xl ${stat.color.split(" ")[0]} p-5 border border-stone-200`}
           >
             <p className="font-sans-clean text-xs text-stone-600 mb-1">
               {stat.label}
@@ -178,19 +155,13 @@ export default function UsersPage() {
                   Name
                 </th>
                 <th className="px-6 py-4 text-left font-sans-clean font-semibold text-stone-700 text-sm">
-                  Contact
+                  Contact Details
                 </th>
                 <th className="px-6 py-4 text-left font-sans-clean font-semibold text-stone-700 text-sm">
-                  Orders
+                  Location
                 </th>
-                <th className="px-6 py-4 text-left font-sans-clean font-semibold text-stone-700 text-sm">
-                  Spent
-                </th>
-                <th className="px-6 py-4 text-left font-sans-clean font-semibold text-stone-700 text-sm">
-                  Joined
-                </th>
-                <th className="px-6 py-4 text-left font-sans-clean font-semibold text-stone-700 text-sm">
-                  Status
+                <th className="px-6 py-4 text-center font-sans-clean font-semibold text-stone-700 text-sm">
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -205,7 +176,7 @@ export default function UsersPage() {
                 >
                   <td className="px-6 py-4">
                     <span className="font-sans-clean font-semibold text-stone-900">
-                      {user.id}
+                      #{user.id}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -216,50 +187,39 @@ export default function UsersPage() {
                   <td className="px-6 py-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 font-sans-clean text-sm text-stone-600">
-                        <Mail size={14} />
+                        <Mail size={14} className="text-stone-400" />
                         {user.email}
                       </div>
-                      <div className="flex items-center gap-2 font-sans-clean text-sm text-stone-600">
-                        <Phone size={14} />
-                        {user.phone}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="font-sans-clean font-semibold text-stone-900">
-                      {user.totalOrders}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="font-sans-clean font-semibold text-stone-900">
-                      ₹{user.totalSpent.toLocaleString()}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 font-sans-clean text-xs text-stone-500">
-                      <Calendar size={14} />
-                      {new Date(user.joinDate).toLocaleDateString()}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <Button
-                      onClick={() => handleToggleStatus(user.id)}
-                      variant={user.isActive ? "default" : "outline"}
-                      size="sm"
-                      className="gap-1"
-                    >
-                      {user.isActive ? (
-                        <>
-                          <Check size={14} />
-                          Active
-                        </>
-                      ) : (
-                        <>
-                          <Ban size={14} />
-                          Banned
-                        </>
+                      {user.phone && (
+                        <div className="flex items-center gap-2 font-sans-clean text-sm text-stone-600">
+                          <Phone size={14} className="text-stone-400" />
+                          {user.phone}
+                        </div>
                       )}
-                    </Button>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="font-sans-clean text-sm text-stone-600">
+                      {user.city ? `${user.city}, ${user.state || ""}` : "Not Specified"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    {user.role === "ADMIN" ? (
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-700 border border-purple-200 text-xs font-semibold rounded-full select-none">
+                        <ShieldCheck size={14} className="text-purple-600" />
+                        System Administrator
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={() => handleDeleteUser(user.id, user.name)}
+                        variant="destructive"
+                        size="sm"
+                        className="gap-1.5 rounded-xl"
+                      >
+                        <Trash2 size={14} />
+                        Remove User
+                      </Button>
+                    )}
                   </td>
                 </motion.tr>
               ))}
@@ -269,7 +229,7 @@ export default function UsersPage() {
 
         {filteredUsers.length === 0 && (
           <div className="text-center py-12">
-            <p className="font-sans-clean text-stone-500">No users found</p>
+            <p className="font-sans-clean text-stone-500">No matching user accounts found</p>
           </div>
         )}
       </motion.div>

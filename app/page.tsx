@@ -263,25 +263,25 @@ const reviews = [
     name: "Simran Agarwal",
     city: "New Delhi",
     stars: 5,
-    text: "I recently ordered my first magazine with them. It was insanely perfect♥️ My partner loved the concept. From Printing to Concept visualisation everything is top notch. Thank you team MSA"
+    text: "I recently ordered my first magazine with them. It was insanely perfect♥️ My partner loved the concept. From Printing to Concept visualisation everything is top notch. Thank you team Story Celler"
   },
   {
     name: "Pratika Karnam",
     city: "Ahmedabad",
     stars: 5,
-    text: "Got a 20 pager magazine done from My Story Archive for my first wedding anniversary. It has come beautifully. The team was very helpful throughout. Very patient during the planning and design phase. The end result is just amazing. I loved it. Keep up the good work guys ❤️"
+    text: "Got a 20 pager magazine done from The Story Celler for my first wedding anniversary. It has come beautifully. The team was very helpful throughout. Very patient during the planning and design phase. The end result is just amazing. I loved it. Keep up the good work guys ❤️"
   },
   {
     name: "Shruti Shrivastava",
     city: "New Delhi",
     stars: 5,
-    text: "If you decide to gift your partner this magazine then will be the best thoughtful gift for them. The print quality of the product is very nice. People at MSA are also cooperative, they appreciate and accept the feedback gracefully."
+    text: "If you decide to gift your partner this magazine then will be the best thoughtful gift for them. The print quality of the product is very nice. People at Story Celler are also cooperative, they appreciate and accept the feedback gracefully."
   },
   {
     name: "Muskan Agarwal",
     city: "New Delhi",
     stars: 5,
-    text: "My story Archive made amazing magazine for my anniversary. They caught the essence that I wanted and presented in the most beautiful way possible. Exceeded all my expectations. Great work done by the entire team!"
+    text: "The Story Celler made amazing magazine for my anniversary. They caught the essence that I wanted and presented in the most beautiful way possible. Exceeded all my expectations. Great work done by the entire team!"
   }
 ];
 
@@ -373,7 +373,7 @@ const staggerItem = {
   show: { 
     opacity: 1, 
     y: 0, 
-    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } 
+    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as const } 
   }
 };
 
@@ -529,7 +529,7 @@ export default function HomePage() {
               >
                 YOUR MEMORIES<br />
                 <span className="text-amber-500 italic font-normal font-serif lowercase pr-3">beautifully</span>
-                <span className="font-extrabold text-amber-500 tracking-tighter">ARCHIVED</span><br />
+                <span className="font-extrabold text-amber-500 tracking-tighter">PRESERVED</span><br />
                 FOREVER.
               </motion.h1>
 
@@ -721,13 +721,13 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="text-center mb-20"
+            className="text-center mb-12"
           >
-            <span className="font-sans-clean text-xs tracking-[0.2em] uppercase text-amber-500 font-bold block mb-4">Luxury Keepsakes</span>
-            <h2 className="font-display text-4xl lg:text-6xl font-bold text-stone-900">
+            <span className="font-sans-clean text-xs tracking-[0.2em] uppercase text-amber-500 font-bold block mb-2">Luxury Keepsakes</span>
+            <h2 className="font-display text-3xl lg:text-4xl font-bold text-stone-900">
               Custom Collection
             </h2>
-            <p className="font-sans-clean text-stone-500 max-w-2xl mx-auto mt-4 text-sm sm:text-base leading-relaxed">
+            <p className="font-sans-clean text-stone-500 max-w-xl mx-auto mt-2 text-xs sm:text-sm leading-relaxed">
               Crafted around your memories with personalized storytelling, custom layouts, and thoughtful details. Best for deeply personal keepsakes & gifts!
             </p>
           </motion.div>
@@ -737,54 +737,54 @@ export default function HomePage() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto"
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto"
           >
             {customCollection.map((p, i) => (
               <motion.div
                 key={p.id}
                 variants={staggerItem}
                 whileHover={{ y: -8 }}
-                className="group relative bg-cream border border-stone-100 hover:border-amber-300 rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between will-change-transform"
+                className="group relative bg-cream border border-stone-100 hover:border-amber-300 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between will-change-transform"
               >
-                <div className="absolute top-6 right-6 bg-rose-500 text-white text-[10px] font-sans-clean font-extrabold tracking-wider uppercase px-3 py-1 rounded-full shadow-sm z-10">
+                <div className="absolute top-5 right-5 bg-rose-500 text-white text-[10px] font-sans-clean font-extrabold tracking-wider uppercase px-3 py-1 rounded-full shadow-sm z-10">
                   {p.tag}
                 </div>
 
                 <div>
                   {/* Photo Album Style Container */}
-                  <div className="relative w-full aspect-[4/3] sm:aspect-square mb-6 bg-white p-3.5 pb-5 shadow-lg rounded-r-2xl rounded-l-sm border-l-[10px] border-stone-900 overflow-hidden flex flex-col justify-center before:absolute before:left-0 before:top-0 before:bottom-0 before:w-2.5 before:bg-black/20 before:z-10 shadow-[8px_8px_15px_-3px_rgba(0,0,0,0.15)] outline outline-1 outline-stone-200/50">
+                  <div className="relative w-full aspect-[16/10] sm:aspect-[16/11] mb-4 bg-white p-2.5 pb-4 shadow-lg rounded-r-xl rounded-l-sm border-l-[6px] border-stone-900 overflow-hidden flex flex-col justify-center before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1.5 before:bg-black/20 before:z-10 shadow-[8px_8px_15px_-3px_rgba(0,0,0,0.15)] outline outline-1 outline-stone-200/50">
                     <AutoImageSlider images={p.images} className="w-full h-full rounded shadow-inner" />
                   </div>
                   
                   {/* Reviews rating */}
-                  <div className="flex items-center gap-1.5 mb-3">
+                  <div className="flex items-center gap-1.5 mb-2">
                     <div className="flex gap-0.5">
                       {[...Array(5)].map((_, idx) => (
-                        <Star key={idx} size={12} className="fill-amber-400 text-amber-400" />
+                        <Star key={idx} size={11} className="fill-amber-400 text-amber-400" />
                       ))}
                     </div>
                     <span className="font-sans-clean text-xs text-stone-400 font-semibold">{p.rating} ({p.reviewsCount})</span>
                   </div>
 
-                  <h3 className="font-display text-2xl lg:text-3xl font-bold text-stone-900 mb-3 group-hover:text-amber-600 transition-colors">
+                  <h3 className="font-display text-xl lg:text-2xl font-bold text-stone-900 mb-2 group-hover:text-amber-600 transition-colors">
                     {p.name}
                   </h3>
-                  <p className="font-sans-clean text-stone-500 text-sm leading-relaxed mb-6">
+                  <p className="font-sans-clean text-stone-500 text-xs leading-relaxed mb-4">
                     {p.desc}
                   </p>
                 </div>
 
                 <div>
-                  <div className="border-t border-stone-100 pt-5 mt-4">
-                    <p className="font-sans-clean text-[10px] text-stone-400 tracking-wider uppercase mb-1">Price Details</p>
-                    <p className="font-display text-3xl font-extrabold text-stone-900 group-hover:text-amber-500 transition-colors">{p.price}</p>
-                    <p className="font-sans-clean text-[10px] text-stone-400 leading-tight mt-2 italic">
+                  <div className="border-t border-stone-100 pt-4 mt-3">
+                    <p className="font-sans-clean text-[9px] text-stone-400 tracking-wider uppercase mb-0.5">Price Details</p>
+                    <p className="font-display text-2xl font-extrabold text-stone-900 group-hover:text-amber-500 transition-colors">{p.price}</p>
+                    <p className="font-sans-clean text-[9px] text-stone-400 leading-tight mt-1.5 italic">
                       This product has multiple variants. The options may be chosen on the product page.
                     </p>
                   </div>
                   
                   <Link href={`/product/${p.slug}`}
-                    className="mt-6 flex items-center justify-center gap-2 w-full py-4 bg-stone-900 hover:bg-amber-500 text-white dark:text-stone-950 text-xs tracking-widest font-sans-clean font-bold uppercase rounded-xl transition-all duration-300 shadow-md">
+                    className="mt-4 flex items-center justify-center gap-2 w-full py-3 bg-stone-900 hover:bg-amber-500 text-[#ffffff] hover:text-[#ffffff] dark:text-stone-950 text-xs tracking-widest font-sans-clean font-bold uppercase rounded-xl transition-all duration-300 shadow-md">
                     Select options <ArrowRight size={14} />
                   </Link>
                 </div>
@@ -856,7 +856,7 @@ export default function HomePage() {
                     </p>
                   </div>
                   <Link href={`/product/${p.slug}`}
-                    className="block text-center py-3 bg-stone-900 group-hover:bg-amber-500 text-white dark:text-stone-950 text-[10px] tracking-wider font-sans-clean font-bold uppercase rounded-lg transition-all duration-300">
+                    className="block text-center py-3 bg-stone-900 group-hover:bg-amber-500 text-[#ffffff] group-hover:text-[#ffffff] dark:text-stone-950 text-[10px] tracking-wider font-sans-clean font-bold uppercase rounded-lg transition-all duration-300">
                     Select options
                   </Link>
                 </div>
@@ -1050,7 +1050,7 @@ export default function HomePage() {
                 Get the best of both worlds! A beautifully designed magazine filled with memories and a recap reel video linked through a scannable QR. Perfect for gifts, surprises, and forever moments.
               </p>
               
-              <a href="https://wa.me/917903316723?text=Hi!%20I%20want%20to%20order%20the%20Combo%20(Magazine%20%2B%20Recap%20Reel)%20seen%20on%20your%20website."
+              <a href="https://wa.me/919871874041?text=Hi!%20I%20want%20to%20order%20the%20Combo%20(Magazine%20%2B%20Recap%20Reel)%20seen%20on%20your%20website."
                  target="_blank"
                  rel="noopener noreferrer"
                  className="px-8 py-4 bg-amber-500 hover:bg-amber-600 text-white font-sans-clean font-bold text-xs tracking-wider uppercase rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/25 hover:-translate-y-0.5 flex items-center gap-2">
@@ -1143,7 +1143,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── THE STORY OF MYSTORYARCHIVE ── */}
+      {/* ── THE STORY OF THE STORY CELLER ── */}
       <section className="py-28 bg-stone-50 border-t border-stone-100 relative">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <motion.div
@@ -1154,11 +1154,11 @@ export default function HomePage() {
             <span className="font-sans-clean text-xs tracking-[0.2em] uppercase text-amber-500 font-bold block mb-4">Our Narrative</span>
             
             <h2 className="font-display text-4xl lg:text-6xl font-bold text-stone-900 mb-8">
-              The Story Of MyStoryArchive
+              The Story Of The Story Celler
             </h2>
             
             <p className="font-sans-clean text-stone-500 text-sm sm:text-base leading-relaxed mb-6 max-w-2xl mx-auto">
-              At MyStoryArchive, we believe that every story, every moment deserves to be told beautifully. Whether it’s celebrating love, friendships, milestones, or adventures, we capture the essence of your memories and turn them into one-of-a-kind keepsakes.
+              At The Story Celler, we believe that every story, every moment deserves to be told beautifully. Whether it’s celebrating love, friendships, milestones, or adventures, we capture the essence of your memories and turn them into one-of-a-kind keepsakes.
             </p>
             
             <p className="font-sans-clean text-stone-500 text-sm sm:text-base leading-relaxed mb-10 max-w-2xl mx-auto">
