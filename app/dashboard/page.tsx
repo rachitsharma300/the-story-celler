@@ -135,22 +135,90 @@ const statusConfig: Record<string, { label: string; color: string; bg: string }>
 };
 
 export default function DashboardPage() {
-  const { user, isAuthenticated, initializeAuth, logout, sendOtp, verifyOtp, loading } = useUserStore();
+  const { 
+    user, 
+    isAuthenticated, 
+    initializeAuth, 
+    logout, 
+    sendOtp, 
+    verifyOtp, 
+    loginWithPassword, 
+    registerWithPassword, 
+    resetPassword, 
+    loginWithGoogle, 
+    loading 
+  } = useUserStore();
 
   const [activeTab, setActiveTab] = useState<TabType>("orders");
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profile, setProfile] = useState(mockProfile);
-  const [showPassword, setShowPassword] = useState(false);
-
+  
+  // Auth view states
+  const [authMode, setAuthMode] = useState<"login" | "signup" | "forgot_password" | "email_otp">("login");
+  const [forgotStep, setForgotStep] = useState<1 | 2>(1);
+  const [signupStep, setSignupStep] = useState<1 | 2>(1);
+  
+  // Credentials input states
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  
+  const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const [orders, setOrders] = useState<any[]>([]);
 
   useEffect(() => {
     initializeAuth();
   }, [initializeAuth]);
+
+  // Google Sign-In script dynamic loading and button render
+  useEffect(() => {
+    if (isAuthenticated) return;
+
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+    
+    script.onload = () => {
+      if ((window as any).google) {
+        (window as any).google.accounts.id.initialize({
+          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "590123512345-dummyclientid.apps.googleusercontent.com",
+          callback: handleGoogleLogin,
+        });
+        
+        const googleBtn = document.getElementById("google-signin-btn");
+        if (googleBtn) {
+          (window as any).google.accounts.id.renderButton(
+            googleBtn,
+            { theme: "outline", size: "large", width: 340, text: "continue_with", shape: "pill" }
+          );
+        }
+      }
+    };
+    
+    return () => {
+      try {
+        document.body.removeChild(script);
+      } catch (e) {}
+    };
+  }, [isAuthenticated, authMode]);
+
+  const handleGoogleLogin = async (response: any) => {
+    setLocalError(null);
+    toast.loading("Signing in with Google...", { id: "google-auth" });
+    const result = await loginWithGoogle(response.credential);
+    if (result.success) {
+      toast.success("Welcome back!", { id: "google-auth" });
+    } else {
+      toast.error(result.error || "Google Sign-In failed.", { id: "google-auth" });
+      setLocalError(result.error || "Google Sign-In failed.");
+    }
+  };
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -214,6 +282,118 @@ export default function DashboardPage() {
     }
   };
 
+  // Password-based credentials login handler
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocalError(null);
+    if (!email || !password) {
+      setLocalError("Email and Password are required.");
+      return;
+    }
+    toast.loading("Signing in...", { id: "login" });
+    const result = await loginWithPassword(email, password);
+    if (result.success) {
+      toast.success("Welcome back!", { id: "login" });
+    } else {
+      toast.error(result.error || "Login failed.", { id: "login" });
+      setLocalError(result.error || "Login failed.");
+    }
+  };
+
+  // Signup OTP trigger handler
+  const handleSendSignupOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocalError(null);
+    if (!name || !email || !password) {
+      setLocalError("Name, Email, and Password are required.");
+      return;
+    }
+    toast.loading("Sending verification OTP...", { id: "signup-otp" });
+    const result = await sendOtp(email);
+    if (result.success) {
+      toast.success("Verification OTP sent to your email!", { id: "signup-otp" });
+      setSignupStep(2);
+    } else {
+      toast.error(result.error || "Failed to send OTP.", { id: "signup-otp" });
+      setLocalError(result.error || "Failed to send OTP.");
+    }
+  };
+
+  // OTP verify & Credentials Sign Up trigger handler
+  const handleVerifyAndSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocalError(null);
+    if (!otp) {
+      setLocalError("Verification OTP is required.");
+      return;
+    }
+    toast.loading("Verifying and creating account...", { id: "signup" });
+    const otpVerify = await verifyOtp(email, otp);
+    if (otpVerify.success) {
+      const result = await registerWithPassword(name, email, password);
+      if (result.success) {
+        toast.success("Account registered successfully!", { id: "signup" });
+      } else {
+        toast.error(result.error || "Registration failed.", { id: "signup" });
+        setLocalError(result.error || "Registration failed.");
+      }
+    } else {
+      toast.error(otpVerify.error || "Invalid verification OTP.", { id: "signup" });
+      setLocalError(otpVerify.error || "Invalid verification OTP.");
+    }
+  };
+
+  // Forgot password OTP trigger handler
+  const handleSendResetOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocalError(null);
+    if (!email) {
+      setLocalError("Email address is required.");
+      return;
+    }
+    toast.loading("Sending reset OTP...", { id: "reset-otp" });
+    const result = await sendOtp(email);
+    if (result.success) {
+      toast.success("OTP sent to your email!", { id: "reset-otp" });
+      setForgotStep(2);
+    } else {
+      toast.error(result.error || "Failed to send OTP.", { id: "reset-otp" });
+      setLocalError(result.error || "Failed to send OTP.");
+    }
+  };
+
+  // OTP verify & Reset Password handler
+  const handleVerifyAndResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocalError(null);
+    if (!otp || !password || !confirmPassword) {
+      setLocalError("All fields are required.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setLocalError("Passwords do not match.");
+      return;
+    }
+    toast.loading("Resetting password...", { id: "reset-pw" });
+    const result = await resetPassword(email, otp, password);
+    if (result.success) {
+      toast.success("Password reset successfully! Logging you in...", { id: "reset-pw" });
+      const loginRes = await loginWithPassword(email, password);
+      if (loginRes.success) {
+        setAuthMode("login");
+        setForgotStep(1);
+        setName("");
+        setPassword("");
+        setConfirmPassword("");
+        setOtp("");
+      }
+    } else {
+      toast.error(result.error || "Failed to reset password.", { id: "reset-pw" });
+      setLocalError(result.error || "Failed to reset password.");
+    }
+  };
+
+  // Classic Email OTP Login Send handler
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError(null);
@@ -232,6 +412,7 @@ export default function DashboardPage() {
     }
   };
 
+  // Classic Email OTP Verification Login verify handler
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError(null);
@@ -269,84 +450,432 @@ export default function DashboardPage() {
           {/* Card Spine Decor for Photo Album Feel */}
           <div className="absolute left-0 top-0 bottom-0 w-2 bg-stone-900 rounded-l-3xl before:absolute before:inset-0 before:bg-gradient-to-r before:from-black/20 before:to-transparent" />
 
-          <div className="text-center mb-8 pl-2">
-            <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/25 rounded-2xl flex items-center justify-center text-amber-500 mx-auto mb-4 shadow-sm">
-              <KeyRound size={28} />
-            </div>
-            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
-              MyStory<span className="text-amber-500 font-light italic">Archive</span>
-            </h2>
-            <p className="font-sans-clean text-xs text-stone-500 mt-2">
-              Enter your email to verify your identity and access your dashboard.
-            </p>
-          </div>
-
-          <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp} className="space-y-5 pl-2">
-            <div>
-              <label className="block font-sans-clean text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
-                Email Address
-              </label>
-              <input
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={otpSent || loading}
-                required
-                className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-sm text-stone-900 focus:outline-none transition-all duration-300 disabled:opacity-60"
-              />
-            </div>
-
-            {otpSent && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                className="space-y-2"
+          {/* Tab Selection */}
+          {(authMode === "login" || authMode === "signup") && (
+            <div className="flex border-b border-stone-200 mb-6 pl-2">
+              <button
+                onClick={() => { setAuthMode("login"); setLocalError(null); }}
+                className={`flex-1 pb-3 text-sm font-sans-clean font-bold uppercase tracking-wider transition-colors ${
+                  authMode === "login" ? "text-amber-500 border-b-2 border-amber-500" : "text-stone-400 hover:text-stone-600"
+                }`}
               >
+                Sign In
+              </button>
+              <button
+                onClick={() => { setAuthMode("signup"); setLocalError(null); }}
+                className={`flex-1 pb-3 text-sm font-sans-clean font-bold uppercase tracking-wider transition-colors ${
+                  authMode === "signup" ? "text-amber-500 border-b-2 border-amber-500" : "text-stone-400 hover:text-stone-600"
+                }`}
+              >
+                Register
+              </button>
+            </div>
+          )}
+
+          {/* Heading for other modes */}
+          {authMode === "forgot_password" && (
+            <div className="text-center mb-6 pl-2">
+              <div className="w-12 h-12 bg-amber-500/10 border border-amber-500/25 rounded-2xl flex items-center justify-center text-amber-500 mx-auto mb-3 shadow-sm">
+                <KeyRound size={22} />
+              </div>
+              <h2 className="font-display text-xl font-bold text-stone-900">Reset Password</h2>
+              <p className="font-sans-clean text-xs text-stone-500 mt-1">
+                {forgotStep === 1 
+                  ? "Enter your email to receive a password reset verification code."
+                  : "Enter the OTP sent to your email and set your new password."}
+              </p>
+            </div>
+          )}
+
+          {authMode === "email_otp" && (
+            <div className="text-center mb-6 pl-2">
+              <div className="w-12 h-12 bg-amber-500/10 border border-amber-500/25 rounded-2xl flex items-center justify-center text-amber-500 mx-auto mb-3 shadow-sm">
+                <Mail size={22} />
+              </div>
+              <h2 className="font-display text-xl font-bold text-stone-900">OTP Sign In</h2>
+              <p className="font-sans-clean text-xs text-stone-500 mt-1">
+                Enter your email address to sign in using a one-time verification code.
+              </p>
+            </div>
+          )}
+
+          {/* LOGIN WITH PASSWORD FORM */}
+          {authMode === "login" && (
+            <form onSubmit={handlePasswordLogin} className="space-y-4 pl-2">
+              <div>
                 <label className="block font-sans-clean text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
-                  Verification OTP
+                  Email Address
                 </label>
                 <input
-                  type="text"
-                  placeholder="Enter 6-digit OTP"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
-                  maxLength={6}
                   required
-                  className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-sm tracking-[0.2em] font-bold text-center text-stone-900 focus:outline-none transition-all duration-300"
+                  className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-sm text-stone-900 focus:outline-none transition-all duration-300"
                 />
-              </motion.div>
-            )}
+              </div>
 
-            {localError && (
-              <p className="font-sans-clean text-xs font-semibold text-rose-500 bg-rose-50 p-3 rounded-lg border border-rose-100">
-                ⚠️ {localError}
-              </p>
-            )}
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block font-sans-clean text-xs font-bold text-stone-600 uppercase tracking-wider">
+                    Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => { setAuthMode("forgot_password"); setForgotStep(1); setLocalError(null); }}
+                    className="text-xs font-sans-clean font-bold text-amber-500 hover:underline hover:text-amber-600"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
+                    required
+                    className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-sm text-stone-900 focus:outline-none transition-all duration-300 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 bg-transparent border-0"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full py-4 bg-stone-900 hover:bg-amber-500 text-white font-sans-clean font-bold uppercase text-xs tracking-wider rounded-xl transition-all duration-300 shadow-md flex items-center justify-center gap-2"
-            >
-              {loading && <Loader2 size={16} className="animate-spin" />}
-              {otpSent ? "Verify & Login" : "Send Login OTP"}
-            </Button>
+              {localError && (
+                <p className="font-sans-clean text-xs font-semibold text-rose-500 bg-rose-50 p-3 rounded-lg border border-rose-100">
+                  ⚠️ {localError}
+                </p>
+              )}
 
-            {otpSent && (
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 bg-stone-900 hover:bg-amber-500 text-white font-sans-clean font-bold uppercase text-xs tracking-wider rounded-xl transition-all duration-300 shadow-md flex items-center justify-center gap-2"
+              >
+                {loading && <Loader2 size={16} className="animate-spin" />}
+                Sign In
+              </Button>
+
               <div className="text-center mt-4">
                 <button
                   type="button"
-                  onClick={() => setOtpSent(false)}
-                  disabled={loading}
-                  className="font-sans-clean text-xs text-stone-500 hover:text-amber-600 transition-colors uppercase tracking-wider font-bold"
+                  onClick={() => { setAuthMode("email_otp"); setLocalError(null); setOtpSent(false); }}
+                  className="font-sans-clean text-xs text-stone-500 hover:text-amber-500 transition-colors tracking-wide font-bold bg-transparent border-0"
                 >
-                  ← Back to Email
+                  Sign In with Email OTP instead
                 </button>
               </div>
-            )}
-          </form>
+            </form>
+          )}
+
+          {/* SIGN UP WITH OTP FORM */}
+          {authMode === "signup" && (
+            <form onSubmit={signupStep === 1 ? handleSendSignupOtp : handleVerifyAndSignup} className="space-y-4 pl-2">
+              {signupStep === 1 ? (
+                <>
+                  <div>
+                    <label className="block font-sans-clean text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Your name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      disabled={loading}
+                      required
+                      className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-sm text-stone-900 focus:outline-none transition-all duration-300"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-sans-clean text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={loading}
+                      required
+                      className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-sm text-stone-900 focus:outline-none transition-all duration-300"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-sans-clean text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Create password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        disabled={loading}
+                        required
+                        className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-sm text-stone-900 focus:outline-none transition-all duration-300 pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 bg-transparent border-0"
+                      >
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-amber-50 border border-amber-100 p-3.5 rounded-xl text-xs font-sans-clean text-stone-600 leading-relaxed text-center">
+                    We sent a 6-digit verification code to <strong>{email}</strong>. Enter it below to complete registration.
+                  </div>
+                  <div>
+                    <label className="block font-sans-clean text-xs font-bold text-stone-600 uppercase tracking-wider mb-2 text-center">
+                      Verification OTP
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="000000"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      disabled={loading}
+                      maxLength={6}
+                      required
+                      className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-lg tracking-[0.2em] font-bold text-center text-stone-900 focus:outline-none transition-all duration-300"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {localError && (
+                <p className="font-sans-clean text-xs font-semibold text-rose-500 bg-rose-50 p-3 rounded-lg border border-rose-100">
+                  ⚠️ {localError}
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 bg-stone-900 hover:bg-amber-500 text-white font-sans-clean font-bold uppercase text-xs tracking-wider rounded-xl transition-all duration-300 shadow-md flex items-center justify-center gap-2"
+              >
+                {loading && <Loader2 size={16} className="animate-spin" />}
+                {signupStep === 1 ? "Send Verification OTP" : "Verify & Complete Signup"}
+              </Button>
+
+              {signupStep === 2 && (
+                <div className="text-center mt-3">
+                  <button
+                    type="button"
+                    onClick={() => { setSignupStep(1); setOtp(""); }}
+                    className="font-sans-clean text-xs text-stone-500 hover:text-amber-600 transition-colors uppercase tracking-wider font-bold bg-transparent border-0"
+                  >
+                    ← Edit Details
+                  </button>
+                </div>
+              )}
+            </form>
+          )}
+
+          {/* FORGOT PASSWORD RESET FLOW */}
+          {authMode === "forgot_password" && (
+            <form onSubmit={forgotStep === 1 ? handleSendResetOtp : handleVerifyAndResetPassword} className="space-y-4 pl-2">
+              {forgotStep === 1 ? (
+                <div>
+                  <label className="block font-sans-clean text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={loading}
+                    required
+                    className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-sm text-stone-900 focus:outline-none transition-all duration-300"
+                  />
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-amber-50 border border-amber-100 p-3.5 rounded-xl text-xs font-sans-clean text-stone-600 leading-relaxed text-center">
+                    Enter the code sent to <strong>{email}</strong> and set your new password.
+                  </div>
+                  <div>
+                    <label className="block font-sans-clean text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
+                      Reset OTP
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter 6-digit OTP"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      disabled={loading}
+                      maxLength={6}
+                      required
+                      className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-sm font-bold tracking-[0.1em] text-center text-stone-900 focus:outline-none transition-all duration-300"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-sans-clean text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
+                      New Password
+                    </label>
+                    <input
+                      type="password"
+                      placeholder="Minimum 6 characters"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      disabled={loading}
+                      required
+                      className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-sm text-stone-900 focus:outline-none transition-all duration-300"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-sans-clean text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
+                      Confirm New Password
+                    </label>
+                    <input
+                      type="password"
+                      placeholder="Repeat new password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      disabled={loading}
+                      required
+                      className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-sm text-stone-900 focus:outline-none transition-all duration-300"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {localError && (
+                <p className="font-sans-clean text-xs font-semibold text-rose-500 bg-rose-50 p-3 rounded-lg border border-rose-100">
+                  ⚠️ {localError}
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 bg-stone-900 hover:bg-amber-500 text-white font-sans-clean font-bold uppercase text-xs tracking-wider rounded-xl transition-all duration-300 shadow-md flex items-center justify-center gap-2"
+              >
+                {loading && <Loader2 size={16} className="animate-spin" />}
+                {forgotStep === 1 ? "Send Reset OTP" : "Reset & Login"}
+              </Button>
+
+              <div className="text-center mt-3">
+                <button
+                  type="button"
+                  onClick={() => { setAuthMode("login"); setForgotStep(1); setOtp(""); setLocalError(null); }}
+                  className="font-sans-clean text-xs text-stone-500 hover:text-amber-600 transition-colors uppercase tracking-wider font-bold bg-transparent border-0"
+                >
+                  ← Back to Login
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* EMAIL OTP LOGIN METHOD */}
+          {authMode === "email_otp" && (
+            <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp} className="space-y-4 pl-2">
+              <div>
+                <label className="block font-sans-clean text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={otpSent || loading}
+                  required
+                  className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-sm text-stone-900 focus:outline-none transition-all duration-300 disabled:opacity-60"
+                />
+              </div>
+
+              {otpSent && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  className="space-y-2"
+                >
+                  <label className="block font-sans-clean text-xs font-bold text-stone-600 uppercase tracking-wider mb-2 text-center">
+                    Verification OTP
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter 6-digit OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    disabled={loading}
+                    maxLength={6}
+                    required
+                    className="w-full px-4 py-3 bg-white border border-stone-200 hover:border-stone-300 focus:border-amber-500 rounded-xl font-sans-clean text-sm tracking-[0.2em] font-bold text-center text-stone-900 focus:outline-none transition-all duration-300"
+                  />
+                </motion.div>
+              )}
+
+              {localError && (
+                <p className="font-sans-clean text-xs font-semibold text-rose-500 bg-rose-50 p-3 rounded-lg border border-rose-100">
+                  ⚠️ {localError}
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 bg-stone-900 hover:bg-amber-500 text-white font-sans-clean font-bold uppercase text-xs tracking-wider rounded-xl transition-all duration-300 shadow-md flex items-center justify-center gap-2"
+              >
+                {loading && <Loader2 size={16} className="animate-spin" />}
+                {otpSent ? "Verify & Login" : "Send Login OTP"}
+              </Button>
+
+              <div className="text-center mt-4 flex flex-col gap-2">
+                {otpSent ? (
+                  <button
+                    type="button"
+                    onClick={() => { setOtpSent(false); setOtp(""); }}
+                    disabled={loading}
+                    className="font-sans-clean text-xs text-stone-500 hover:text-amber-600 transition-colors uppercase tracking-wider font-bold bg-transparent border-0"
+                  >
+                    ← Back to Email
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => { setAuthMode("login"); setLocalError(null); }}
+                    className="font-sans-clean text-xs text-stone-500 hover:text-amber-500 transition-colors tracking-wide font-bold bg-transparent border-0"
+                  >
+                    ← Back to Password Login
+                  </button>
+                )}
+              </div>
+            </form>
+          )}
+
+          {/* GOOGLE SIGN IN OAUTH CONTAINER */}
+          {(!otpSent && (authMode === "login" || authMode === "signup") && (forgotStep === 1)) && (
+            <div className="mt-6 pt-5 border-t border-stone-200 pl-2">
+              <div className="relative flex py-2 items-center mb-4">
+                <div className="flex-grow border-t border-stone-200"></div>
+                <span className="flex-shrink mx-4 text-stone-400 font-sans-clean text-xs font-semibold">Or continue with</span>
+                <div className="flex-grow border-t border-stone-200"></div>
+              </div>
+              <div className="flex justify-center w-full">
+                <div id="google-signin-btn" className="w-full flex justify-center"></div>
+              </div>
+            </div>
+          )}
+
         </motion.div>
       </div>
     );

@@ -57,8 +57,8 @@ export default function ContactPage() {
             {
               icon: Phone,
               title: "Call Us",
-              value: "+91 79033 16723",
-              link: "tel:+917903316723",
+              value: "+91 98718 74041",
+              link: "tel:+919871874041",
             },
             {
               icon: Mail,
@@ -255,7 +255,7 @@ export default function ContactPage() {
                 Chat directly with our team on WhatsApp for instant support.
               </p>
               <Button asChild size="lg" variant="default" className="w-full">
-                <a href="https://wa.me/917903316723" target="_blank" rel="noreferrer">
+                <a href="https://wa.me/919871874041" target="_blank" rel="noreferrer">
                   💬 Chat on WhatsApp
                 </a>
               </Button>

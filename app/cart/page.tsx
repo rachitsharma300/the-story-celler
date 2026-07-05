@@ -62,7 +62,7 @@ export default function CartPage() {
               Your Cart
             </p>
             <h1 className="font-display text-4xl lg:text-5xl font-bold text-stone-900">
-              Ready to archive your memories?
+              Ready to preserve your memories?
             </h1>
           </div>
           <Button asChild size="lg" variant="default" className="inline-flex items-center gap-2">
@@ -198,7 +198,7 @@ export default function CartPage() {
                   </div>
                 </div>
                 <Button asChild size="lg" variant="default" className="w-full">
-                  <a href="https://wa.me/917903316723" target="_blank" rel="noreferrer">
+                  <a href="https://wa.me/919871874041" target="_blank" rel="noreferrer">
                     Chat with support
                   </a>
                 </Button>

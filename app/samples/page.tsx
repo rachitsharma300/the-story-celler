@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import HTMLFlipBook from "react-pageflip";
+const FlipBook = HTMLFlipBook as any;
 import { ChevronLeft, ChevronRight, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -210,7 +211,7 @@ export default function SamplesPage() {
 
                 <div className="p-8 flex items-center justify-center min-h-96 bg-gradient-to-br from-stone-50 to-amber-50">
                   <div className="w-full max-w-2xl">
-                    <HTMLFlipBook
+                    <FlipBook
                       width={400}
                       height={500}
                       size="fixed"
@@ -231,7 +232,7 @@ export default function SamplesPage() {
                           </Page>
                         )
                       )}
-                    </HTMLFlipBook>
+                    </FlipBook>
 
                     <div className="flex items-center justify-center gap-4 mt-8">
                       <Button

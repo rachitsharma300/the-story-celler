@@ -172,13 +172,22 @@ const reviews = [
 export default function ProductPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const product = productData[slug];
+  const [dbProduct, setDbProduct] = useState<any>(null);
 
   // Dynamic samples from database
   const [dbSamples, setDbSamples] = useState<any[]>([]);
 
   useEffect(() => {
-    async function loadSamples() {
+    async function loadProductAndSamples() {
+      try {
+        const prodRes = await api.get(`/api/products/${slug}`);
+        if (prodRes.data) {
+          setDbProduct(prodRes.data);
+        }
+      } catch (err) {
+        console.error("Failed to load product from db:", err);
+      }
+
       try {
         const res = await api.get("/api/samples");
         setDbSamples(res.data || []);
@@ -186,8 +195,36 @@ export default function ProductPage() {
         console.error("Failed to load samples for product page:", err);
       }
     }
-    loadSamples();
-  }, []);
+    loadProductAndSamples();
+  }, [slug]);
+
+  const product = useMemo(() => {
+    const base = productData[slug] || {
+      name: dbProduct?.name || "Keepsake Custom Product",
+      price: dbProduct?.price || 1200,
+      originalPrice: dbProduct?.originalPrice || 1800,
+      tag: "New",
+      images: [dbProduct?.imageUrl || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&auto=format&fit=crop&q=80"],
+      desc: dbProduct?.description || "A personalized keepsake of your stories and memories.",
+      longDesc: dbProduct?.description || "A personalized keepsake handcrafted with love. Share your photos and memories via WhatsApp, review and revise layouts with our editors, and get a premium print keepsake delivered.",
+      deliveryDays: "7-10 days",
+      pages: "8-20 pages",
+      includes: ["Custom layout design", "Premium print quality", "Free shipping", "Up to 4 revisions"],
+      occasions: ["Birthday", "Anniversary", "Travel", "Custom"],
+      steps: ["Place order and pay 50% advance", "Share photos via WhatsApp", "Receive draft in 24-48 hrs", "Approve and pay balance", "Delivered to your doorstep"],
+      pageOptions: PAGE_OPTIONS_DEFAULT,
+    };
+
+    if (!dbProduct) return base;
+    return {
+      ...base,
+      name: dbProduct.name || base.name,
+      price: dbProduct.price || base.price,
+      originalPrice: dbProduct.originalPrice || base.originalPrice,
+      desc: dbProduct.description || base.desc,
+      images: dbProduct.imageUrl ? [dbProduct.imageUrl, ...(base.images ? base.images.slice(1) : [])] : base.images,
+    };
+  }, [slug, dbProduct]);
 
   const resolvedSamplePdf = useMemo(() => {
     if (!product || !product.samplePdf) return undefined;
@@ -680,7 +717,7 @@ export default function ProductPage() {
               {/* Direct Booking & Support Options */}
               <div className="grid grid-cols-2 gap-3">
                 <a
-                  href={`https://wa.me/917903316723?text=Hi!%20I%20want%20to%20book%20a%20${product.name}.`}
+                  href={`https://wa.me/919871874041?text=Hi!%20I%20want%20to%20book%20a%20${product.name}.`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="py-3 px-4 bg-green-500 hover:bg-green-600 text-white text-xs font-sans-clean font-bold rounded-xl text-center transition-all flex items-center justify-center gap-1.5 shadow-sm"
@@ -688,7 +725,7 @@ export default function ProductPage() {
                   💬 Book via WhatsApp
                 </a>
                 <a
-                  href="tel:+917903316723"
+                  href="tel:+919871874041"
                   className="py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white dark:text-stone-950 text-xs font-sans-clean font-bold rounded-xl text-center transition-all flex items-center justify-center gap-1.5 shadow-sm"
                 >
                   <Phone size={12} /> Book via Call

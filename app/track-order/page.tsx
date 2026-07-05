@@ -340,7 +340,7 @@ export default function TrackOrderPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <a
-                    href="https://wa.me/917903316723"
+                    href="https://wa.me/919871874041"
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-400 text-white font-sans-clean font-semibold rounded-xl transition-all"
@@ -349,7 +349,7 @@ export default function TrackOrderPage() {
                     WhatsApp Support
                   </a>
                   <a
-                    href="tel:+917903316723"
+                    href="tel:+919871874041"
                     className="flex items-center justify-center gap-2 px-6 py-3 bg-stone-800 hover:bg-stone-700 text-white font-sans-clean font-semibold rounded-xl transition-all"
                   >
                     <Phone size={14} />
