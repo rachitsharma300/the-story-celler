@@ -19,11 +19,11 @@ export default function Footer() {
           <div className="flex flex-col space-y-4">
             <Link href="/" className="flex items-center gap-2.5 group">
               <div className="w-10 h-10 rounded-xl overflow-hidden">
-                <img src="/story_celler_logo.png" alt="The Story Celler" className="w-full h-full object-contain" />
+                <img src="/story_celler_logo.png" alt="The StoryCeller" className="w-full h-full object-contain" />
               </div>
               <div>
                 <span className="font-display text-lg font-extrabold text-foreground tracking-tight block leading-none">
-                  Story<span className="text-amber-500 font-light italic">Cellar</span>
+                  Story<span className="text-amber-500 font-light italic">Celler</span>
                 </span>
                 <p className="text-[8px] text-stone-400 font-sans-clean tracking-[0.2em] uppercase mt-1 font-bold">
                   Archiving Memories
@@ -92,17 +92,17 @@ export default function Footer() {
                 </span>
                 <ul className="pl-3.5 border-l border-stone-100 dark:border-stone-850 space-y-2.5 text-xs text-stone-500 dark:text-stone-400">
                   <li>
-                    <a href="https://wa.me/917903316723?text=Hi!%20I%20am%20interested%20in%20Artist%20Collaborations." target="_blank" rel="noopener noreferrer" className="hover:text-amber-500 transition-colors block">
+                    <a href="https://wa.me/919871874041?text=Hi!%20I%20am%20interested%20in%20Artist%20Collaborations." target="_blank" rel="noopener noreferrer" className="hover:text-amber-500 transition-colors block">
                       Artists Collaborations
                     </a>
                   </li>
                   <li>
-                    <a href="https://wa.me/917903316723?text=Hi!%20I%20am%20interested%20in%20Photographer%20Collaboration." target="_blank" rel="noopener noreferrer" className="hover:text-amber-500 transition-colors block">
+                    <a href="https://wa.me/919871874041?text=Hi!%20I%20am%20interested%20in%20Photographer%20Collaboration." target="_blank" rel="noopener noreferrer" className="hover:text-amber-500 transition-colors block">
                       Photographer Collaboration
                     </a>
                   </li>
                   <li>
-                    <a href="https://wa.me/917903316723?text=Hi!%20I%20have%20a%20Brand/Corporate%20Inquiry." target="_blank" rel="noopener noreferrer" className="hover:text-amber-500 transition-colors block">
+                    <a href="https://wa.me/919871874041?text=Hi!%20I%20have%20a%20Brand/Corporate%20Inquiry." target="_blank" rel="noopener noreferrer" className="hover:text-amber-500 transition-colors block">
                       Brand/Corporate Inquiry
                     </a>
                   </li>
@@ -149,8 +149,8 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={14} className="text-amber-500 shrink-0" />
-                <a href="mailto:team@mystoryarchive.in" className="hover:text-amber-500 transition-colors">
-                  team@mystoryarchive.in
+                <a href="mailto:team@thestoryceller.in" className="hover:text-amber-500 transition-colors">
+                  team@thestoryceller.in
                 </a>
               </li>
             </ul>
@@ -170,7 +170,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-16 pt-8 border-t border-stone-100 dark:border-stone-900 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-sans-clean text-xs text-stone-500">
-            Copyright © MyStoryArchive | All rights reserved.
+            Copyright © The Story Celler | All rights reserved.
           </p>
           <p className="font-sans-clean text-xs text-stone-600 flex items-center gap-1.5">
             Designed & Developed: <a href="https://rachitsharma300.github.io/rachit-portfolio/" target="_blank" rel="noopener noreferrer" className="hover:text-amber-500 underline decoration-dotted transition-colors">Rachit Sharma</a>
