@@ -14,8 +14,10 @@ import {
   LogOut,
   Menu,
   X,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useUserStore } from "@/store/userStore";
 
 interface SidebarItem {
   label: string;
@@ -49,11 +51,49 @@ export default function AdminLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { user, isAuthenticated, initializeAuth, logout } = useUserStore();
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    initializeAuth();
+  }, [initializeAuth]);
+
+  useEffect(() => {
+    // If we're on login page, don't run auth checks
+    if (pathname === "/admin/login") {
+      setCheckingAuth(false);
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    const userStr = localStorage.getItem("user");
+
+    if (!token || !userStr) {
+      router.push("/admin/login");
+      return;
+    }
+
+    try {
+      const u = JSON.parse(userStr);
+      if (u.role !== "ADMIN") {
+        document.cookie = "adminToken=; path=/; max-age=0";
+        logout();
+        router.push("/admin/login");
+      } else {
+        setCheckingAuth(false);
+      }
+    } catch (e) {
+      router.push("/admin/login");
+    }
+  }, [isAuthenticated, user, pathname, router, logout]);
 
   const handleLogout = () => {
     document.cookie = "adminToken=; path=/; max-age=0";
+    logout();
     router.push("/admin/login");
   };
 
@@ -64,6 +104,15 @@ export default function AdminLayout({
       setMobileOpen(!mobileOpen);
     }
   };
+
+  if (checkingAuth && pathname !== "/admin/login") {
+    return (
+      <div className="min-h-screen bg-stone-900 flex flex-col items-center justify-center text-white">
+        <Loader2 className="animate-spin text-amber-500 mb-4" size={32} />
+        <p className="font-sans-clean text-sm text-stone-400">Verifying administrator credentials...</p>
+      </div>
+    );
+  }
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-stone-900 text-white py-6 relative">
@@ -173,7 +222,7 @@ export default function AdminLayout({
                 size="icon"
                 className="text-stone-600 hover:text-amber-600"
               >
-                {sidebarOpen && typeof window !== "undefined" && window.innerWidth >= 1024 ? (
+                {mounted && sidebarOpen && typeof window !== "undefined" && window.innerWidth >= 1024 ? (
                   <X size={20} />
                 ) : (
                   <Menu size={20} />
