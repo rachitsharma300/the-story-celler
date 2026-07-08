@@ -23,7 +23,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [theme, setTheme] = useState("light");
-  
+
   if (isAdminPage) return null;
   const cartCount = 0; // zustand connection placeholder
 
@@ -61,29 +61,25 @@ export default function Navbar() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`fixed left-0 right-0 z-50 transition-all duration-500 px-4 ${
-          scrolled ? "top-4 py-0" : "top-0 py-2 sm:py-4"
-        }`}
+        className={`fixed left-0 right-0 z-50 transition-all duration-500 px-4 ${scrolled ? "top-4 py-0" : "top-0 py-2 sm:py-4"
+          }`}
       >
-        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-500 ${
-          scrolled
-            ? "bg-background/70 backdrop-blur-lg shadow-lg border border-border/40 rounded-2xl h-14 sm:h-16 flex items-center"
-            : "bg-transparent border border-transparent h-16 lg:h-20 flex items-center"
-        }`}>
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-500 ${scrolled
+          ? "bg-background/70 backdrop-blur-lg shadow-lg border border-border/40 rounded-2xl h-14 sm:h-16 flex items-center"
+          : "bg-transparent border border-transparent h-16 lg:h-20 flex items-center"
+          }`}>
           <div className="flex items-center justify-between w-full">
 
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="relative w-9 h-9 flex items-center justify-center rounded-xl overflow-hidden group-hover:rotate-6 transition-all duration-300">
-                <img src="/story_celler_logo.png" alt="The Story Celler Logo" className="w-full h-full object-contain" />
-              </div>
-              <div>
-                <span className="font-display text-base font-extrabold text-stone-900 tracking-tight block leading-none">
-                  Story<span className="text-amber-500 font-light italic">Celler</span>
-                </span>
-                <p className="text-[8px] text-stone-400 font-sans-clean tracking-[0.2em] uppercase mt-0.5">
-                  Archiving Memories
-                </p>
+            <Link href="/" className="flex items-center group">
+              <div className={`relative w-auto flex items-center transition-all duration-300 ${
+                scrolled ? "h-11 sm:h-13" : "h-14 sm:h-16 lg:h-[72px]"
+              }`}>
+                <img
+                  src="/story_celler_logo.png"
+                  alt="The Story Celler Logo"
+                  className="h-full w-auto object-contain"
+                />
               </div>
             </Link>
 
