@@ -17,17 +17,9 @@ export default function Footer() {
 
           {/* Brand */}
           <div className="flex flex-col space-y-4">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-xl overflow-hidden">
-                <img src="/story_celler_logo.png" alt="The StoryCeller" className="w-full h-full object-contain" />
-              </div>
-              <div>
-                <span className="font-display text-lg font-extrabold text-foreground tracking-tight block leading-none">
-                  Story<span className="text-amber-500 font-light italic">Celler</span>
-                </span>
-                <p className="text-[8px] text-stone-400 font-sans-clean tracking-[0.2em] uppercase mt-1 font-bold">
-                  Archiving Memories
-                </p>
+            <Link href="/" className="flex items-center group">
+              <div className="h-20 w-auto flex items-center overflow-hidden">
+                <img src="/story_celler_logo.png" alt="The StoryCeller" className="h-full w-auto object-contain" />
               </div>
             </Link>
 
