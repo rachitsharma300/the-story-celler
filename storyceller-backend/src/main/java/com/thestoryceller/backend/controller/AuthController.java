@@ -7,6 +7,7 @@ import com.thestoryceller.backend.entity.User;
 import com.thestoryceller.backend.security.JwtTokenProvider;
 import com.thestoryceller.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,9 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final JwtTokenProvider tokenProvider;
+
+    @Value("${google.client.id:}")
+    private String googleClientId;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
@@ -48,9 +52,7 @@ public class AuthController {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getEmail(),
-                            loginRequest.getPassword()
-                    )
-            );
+                            loginRequest.getPassword()));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = tokenProvider.generateToken(authentication);
@@ -62,8 +64,7 @@ public class AuthController {
                     jwt,
                     user.getEmail(),
                     user.getName(),
-                    user.getRole()
-            ));
+                    user.getRole()));
         } catch (Exception e) {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid email or password"));
         }
@@ -101,8 +102,7 @@ public class AuthController {
                     jwt,
                     user.getEmail(),
                     user.getName(),
-                    user.getRole()
-            ));
+                    user.getRole()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
@@ -114,7 +114,7 @@ public class AuthController {
             String email = request.get("email");
             String otp = request.get("otp");
             String newPassword = request.get("newPassword");
-            
+
             userService.resetPassword(email, otp, newPassword);
             return ResponseEntity.ok(Map.of("message", "Password reset successfully"));
         } catch (Exception e) {
@@ -137,8 +137,9 @@ public class AuthController {
                     .GET()
                     .build();
 
-            java.net.http.HttpResponse<String> response = client.send(httpRequest, java.net.http.HttpResponse.BodyHandlers.ofString());
-            
+            java.net.http.HttpResponse<String> response = client.send(httpRequest,
+                    java.net.http.HttpResponse.BodyHandlers.ofString());
+
             if (response.statusCode() != 200) {
                 return ResponseEntity.status(401).body(Map.of("error", "Invalid Google ID token"));
             }
@@ -148,9 +149,18 @@ public class AuthController {
 
             String email = (String) payload.get("email");
             String name = (String) payload.get("name");
-            
+            String aud = (String) payload.get("aud");
+
+            // Validate Google Client ID Audience
+            if (googleClientId != null && !googleClientId.isBlank()) {
+                if (aud == null || !googleClientId.equals(aud)) {
+                    return ResponseEntity.status(401).body(Map.of("error", "Invalid Google ID token client ID mismatch"));
+                }
+            }
+
             if (email == null) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Failed to retrieve email from Google profile"));
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Failed to retrieve email from Google profile"));
             }
 
             if (name == null || name.isBlank()) {
@@ -169,8 +179,7 @@ public class AuthController {
                     jwt,
                     user.getEmail(),
                     user.getName(),
-                    user.getRole()
-            ));
+                    user.getRole()));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Internal Google Auth failure: " + e.getMessage()));
         }
