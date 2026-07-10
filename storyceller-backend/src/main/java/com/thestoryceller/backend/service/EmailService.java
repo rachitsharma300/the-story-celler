@@ -19,7 +19,7 @@ public class EmailService {
 
     public void sendOtpEmail(String toEmail, String otp) {
         String subject = "The Story Celler - Your OTP Code";
-        String content = "Hello,\n\nYour One-Time Password (OTP) code is: " + otp 
+        String content = "Hello,\n\nYour One-Time Password (OTP) code is: " + otp
                 + "\n\nThis OTP is valid for 5 minutes. Please do not share it with anyone.\n\nWarm regards,\nThe Story Celler Team";
 
         if (mailSender != null) {
@@ -33,17 +33,17 @@ public class EmailService {
                 log.info("OTP email successfully sent to {}", toEmail);
                 return;
             } catch (Exception e) {
-                log.error("Failed to send email via SMTP: {}. Falling back to console log.", e.getMessage());
+                log.error("Failed to send email via SMTP: {}. Falling back to console log.", e.getMessage(), e);
             }
         } else {
             log.warn("JavaMailSender bean is not available. SMTP email config is disabled.");
         }
-        
+
         // Fallback for local testing or failure
         log.info("\n==================================================\n" +
-                 "  [EMAIL VERIFICATION OTP FALLBACK]\n" +
-                 "  To: {}\n" +
-                 "  OTP: {}\n" +
-                 "==================================================\n", toEmail, otp);
+                "  [EMAIL VERIFICATION OTP FALLBACK]\n" +
+                "  To: {}\n" +
+                "  OTP: {}\n" +
+                "==================================================\n", toEmail, otp);
     }
 }
