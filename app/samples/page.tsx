@@ -1,336 +1,441 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import HTMLFlipBook from "react-pageflip";
-const FlipBook = HTMLFlipBook as any;
-import { ChevronLeft, ChevronRight, Volume2, VolumeX } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import {
+  BookOpen,
+  Sparkles,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
+import SampleFlipbookModal from "@/components/sections/SampleFlipbookModal";
 
-interface SampleData {
+// ── Types ──────────────────────────────────────────────────────────────────────
+interface Sample {
   id: number;
   title: string;
-  category: string;
-  pages: number;
-  emoji: string;
-  preview: string;
-  description: string;
+  pdfUrl: string;
+  coverImageUrl?: string;
+  category?: string;
 }
 
-const samples: SampleData[] = [
-  {
-    id: 1,
-    title: "Anniversary Special",
-    category: "Album",
-    pages: 20,
-    emoji: "💑",
-    preview: "Love story captured in pages",
-    description: "A beautiful journey through your together moments",
+// ── Stagger variants ───────────────────────────────────────────────────────────
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.15 },
   },
-  {
-    id: 2,
-    title: "Birthday Bash",
-    category: "Magazine",
-    pages: 24,
-    emoji: "🎂",
-    preview: "Celebrate in style",
-    description: "Party moments and memories from your special day",
-  },
-  {
-    id: 3,
-    title: "Travel Diaries",
-    category: "Magazine",
-    pages: 28,
-    emoji: "✈️",
-    preview: "Wanderlust captured",
-    description: "Adventures and discoveries from your travels",
-  },
-  {
-    id: 4,
-    title: "Family Reunion",
-    category: "Album",
-    pages: 30,
-    emoji: "👨‍👩‍👧‍👦",
-    preview: "Generations united",
-    description: "Cherished moments with loved ones",
-  },
-  {
-    id: 5,
-    title: "New Beginnings",
-    category: "Magazine",
-    pages: 22,
-    emoji: "🌟",
-    preview: "Fresh chapters",
-    description: "Celebrations and milestones of new chapters",
-  },
-  {
-    id: 6,
-    title: "Pet Paradise",
-    category: "Album",
-    pages: 20,
-    emoji: "🐾",
-    preview: "Furry friends forever",
-    description: "Cute and hilarious moments with your pets",
-  },
-];
-
-// Mock page content generator
-const generatePageContent = (pageNum: number, totalPages: number) => {
-  const colors = ["bg-amber-50", "bg-orange-50", "bg-stone-50", "bg-slate-50"];
-  const color = colors[pageNum % colors.length];
-
-  return (
-    <div
-      className={`${color} w-full h-full p-8 flex flex-col justify-between border-r-8 border-stone-300`}
-    >
-      <div>
-        <p className="text-4xl mb-4">
-          {["📖", "✨", "💫", "🎨", "🌸", "💝", "🎯", "🌈"][
-            pageNum % 8
-          ]}
-        </p>
-        <h2 className="font-display text-2xl font-bold text-stone-900 mb-4">
-          Page {pageNum}
-        </h2>
-        <p className="font-sans-clean text-stone-600 leading-relaxed">
-          This is a sample page from our collection. In the actual product, you'll see your beautiful photos and stories laid out perfectly across {totalPages} pages with premium printing quality.
-        </p>
-      </div>
-      <div className="text-center">
-        <p className="font-sans-clean text-xs text-stone-400">
-          {pageNum} / {totalPages}
-        </p>
-      </div>
-    </div>
-  );
 };
 
-// Page component for FlipBook
-const Page = ({ number, children }: { number: number; children: React.ReactNode }) => (
-  <div className="bg-white shadow-lg rounded-sm h-full flex items-center justify-center overflow-hidden">
-    {children}
-  </div>
-);
+const item = {
+  hidden: { opacity: 0, y: 30 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
+  },
+};
 
-export default function SamplesPage() {
-  const [selectedSample, setSelectedSample] = useState<SampleData | null>(null);
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const bookRef = useRef<any>(null);
+// ── Tape corner decoration (same as homepage) ──────────────────────────────────
+function TapeCorner({
+  className = "",
+  rotate = -10,
+  tone = "light",
+}: {
+  className?: string;
+  rotate?: number;
+  tone?: "light" | "dark";
+}) {
+  return (
+    <div
+      className={`absolute z-20 w-8 h-3 pointer-events-none ${className}`}
+      style={{ transform: `rotate(${rotate}deg)` }}
+    >
+      <div
+        className={`w-full h-full ${
+          tone === "dark"
+            ? "bg-stone-800/60 border-t border-stone-700/40"
+            : "bg-amber-100/90 border-t border-amber-200/60"
+        } shadow-sm`}
+        style={{ borderRadius: "1px 1px 0 0" }}
+      />
+    </div>
+  );
+}
 
-  const playSound = () => {
-    if (soundEnabled) {
-      // Simple beep sound effect (you can replace with actual audio file)
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-      
-      oscillator.connect(gain);
-      gain.connect(audioContext.destination);
-      
-      oscillator.frequency.value = 800;
-      oscillator.type = "sine";
-      
-      gain.gain.setValueAtTime(0.1, audioContext.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-      
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.1);
-    }
-  };
-
-  const handleNextPage = () => {
-    if (bookRef.current) {
-      bookRef.current.pageFlip().next();
-      playSound();
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (bookRef.current) {
-      bookRef.current.pageFlip().prev();
-      playSound();
-    }
-  };
+// ── 3-D Book Card (exactly like homepage slider) ───────────────────────────────
+function BookCard({
+  sample,
+  onOpen,
+  focusRing,
+}: {
+  sample: Sample;
+  onOpen: (s: Sample) => void;
+  focusRing: string;
+}) {
+  const coverSrc =
+    sample.coverImageUrl ||
+    "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&fit=crop&q=80";
 
   return (
-    <div className="min-h-screen bg-background pt-24 pb-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+    <motion.div
+      variants={item}
+      className="flex flex-col items-center"
+    >
+      {/* 3-D book wrapper */}
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label={`View ${sample.title} sample`}
+        onClick={() => onOpen(sample)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onOpen(sample);
+          }
+        }}
+        className={`group cursor-pointer select-none ${focusRing} rounded-xl`}
+      >
+        {/* Relative container gives consistent size across all cards */}
+        <div
+          className="relative mx-auto"
+          style={{ width: "200px", height: "267px" }}
         >
-          <p className="text-xs tracking-widest uppercase text-amber-500 font-bold font-sans-clean mb-3">
-            Inspiration
-          </p>
-          <h1 className="font-display text-5xl lg:text-6xl font-bold text-stone-900 mb-6">
-            Sample Keepsakes
-          </h1>
-          <p className="font-sans-clean text-lg text-stone-500 max-w-2xl mx-auto">
-            Flip through our collection of beautiful sample designs. Click any sample to experience the full interactive book view.
-          </p>
-        </motion.div>
+          {/* Shadow pages — bundle illusion */}
+          <div
+            className="absolute rounded-sm bg-stone-300"
+            style={{ top: "8px", left: "8px", right: "-8px", bottom: "-8px" }}
+          />
+          <div
+            className="absolute rounded-sm bg-stone-200"
+            style={{ top: "4px", left: "4px", right: "-4px", bottom: "-4px" }}
+          />
 
-        <AnimatePresence>
-          {selectedSample ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            >
-              <div className="bg-white rounded-3xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-auto">
-                <div className="sticky top-0 bg-white border-b border-stone-200 p-6 flex items-center justify-between">
-                  <div>
-                    <h2 className="font-display text-2xl font-bold text-stone-900">
-                      {selectedSample.emoji} {selectedSample.title}
-                    </h2>
-                    <p className="font-sans-clean text-sm text-stone-500 mt-1">
-                      {selectedSample.pages} pages • {selectedSample.category}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Button
-                      onClick={() => setSoundEnabled(!soundEnabled)}
-                      variant="ghost"
-                      size="icon"
-                    >
-                      {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
-                    </Button>
-                    <Button
-                      onClick={() => setSelectedSample(null)}
-                      variant="ghost"
-                      size="sm"
-                    >
-                      Close
-                    </Button>
-                  </div>
-                </div>
+          {/* Main cover */}
+          <div
+            className="absolute inset-0 rounded-sm overflow-hidden shadow-[0_16px_40px_-6px_rgba(0,0,0,0.28)] cursor-pointer"
+            style={{ transition: "transform 0.4s ease, box-shadow 0.4s ease" }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLElement;
+              el.style.transform = "translateY(-12px) rotate(-3deg) scale(1.04)";
+              el.style.boxShadow = "0 28px 56px -8px rgba(166,91,98,0.55)";
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLElement;
+              el.style.transform = "";
+              el.style.boxShadow = "";
+            }}
+          >
+            {/* Cover image */}
+            <img
+              src={coverSrc}
+              alt={sample.title}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
 
-                <div className="p-8 flex items-center justify-center min-h-96 bg-gradient-to-br from-stone-50 to-amber-50">
-                  <div className="w-full max-w-2xl">
-                    <FlipBook
-                      width={400}
-                      height={500}
-                      size="fixed"
-                      minWidth={300}
-                      maxWidth={1000}
-                      minHeight={400}
-                      maxHeight={1533}
-                      maxShadowOpacity={0.5}
-                      showCover={true}
-                      useMouseEvents={true}
-                      ref={bookRef}
-                      className="rounded-lg shadow-2xl"
-                    >
-                      {Array.from({ length: selectedSample.pages }).map(
-                        (_, idx) => (
-                          <Page key={idx} number={idx + 1}>
-                            {generatePageContent(idx + 1, selectedSample.pages)}
-                          </Page>
-                        )
-                      )}
-                    </FlipBook>
+            {/* Spine shadow overlay */}
+            <div className="absolute inset-y-0 left-0 w-5 bg-gradient-to-r from-black/45 to-transparent pointer-events-none" />
 
-                    <div className="flex items-center justify-center gap-4 mt-8">
-                      <Button
-                        onClick={handlePrevPage}
-                        variant="outline"
-                        size="icon"
-                      >
-                        <ChevronLeft size={20} />
-                      </Button>
-                      <span className="font-sans-clean text-sm text-stone-600">
-                        Click pages or use arrows to navigate
-                      </span>
-                      <Button
-                        onClick={handleNextPage}
-                        variant="outline"
-                        size="icon"
-                      >
-                        <ChevronRight size={20} />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+            {/* Bottom gradient + title */}
+            <div className="absolute bottom-0 left-0 right-0 h-[80px] bg-gradient-to-t from-black/92 via-black/55 to-transparent flex flex-col justify-end px-3.5 pb-3">
+              <span className="text-white font-display text-[13px] font-bold leading-tight drop-shadow line-clamp-2">
+                {sample.title}
+              </span>
+            </div>
+
+            {/* Category badge */}
+            {sample.category && (
+              <div className="absolute top-3 right-3">
+                <span className="bg-[#A65B62] text-white font-sans-clean text-[8px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full shadow">
+                  {sample.category}
+                </span>
               </div>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
+            )}
 
-        {/* Samples Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {samples.map((sample, i) => (
-            <motion.div
-              key={sample.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
-              onClick={() => setSelectedSample(sample)}
-              className="group cursor-pointer"
-            >
-              <div className="rounded-3xl border border-stone-200 bg-white overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col hover:-translate-y-1">
-                {/* Image Area */}
-                <div className="relative h-48 bg-gradient-to-br from-amber-50 via-stone-50 to-orange-50 flex items-center justify-center overflow-hidden group-hover:bg-gradient-to-br group-hover:from-amber-100 group-hover:via-orange-50 group-hover:to-stone-100 transition-all">
-                  <motion.span
-                    animate={{ scale: [1, 1.05, 1], rotate: [0, 2, -2, 0] }}
-                    transition={{ duration: 4, repeat: Infinity }}
-                    className="text-7xl group-hover:scale-110 transition-transform"
-                  >
-                    {sample.emoji}
-                  </motion.span>
-
-                  <div className="absolute top-3 left-3 flex gap-2">
-                    <span className="px-3 py-1 bg-amber-500 text-white text-[10px] font-bold rounded-full">
-                      {sample.category}
-                    </span>
-                    <span className="px-3 py-1 bg-stone-200 text-stone-700 text-[10px] font-bold rounded-full">
-                      {sample.pages} pages
-                    </span>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="font-display text-xl font-bold text-stone-900 mb-2">
-                    {sample.title}
-                  </h3>
-                  <p className="font-sans-clean text-sm text-stone-600 mb-4 flex-grow">
-                    {sample.description}
-                  </p>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="w-full group-hover:bg-amber-500"
-                  >
-                    View Sample
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+            {/* Hover "View Flipbook" pill */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/12">
+              <span className="bg-white/95 backdrop-blur text-[#A65B62] font-sans-clean font-black text-[9px] tracking-widest uppercase px-3.5 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+                <BookOpen size={10} /> View Flipbook
+              </span>
+            </div>
+          </div>
         </div>
-
-        {/* CTA Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-20 rounded-3xl bg-stone-900 dark:bg-stone-950/60 border border-transparent dark:border-stone-850 p-12 text-center text-white"
-        >
-          <h2 className="font-display text-3xl font-bold mb-4">
-            Ready to Create Your Own?
-          </h2>
-          <p className="font-sans-clean text-stone-300 mb-8 max-w-xl mx-auto">
-            Inspired by these samples? Start creating your personalized keepsake today. Upload your photos and stories to bring your memories to life.
-          </p>
-          <Button asChild size="lg" variant="secondary">
-            <a href="/shop">Start Creating</a>
-          </Button>
-        </motion.div>
       </div>
+
+      {/* Label below card */}
+      <div className="mt-5 text-center" style={{ width: "200px" }}>
+        <p className="font-display text-sm font-bold text-stone-850 leading-snug group-hover:text-[#A65B62] transition-colors">
+          {sample.title}
+        </p>
+        {sample.category && (
+          <p className="font-sans-clean text-[10px] text-stone-400 mt-1 uppercase tracking-wider">
+            {sample.category}
+          </p>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
+export default function SamplesPage() {
+  const [samples, setSamples] = useState<Sample[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Filter state
+  const [activeCategory, setActiveCategory] = useState<string>("All");
+
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalSample, setModalSample] = useState<Sample | null>(null);
+
+  const focusRing =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A65B62] focus-visible:ring-offset-2";
+
+  // ── Fetch samples from API ───────────────────────────────────────────────────
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+
+    fetch("/api/samples", { signal: controller.signal })
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data: Sample[]) => setSamples(Array.isArray(data) ? data : []))
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          console.error("Failed to load samples:", err);
+          setError("Could not load samples. Please try again later.");
+        }
+      })
+      .finally(() => setLoading(false));
+
+    return () => controller.abort();
+  }, []);
+
+  // ── Derive categories ────────────────────────────────────────────────────────
+  const categories = [
+    "All",
+    ...Array.from(new Set(samples.map((s) => s.category).filter(Boolean))),
+  ] as string[];
+
+  const filtered =
+    activeCategory === "All"
+      ? samples
+      : samples.filter((s) => s.category === activeCategory);
+
+  // ── Open modal ───────────────────────────────────────────────────────────────
+  const openSample = (s: Sample) => {
+    setModalSample(s);
+    setModalOpen(true);
+  };
+
+  // ── Render ───────────────────────────────────────────────────────────────────
+  return (
+    <div className="min-h-screen bg-[#FAF4F5] pt-24 pb-20">
+
+      {/* ── HERO HEADER ─────────────────────────────────────────────────────── */}
+      <section className="py-16 bg-white border-b border-stone-100 relative overflow-hidden">
+        {/* Decorative blobs */}
+        <div className="pointer-events-none absolute -top-24 -right-24 w-80 h-80 rounded-full bg-[#A65B62]/6 blur-[80px]" />
+        <div className="pointer-events-none absolute -bottom-24 -left-24 w-64 h-64 rounded-full bg-rose-100/40 blur-[80px]" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <span className="font-sans-clean text-[10px] tracking-[0.3em] uppercase text-[#A65B62] font-bold block mb-4">
+              ✦ Real Sample Designs ✦
+            </span>
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-stone-900 mb-5 leading-tight">
+              Magazine Samples
+            </h1>
+            <p className="font-sans-clean text-stone-400 max-w-lg mx-auto text-sm leading-relaxed mb-8">
+              Browse through real designs we've crafted for our clients. Click
+              any cover to flip through the pages in our interactive 3D viewer.
+            </p>
+
+            {/* CTA buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/product/custom-magazine"
+                className={`px-7 py-3.5 bg-[#A65B62] hover:bg-[#8F4A50] text-white font-sans-clean font-bold rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-[#A65B62]/20 hover:-translate-y-0.5 text-xs tracking-widest uppercase flex items-center justify-center gap-2 ${focusRing}`}
+              >
+                <Sparkles size={14} /> Create Mine
+              </Link>
+              <Link
+                href="/shop"
+                className={`px-7 py-3.5 border-2 border-[#A65B62]/30 text-[#A65B62] hover:bg-[#A65B62]/5 hover:border-[#A65B62] font-sans-clean font-bold rounded-xl transition-all duration-300 hover:-translate-y-0.5 text-xs tracking-widest uppercase flex items-center justify-center gap-2 ${focusRing}`}
+              >
+                View All Products <ArrowRight size={13} />
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── FILTER BAR ──────────────────────────────────────────────────────── */}
+      {!loading && !error && categories.length > 1 && (
+        <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-stone-100 shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center gap-2 overflow-x-auto scrollbar-none">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`shrink-0 px-4 py-1.5 rounded-full font-sans-clean text-xs font-bold tracking-wide transition-all duration-200 ${
+                  activeCategory === cat
+                    ? "bg-[#A65B62] text-white shadow-sm"
+                    : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── SAMPLES GRID ────────────────────────────────────────────────────── */}
+      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* Loading */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-32 gap-4">
+            <Loader2 size={36} className="text-[#A65B62] animate-spin" />
+            <p className="font-sans-clean text-sm text-stone-400">
+              Loading samples…
+            </p>
+          </div>
+        )}
+
+        {/* Error */}
+        {!loading && error && (
+          <div className="flex flex-col items-center justify-center py-32 gap-4 text-center">
+            <AlertCircle size={36} className="text-rose-400" />
+            <p className="font-sans-clean text-sm text-stone-500 max-w-sm">
+              {error}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-2 px-5 py-2 bg-[#A65B62] text-white text-xs font-bold rounded-xl font-sans-clean hover:bg-[#8F4A50] transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {/* Empty */}
+        {!loading && !error && filtered.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-32 gap-4 text-center">
+            <BookOpen size={40} className="text-stone-300" />
+            <p className="font-display text-xl font-bold text-stone-400">
+              No samples yet
+            </p>
+            <p className="font-sans-clean text-sm text-stone-400 max-w-sm">
+              {activeCategory === "All"
+                ? "New samples will appear here once uploaded from the admin panel."
+                : `No samples found in the "${activeCategory}" category.`}
+            </p>
+            {activeCategory !== "All" && (
+              <button
+                onClick={() => setActiveCategory("All")}
+                className="mt-1 text-[#A65B62] font-sans-clean text-xs font-bold underline decoration-dotted"
+              >
+                View all categories
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Grid */}
+        {!loading && !error && filtered.length > 0 && (
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-14"
+          >
+            {filtered.map((sample) => (
+              <BookCard
+                key={sample.id}
+                sample={sample}
+                onOpen={openSample}
+                focusRing={focusRing}
+              />
+            ))}
+          </motion.div>
+        )}
+      </section>
+
+      {/* ── CTA BANNER ──────────────────────────────────────────────────────── */}
+      {!loading && !error && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="rounded-3xl bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 p-10 sm:p-14 text-center text-white relative overflow-hidden"
+          >
+            {/* Decorative blobs */}
+            <div className="absolute right-0 top-0 w-64 h-64 bg-[#A65B62]/10 rounded-full blur-[80px] pointer-events-none" />
+            <div className="absolute left-[-5%] bottom-[-10%] w-64 h-64 bg-amber-500/5 rounded-full blur-[80px] pointer-events-none" />
+
+            <div className="relative z-10">
+              <span className="font-sans-clean text-[10px] tracking-[0.3em] uppercase text-[#A65B62] font-bold block mb-4">
+                Your Turn
+              </span>
+              <h2 className="font-display text-3xl sm:text-4xl font-bold text-white mb-4">
+                Ready to Create Your Own?
+              </h2>
+              <p className="font-sans-clean text-stone-300 mb-8 max-w-xl mx-auto text-sm leading-relaxed">
+                Inspired by these samples? Start creating your personalized
+                keepsake today. Upload your photos and stories to bring your
+                memories to life.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  href="/product/custom-magazine"
+                  className={`px-8 py-4 bg-[#A65B62] hover:bg-[#8F4A50] text-white font-sans-clean font-bold text-xs tracking-wider uppercase rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-[#A65B62]/25 hover:-translate-y-0.5 flex items-center justify-center gap-2 ${focusRing}`}
+                >
+                  <Sparkles size={14} /> Start Creating
+                </Link>
+                <a
+                  href="https://wa.me/919871874041?text=Hi!%20I%20want%20to%20create%20a%20custom%20magazine%20like%20the%20samples%20I%20saw."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`px-8 py-4 border border-white/20 text-white hover:bg-white/10 font-sans-clean font-bold text-xs tracking-wider uppercase rounded-xl transition-all duration-300 hover:-translate-y-0.5 flex items-center justify-center gap-2 ${focusRing}`}
+                >
+                  💬 Ask on WhatsApp
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+      )}
+
+      {/* ── FLIPBOOK MODAL ───────────────────────────────────────────────────── */}
+      {modalSample && (
+        <SampleFlipbookModal
+          isOpen={modalOpen}
+          onClose={() => {
+            setModalOpen(false);
+            setModalSample(null);
+          }}
+          pdfUrl={modalSample.pdfUrl}
+          pageCount={12}
+          productName={modalSample.title}
+        />
+      )}
     </div>
   );
 }
