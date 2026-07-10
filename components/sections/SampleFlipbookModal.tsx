@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight, Maximize2, Minimize2, ZoomIn, ZoomOut, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 
@@ -30,8 +30,17 @@ export default function SampleFlipbookModal({
   const [currentPage, setCurrentPage] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const flipbookRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Load PDF pages and convert to canvas image data urls
   useEffect(() => {
@@ -287,7 +296,7 @@ export default function SampleFlipbookModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md transition-opacity duration-300">
       <div
         ref={containerRef}
-        className="relative flex flex-col w-full h-full max-w-6xl max-h-[92vh] bg-stone-950 text-white rounded-3xl overflow-hidden shadow-2xl p-6 md:p-8"
+        className="relative flex flex-col w-full h-full md:max-w-6xl md:max-h-[92vh] bg-stone-950 text-white md:rounded-3xl overflow-hidden shadow-2xl p-4 md:p-8"
       >
         {/* HEADER BAR */}
         <div className="flex items-center justify-between border-b border-stone-900 pb-4 mb-4">
@@ -299,26 +308,27 @@ export default function SampleFlipbookModal({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Zoom Controls */}
-            <button
-              onClick={() => setZoom((z) => Math.max(0.75, z - 0.15))}
-              className="p-2 hover:bg-stone-800 rounded-lg text-stone-300 transition-colors"
-              title="Zoom Out"
-            >
-              <ZoomOut size={18} />
-            </button>
-            <span className="font-sans-clean text-xs text-stone-400 w-10 text-center">
-              {Math.round(zoom * 100)}%
-            </span>
-            <button
-              onClick={() => setZoom((z) => Math.min(2, z + 0.15))}
-              className="p-2 hover:bg-stone-800 rounded-lg text-stone-300 transition-colors"
-              title="Zoom In"
-            >
-              <ZoomIn size={18} />
-            </button>
-
-            <div className="w-px h-6 bg-stone-800 mx-2" />
+            {/* Zoom Controls — hidden on mobile */}
+            <div className="hidden md:flex items-center gap-2">
+              <button
+                onClick={() => setZoom((z) => Math.max(0.75, z - 0.15))}
+                className="p-2 hover:bg-stone-800 rounded-lg text-stone-300 transition-colors"
+                title="Zoom Out"
+              >
+                <ZoomOut size={18} />
+              </button>
+              <span className="font-sans-clean text-xs text-stone-400 w-10 text-center">
+                {Math.round(zoom * 100)}%
+              </span>
+              <button
+                onClick={() => setZoom((z) => Math.min(2, z + 0.15))}
+                className="p-2 hover:bg-stone-800 rounded-lg text-stone-300 transition-colors"
+                title="Zoom In"
+              >
+                <ZoomIn size={18} />
+              </button>
+              <div className="w-px h-6 bg-stone-800 mx-2" />
+            </div>
 
             {/* Fullscreen Toggle */}
             <button
@@ -354,21 +364,21 @@ export default function SampleFlipbookModal({
           ) : (
             <div
               className="transition-transform duration-300 ease-out flex items-center justify-center w-full max-w-5xl h-[70vh]"
-              style={{ transform: `scale(${zoom})` }}
+              style={{ transform: isMobile ? "scale(1)" : `scale(${zoom})` }}
             >
               {pages.length > 0 && (
                 <HTMLFlipBook
                   ref={flipbookRef}
-                  width={460}
-                  height={620}
+                  width={isMobile ? Math.min(window.innerWidth - 32, 340) : 460}
+                  height={isMobile ? Math.min(window.innerHeight * 0.65, 520) : 620}
                   size="stretch"
-                  minWidth={300}
-                  maxWidth={800}
-                  minHeight={400}
-                  maxHeight={1100}
+                  minWidth={isMobile ? 280 : 300}
+                  maxWidth={isMobile ? 400 : 800}
+                  minHeight={isMobile ? 380 : 400}
+                  maxHeight={isMobile ? 600 : 1100}
                   maxShadowOpacity={0.4}
                   showCover={true}
-                  usePortrait={false}
+                  usePortrait={isMobile}
                   mobileScrollSupport={true}
                   onFlip={(e: any) => setCurrentPage(e.data)}
                   className="shadow-2xl rounded-sm"
