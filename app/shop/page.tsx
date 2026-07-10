@@ -229,7 +229,7 @@ export default function ShopPage() {
 
       <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-stone-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 overflow-x-auto">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
             <Filter size={16} className="text-stone-400 shrink-0" />
             {categories.map((cat) => (
               <Button

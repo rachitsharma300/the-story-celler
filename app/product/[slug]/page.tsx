@@ -452,7 +452,7 @@ export default function ProductPage() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7 }}
-            className="sticky top-24"
+            className="lg:sticky lg:top-24"
           >
             {/* Main Display - Image Gallery */}
             <div className="rounded-3xl overflow-hidden border border-stone-100 shadow-sm">
@@ -568,7 +568,7 @@ export default function ProductPage() {
             className="space-y-6"
           >
             <div>
-              <h1 className="font-display text-4xl lg:text-5xl font-bold text-stone-900 mb-3">
+              <h1 className="font-display text-3xl lg:text-5xl font-bold text-stone-900 mb-3">
                 {product.name}
               </h1>
 
@@ -585,7 +585,7 @@ export default function ProductPage() {
 
             {/* Price */}
             <div className="flex items-baseline gap-3">
-              <span className="font-display text-4xl font-bold text-stone-900">
+              <span className="font-display text-3xl lg:text-4xl font-bold text-stone-900">
                 {"Rs. " + currentUnitPrice.toLocaleString()}
               </span>
               <span className="font-sans-clean text-lg text-stone-400 line-through">
@@ -629,7 +629,7 @@ export default function ProductPage() {
             {product.pageOptions && product.pageOptions.length > 0 && (
               <div>
                 <label className="font-sans-clean text-sm font-semibold text-stone-700 mb-3 block">Choose Pages</label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {product.pageOptions.map((opt, i) => (
                     <button
                       key={opt.pages}
