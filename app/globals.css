@@ -12,7 +12,7 @@
   --color-amber-100: hsl(var(--primary-light));
   --color-amber-550: hsl(var(--primary-dark));
   --color-amber-50: hsl(var(--primary-lightest));
-  
+
   --color-stone-50: hsl(var(--cream));
   --color-stone-100: hsl(var(--border));
   --color-stone-200: hsl(var(--border-dark));
@@ -37,24 +37,24 @@
 
 @layer base {
   :root {
-    --background: 22 30% 95%;
-    --surface: 20 40% 98%;
-    --cream: 20 40% 99%;
+    --background: 350 20% 97%;
+    --surface: 350 25% 99%;
+    --cream: 350 25% 99%;
     --foreground: 14 32% 13%;
     --muted-foreground: 16 14% 39%;
     --muted-foreground-dark: 16 14% 28%;
     --primary: 354 33% 55%;
     --primary-dark: 349 40% 62%;
-    --primary-light: 354 33% 90%;
-    --primary-lightest: 354 33% 96%;
-    --border: 15 33% 85%;
-    --border-dark: 15 33% 74%;
+    --primary-light: 354 33% 94%;
+    --primary-lightest: 354 33% 97%;
+    --border: 350 20% 92%;
+    --border-dark: 350 20% 84%;
     --accent: 340 44% 72%;
     --gold: 33 55% 50%;
     --gold-dark: 33 62% 56%;
-    --secondary: 20 40% 98%;
+    --secondary: 350 25% 99%;
     --secondary-foreground: 14 32% 13%;
-    --muted: 20 30% 95%;
+    --muted: 350 20% 97%;
     --ring: 354 33% 55%;
     --radius: 0.75rem;
     --dark: 14 32% 13%;
@@ -102,7 +102,12 @@
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-display), sans-serif;
     font-weight: 700;
     letter-spacing: -0.025em;
@@ -113,9 +118,11 @@
   .font-display {
     font-family: var(--font-cormorant), var(--font-playfair), Georgia, serif;
   }
+
   .font-body {
     font-family: var(--font-jakarta), sans-serif;
   }
+
   .font-sans-clean {
     font-family: var(--font-jakarta), sans-serif;
   }
@@ -124,7 +131,7 @@
     opacity: 0.04;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   }
-  
+
   .dark .bg-noise-overlay {
     opacity: 0.06;
   }
@@ -132,16 +139,19 @@
   .bg-vignette {
     box-shadow: inset 0 0 120px rgba(43, 33, 24, 0.02);
   }
-  
+
   .dark .bg-vignette {
     box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.45);
   }
+
   .text-gold {
     color: hsl(var(--gold));
   }
+
   .bg-gold {
     background-color: hsl(var(--gold));
   }
+
   .bg-cream {
     background-color: hsl(var(--cream));
   }
@@ -171,6 +181,7 @@
       opacity: 0;
       transform: translateX(24px);
     }
+
     to {
       opacity: 1;
       transform: translateX(0);
@@ -182,10 +193,12 @@
       opacity: 0.4;
       transform: scale(0.92);
     }
+
     50% {
       opacity: 0.08;
       transform: scale(1.05);
     }
+
     100% {
       opacity: 0.4;
       transform: scale(0.92);
@@ -195,6 +208,7 @@
   .bg-hero-gradient {
     background: linear-gradient(135deg, #F8F3EE 0%, #F0E4DC 50%, #F5EEE8 100%);
   }
+
   .dark .bg-hero-gradient {
     background: linear-gradient(135deg, #1A0F0D 0%, #261510 50%, #1F1210 100%);
   }
@@ -217,6 +231,7 @@
     0% {
       transform: translate3d(0, 0, 0);
     }
+
     100% {
       transform: translate3d(-50%, 0, 0);
     }
@@ -227,5 +242,63 @@
     width: max-content;
     animation: marquee 25s linear infinite;
     will-change: transform;
+  }
+
+  /* CSS floating hearts effect */
+  @keyframes floatHeart1 {
+    0% {
+      transform: translateY(15px) translateX(0) scale(0.5);
+      opacity: 0;
+    }
+
+    15% {
+      opacity: 0.8;
+    }
+
+    85% {
+      opacity: 0.3;
+    }
+
+    100% {
+      transform: translateY(-80px) translateX(20px) scale(1.2);
+      opacity: 0;
+    }
+  }
+
+  @keyframes floatHeart2 {
+    0% {
+      transform: translateY(15px) translateX(0) scale(0.5);
+      opacity: 0;
+    }
+
+    15% {
+      opacity: 0.8;
+    }
+
+    85% {
+      opacity: 0.3;
+    }
+
+    100% {
+      transform: translateY(-85px) translateX(-20px) scale(1.1);
+      opacity: 0;
+    }
+  }
+
+  .animate-float-heart-1 {
+    animation: floatHeart1 4s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+
+  .animate-float-heart-2 {
+    animation: floatHeart2 4s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 }
