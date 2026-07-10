@@ -61,7 +61,7 @@ export default function CartPage() {
             <p className="text-xs tracking-widest uppercase text-amber-500 font-bold font-sans-clean mb-2">
               Your Cart
             </p>
-            <h1 className="font-display text-4xl lg:text-5xl font-bold text-stone-900">
+            <h1 className="font-display text-3xl lg:text-5xl font-bold text-stone-900">
               Ready to preserve your memories?
             </h1>
           </div>
