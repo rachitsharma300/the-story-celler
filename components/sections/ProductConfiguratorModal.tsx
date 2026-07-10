@@ -304,7 +304,7 @@ export default function ProductConfiguratorModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md transition-all">
-      <div className="relative w-full max-w-4xl h-full max-h-[92vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col m-4">
+      <div className="relative w-full max-w-4xl h-full md:max-h-[92vh] bg-white md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:m-4">
         {/* MODAL CLOSE */}
         <button
           onClick={onClose}
@@ -315,11 +315,11 @@ export default function ProductConfiguratorModal({
         </button>
 
         {/* TOP HEADER & PROGRESS */}
-        <div className="p-6 md:p-8 border-b border-stone-100 bg-stone-50">
+        <div className="p-4 md:p-8 border-b border-stone-100 bg-stone-50">
           <span className="text-amber-600 font-sans-clean text-xs font-bold uppercase tracking-widest block mb-1">
             Product Creator — {productName}
           </span>
-          <h2 className="font-display text-2xl font-bold text-stone-900 mb-5">Customize Your Keepsake</h2>
+          <h2 className="font-display text-xl md:text-2xl font-bold text-stone-900 mb-5">Customize Your Keepsake</h2>
 
           {/* Progress Bar */}
           {!orderPlaced && (
