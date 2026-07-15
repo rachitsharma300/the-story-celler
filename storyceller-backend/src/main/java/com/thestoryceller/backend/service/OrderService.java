@@ -37,6 +37,9 @@ public class OrderService {
         
         order.setOrderId(orderId);
         order.setUser(user);
+        if (order.getQuantity() == null) {
+            order.setQuantity(1);
+        }
         if (order.getStatus() == null) {
             order.setStatus(OrderStatus.PENDING);
         }
