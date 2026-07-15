@@ -2,87 +2,56 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Package, Truck, CheckCircle, Clock, MapPin, Phone, RefreshCw } from "lucide-react";
+import { Search, Package, Truck, CheckCircle, Clock, MapPin, Phone, RefreshCw, Printer, Eye, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import api from "@/lib/axios";
 
-type TrackingStatus = "processing" | "designed" | "dispatched" | "out_for_delivery" | "delivered";
-
-interface TrackingData {
-  orderNumber: string;
-  status: TrackingStatus;
-  product: string;
-  customerName: string;
-  city: string;
-  awb: string;
-  estimatedDelivery: string;
-  timeline: {
-    status: TrackingStatus;
-    label: string;
-    desc: string;
-    time: string;
-    done: boolean;
-  }[];
-}
-
-const mockOrders: Record<string, TrackingData> = {
-  "MV001": {
-    orderNumber: "MV001",
-    status: "dispatched",
-    product: "Custom Magazine",
-    customerName: "Rahul Sharma",
-    city: "New Delhi",
-    awb: "1234567890",
-    estimatedDelivery: "June 12, 2025",
-    timeline: [
-      { status: "processing", label: "Order Confirmed", desc: "Your order has been confirmed and payment received.", time: "June 5, 10:30 AM", done: true },
-      { status: "designed", label: "Design Completed", desc: "Your keepsake has been designed and approved.", time: "June 6, 3:00 PM", done: true },
-      { status: "dispatched", label: "Dispatched", desc: "Your order is on the way via Delhivery.", time: "June 8, 11:00 AM", done: true },
-      { status: "out_for_delivery", label: "Out for Delivery", desc: "Your order is out for delivery today.", time: "Expected June 12", done: false },
-      { status: "delivered", label: "Delivered", desc: "Package delivered successfully.", time: "Expected June 12", done: false },
-    ],
-  },
-  "MV002": {
-    orderNumber: "MV002",
-    status: "designed",
-    product: "Photo Album",
-    customerName: "Priya Singh",
-    city: "Mumbai",
-    awb: "",
-    estimatedDelivery: "June 15, 2025",
-    timeline: [
-      { status: "processing", label: "Order Confirmed", desc: "Your order has been confirmed and payment received.", time: "June 7, 9:00 AM", done: true },
-      { status: "designed", label: "Design Completed", desc: "Your keepsake has been designed. Awaiting your approval.", time: "June 9, 2:00 PM", done: true },
-      { status: "dispatched", label: "Dispatched", desc: "Will be dispatched after your approval.", time: "Pending", done: false },
-      { status: "out_for_delivery", label: "Out for Delivery", desc: "Your order is out for delivery today.", time: "Pending", done: false },
-      { status: "delivered", label: "Delivered", desc: "Package delivered successfully.", time: "Pending", done: false },
-    ],
-  },
-};
-
-const statusConfig: Record<TrackingStatus, { label: string; color: string; bg: string; icon: string }> = {
-  processing: { label: "Order Processing", color: "text-blue-600", bg: "bg-blue-50 border-blue-200", icon: "⏳" },
-  designed: { label: "Design Ready", color: "text-purple-600", bg: "bg-purple-50 border-purple-200", icon: "🎨" },
-  dispatched: { label: "Dispatched", color: "text-amber-600", bg: "bg-amber-50 border-amber-200", icon: "📦" },
-  out_for_delivery: { label: "Out for Delivery", color: "text-orange-600", bg: "bg-orange-50 border-orange-200", icon: "🚚" },
-  delivered: { label: "Delivered", color: "text-green-600", bg: "bg-green-50 border-green-200", icon: "✅" },
-};
-
-const timelineIcons = [
-  <Clock key="clock" size={16} />,
-  <Package key="package" size={16} />,
-  <Truck key="truck" size={16} />,
-  <MapPin key="map" size={16} />,
-  <CheckCircle key="check" size={16} />,
+// Maps backend OrderStatus enum values to tracking display
+const STATUS_STEPS = [
+  { status: "PENDING", label: "Order Confirmed", icon: <Clock size={16} />, desc: "Your order has been confirmed and payment received." },
+  { status: "DESIGNING", label: "Design In Progress", icon: <Package size={16} />, desc: "Our team is designing your personalized keepsake." },
+  { status: "REVIEW", label: "Under Review", icon: <Eye size={16} />, desc: "Your design is being reviewed for quality." },
+  { status: "PRINTING", label: "Printing", icon: <Printer size={16} />, desc: "Your keepsake is being printed and prepared." },
+  { status: "SHIPPED", label: "Shipped", icon: <Truck size={16} />, desc: "Your order has been shipped and is on the way." },
+  { status: "DELIVERED", label: "Delivered", icon: <CheckCircle size={16} />, desc: "Package delivered successfully!" },
 ];
+
+const statusConfig: Record<string, { label: string; color: string; bg: string; icon: string }> = {
+  PENDING: { label: "Order Processing", color: "text-blue-600", bg: "bg-blue-50 border-blue-200", icon: "⏳" },
+  DESIGNING: { label: "Designing", color: "text-purple-600", bg: "bg-purple-50 border-purple-200", icon: "🎨" },
+  REVIEW: { label: "Under Review", color: "text-amber-600", bg: "bg-amber-50 border-amber-200", icon: "🔍" },
+  PRINTING: { label: "Printing", color: "text-orange-600", bg: "bg-orange-50 border-orange-200", icon: "🖨️" },
+  SHIPPED: { label: "Shipped", color: "text-amber-600", bg: "bg-amber-50 border-amber-200", icon: "📦" },
+  DELIVERED: { label: "Delivered", color: "text-green-600", bg: "bg-green-50 border-green-200", icon: "✅" },
+};
+
+interface TrackingResult {
+  orderId: string;
+  productName: string;
+  status: string;
+  totalAmount: number;
+  advanceAmount: number;
+  pages: number;
+  printingType: string;
+  createdAt: string;
+  customerName: string;
+  delivery?: {
+    trackingNumber: string;
+    carrier: string;
+    deliveryStatus: string;
+    estimatedDelivery: string | null;
+  };
+  timeline: { status: string; done: boolean }[];
+}
 
 export default function TrackOrderPage() {
   const [input, setInput] = useState("");
-  const [tracking, setTracking] = useState<TrackingData | null>(null);
+  const [tracking, setTracking] = useState<TrackingResult | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"timeline" | "delhivery">("timeline");
 
-  function handleTrack() {
+  async function handleTrack() {
     if (!input.trim()) {
       setError("Please enter an order number or AWB");
       return;
@@ -91,23 +60,73 @@ export default function TrackOrderPage() {
     setError("");
     setTracking(null);
 
-    setTimeout(() => {
-      const found = mockOrders[input.toUpperCase().trim()];
-      if (found) {
-        setTracking(found);
+    const query = input.trim();
+
+    try {
+      // If it starts with MV, treat as orderId; otherwise try AWB lookup first then orderId
+      if (query.toUpperCase().startsWith("MV")) {
+        const res = await api.get(`/api/orders/track/${encodeURIComponent(query)}`);
+        setTracking(res.data);
       } else {
-        setError("Order not found. Please check your order number and try again.");
+        // Try AWB tracking number lookup via delivery endpoint
+        try {
+          const delRes = await api.get(`/api/delivery/${encodeURIComponent(query)}`);
+          if (delRes.data && delRes.data.order) {
+            // If found, use the orderId from the delivery to get full tracking info
+            const orderId = delRes.data.order.orderId;
+            const res = await api.get(`/api/orders/track/${encodeURIComponent(orderId)}`);
+            setTracking(res.data);
+          } else {
+            setError("Order not found. Please check your order number and try again.");
+          }
+        } catch {
+          // Fallback: try as orderId
+          try {
+            const res = await api.get(`/api/orders/track/${encodeURIComponent(query)}`);
+            setTracking(res.data);
+          } catch {
+            setError("Order not found. Please check your order number and try again.");
+          }
+        }
       }
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        setError("Order not found. Please check your order number and try again.");
+      } else {
+        setError("Something went wrong. Please try again later.");
+      }
+    } finally {
       setLoading(false);
-    }, 1200);
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter") handleTrack();
   }
 
-  const currentConfig = tracking ? statusConfig[tracking.status] : null;
+  const currentConfig = tracking ? (statusConfig[tracking.status] || statusConfig.PENDING) : null;
   const completedSteps = tracking ? tracking.timeline.filter((t) => t.done).length : 0;
+
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "";
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  // Compute estimated delivery display
+  const estimatedDelivery = tracking?.delivery?.estimatedDelivery
+    ? formatDate(tracking.delivery.estimatedDelivery)
+    : tracking?.createdAt
+      ? (() => {
+          const d = new Date(tracking.createdAt);
+          d.setDate(d.getDate() + 6);
+          return formatDate(d.toISOString());
+        })()
+      : "To be determined";
 
   return (
     <div className="min-h-screen bg-background pt-24">
@@ -144,7 +163,7 @@ export default function TrackOrderPage() {
               value={input}
               onChange={(e) => { setInput(e.target.value); setError(""); }}
               onKeyDown={handleKeyDown}
-              placeholder="e.g. MV001 or try MV002"
+              placeholder="e.g. MV-2026-0001"
               className="flex-1 px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 font-sans-clean text-sm text-stone-800 placeholder-stone-300 outline-none focus:border-amber-400 focus:bg-white transition-all"
             />
             <Button
@@ -170,7 +189,7 @@ export default function TrackOrderPage() {
             </motion.p>
           )}
           <p className="font-sans-clean text-xs text-stone-400 mt-3">
-            Your order number was sent to your email. Try <span className="text-amber-500 font-semibold cursor-pointer" onClick={() => setInput("MV001")}>MV001</span> or <span className="text-amber-500 font-semibold cursor-pointer" onClick={() => setInput("MV002")}>MV002</span> for demo.
+            Your order number was sent to your email and is visible in your dashboard.
           </p>
         </motion.div>
 
@@ -191,12 +210,12 @@ export default function TrackOrderPage() {
                     <div>
                       <p className="font-sans-clean text-xs text-stone-500 uppercase tracking-widest mb-1">Current Status</p>
                       <p className={"font-display text-2xl font-bold " + currentConfig.color}>{currentConfig.label}</p>
-                      <p className="font-sans-clean text-sm text-stone-500 mt-1">{tracking.product} — Order #{tracking.orderNumber}</p>
+                      <p className="font-sans-clean text-sm text-stone-500 mt-1">{tracking.productName} — Order #{tracking.orderId}</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="font-sans-clean text-xs text-stone-400">Estimated Delivery</p>
-                    <p className="font-sans-clean font-bold text-stone-800">{tracking.estimatedDelivery}</p>
+                    <p className="font-sans-clean font-bold text-stone-800">{estimatedDelivery}</p>
                   </div>
                 </div>
 
@@ -222,9 +241,9 @@ export default function TrackOrderPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {[
                     { label: "Customer", value: tracking.customerName },
-                    { label: "City", value: tracking.city },
-                    { label: "AWB Number", value: tracking.awb || "Not dispatched yet" },
-                    { label: "Product", value: tracking.product },
+                    { label: "Product", value: tracking.productName },
+                    { label: "AWB Number", value: tracking.delivery?.trackingNumber || "Not dispatched yet" },
+                    { label: "Order Date", value: formatDate(tracking.createdAt) },
                   ].map((item) => (
                     <div key={item.label}>
                       <p className="font-sans-clean text-xs text-stone-400 mb-1">{item.label}</p>
@@ -264,38 +283,43 @@ export default function TrackOrderPage() {
                         <div className="absolute left-5 top-6 bottom-6 w-px bg-stone-100" />
 
                         <div className="space-y-6">
-                          {tracking.timeline.map((item, i) => (
-                            <motion.div
-                              key={item.status}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: i * 0.1 }}
-                              className="flex gap-4 items-start"
-                            >
-                              <div className={
-                                "w-10 h-10 rounded-full flex items-center justify-center shrink-0 z-10 transition-all " +
-                                (item.done
-                                  ? "bg-amber-500 text-white shadow-md shadow-amber-200"
-                                  : "bg-stone-100 text-stone-400")
-                              }>
-                                {item.done
-                                  ? <CheckCircle size={16} />
-                                  : timelineIcons[i]
-                                }
-                              </div>
-                              <div className="pt-1.5 flex-1">
-                                <div className="flex items-center justify-between gap-2 flex-wrap">
-                                  <p className={"font-sans-clean text-sm font-semibold " + (item.done ? "text-stone-900" : "text-stone-400")}>
-                                    {item.label}
-                                  </p>
-                                  <p className="font-sans-clean text-xs text-stone-400">{item.time}</p>
+                          {tracking.timeline.map((item, i) => {
+                            const stepInfo = STATUS_STEPS.find(s => s.status === item.status) || STATUS_STEPS[0];
+                            return (
+                              <motion.div
+                                key={item.status}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: i * 0.1 }}
+                                className="flex gap-4 items-start"
+                              >
+                                <div className={
+                                  "w-10 h-10 rounded-full flex items-center justify-center shrink-0 z-10 transition-all " +
+                                  (item.done
+                                    ? "bg-amber-500 text-white shadow-md shadow-amber-200"
+                                    : "bg-stone-100 text-stone-400")
+                                }>
+                                  {item.done
+                                    ? <CheckCircle size={16} />
+                                    : stepInfo.icon
+                                  }
                                 </div>
-                                <p className={"font-sans-clean text-xs mt-0.5 " + (item.done ? "text-stone-500" : "text-stone-300")}>
-                                  {item.desc}
-                                </p>
-                              </div>
-                            </motion.div>
-                          ))}
+                                <div className="pt-1.5 flex-1">
+                                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <p className={"font-sans-clean text-sm font-semibold " + (item.done ? "text-stone-900" : "text-stone-400")}>
+                                      {stepInfo.label}
+                                    </p>
+                                    {item.done && i === 0 && tracking.createdAt && (
+                                      <p className="font-sans-clean text-xs text-stone-400">{formatDate(tracking.createdAt)}</p>
+                                    )}
+                                  </div>
+                                  <p className={"font-sans-clean text-xs mt-0.5 " + (item.done ? "text-stone-500" : "text-stone-300")}>
+                                    {stepInfo.desc}
+                                  </p>
+                                </div>
+                              </motion.div>
+                            );
+                          })}
                         </div>
                       </div>
                     </motion.div>
@@ -303,14 +327,17 @@ export default function TrackOrderPage() {
 
                   {activeTab === "delhivery" && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                      {tracking.awb ? (
+                      {tracking.delivery?.trackingNumber ? (
                         <div>
                           <p className="font-sans-clean text-sm text-stone-500 mb-4">
-                            AWB Number: <span className="font-bold text-stone-800">{tracking.awb}</span>
+                            AWB Number: <span className="font-bold text-stone-800">{tracking.delivery.trackingNumber}</span>
+                            {tracking.delivery.carrier && (
+                              <span className="ml-2 text-stone-400">via {tracking.delivery.carrier}</span>
+                            )}
                           </p>
                           <div className="bg-stone-50 rounded-xl overflow-hidden border border-stone-100" style={{ height: "400px" }}>
                             <iframe
-                              src={"https://www.delhivery.com/track/package/" + tracking.awb}
+                              src={"https://www.delhivery.com/track/package/" + tracking.delivery.trackingNumber}
                               className="w-full h-full border-0"
                               title="Delhivery Tracking"
                             />
@@ -324,7 +351,7 @@ export default function TrackOrderPage() {
                           <span className="text-5xl mb-4 block">📦</span>
                           <p className="font-display text-lg font-bold text-stone-700 mb-2">Not Dispatched Yet</p>
                           <p className="font-sans-clean text-sm text-stone-400">
-                            Your order is still being designed. Once dispatched, live courier tracking will appear here.
+                            Your order is still being prepared. Once dispatched, live courier tracking will appear here.
                           </p>
                         </div>
                       )}

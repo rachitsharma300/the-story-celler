@@ -103,8 +103,7 @@ function BookCard({
       >
         {/* Relative container gives consistent size across all cards */}
         <div
-          className="relative mx-auto"
-          style={{ width: "200px", height: "267px" }}
+          className="relative mx-auto w-[130px] h-[173px] sm:w-[200px] sm:h-[267px]"
         >
           {/* Shadow pages — bundle illusion */}
           <div
@@ -168,7 +167,7 @@ function BookCard({
       </div>
 
       {/* Label below card */}
-      <div className="mt-5 text-center" style={{ width: "200px" }}>
+      <div className="mt-5 text-center w-[130px] sm:w-[200px]">
         <p className="font-display text-sm font-bold text-stone-850 leading-snug group-hover:text-[#A65B62] transition-colors">
           {sample.title}
         </p>
