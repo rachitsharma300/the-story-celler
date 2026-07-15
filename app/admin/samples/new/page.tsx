@@ -218,7 +218,7 @@ export default function AddSamplePage() {
                         <FileText size={20} />
                       </div>
                       <div className="overflow-hidden">
-                        <p className="text-sm font-semibold text-stone-800 truncate" title={pdfName || "uploaded.pdf"}>
+                        <p className="text-sm font-semibold text-stone-850 truncate" title={pdfName || "uploaded.pdf"}>
                           {pdfName || "uploaded.pdf"}
                         </p>
                         <p className="text-xs text-green-600 font-medium flex items-center gap-1 mt-0.5">
@@ -277,7 +277,7 @@ export default function AddSamplePage() {
                         <img src={coverImageUrl} alt="Cover preview" className="w-full h-full object-cover" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-stone-800">Cover Photo</p>
+                        <p className="text-sm font-semibold text-stone-850">Cover Photo</p>
                         <p className="text-xs text-green-600 font-medium flex items-center gap-1 mt-0.5">
                           <CheckCircle2 size={12} /> Uploaded to Cloudinary
                         </p>

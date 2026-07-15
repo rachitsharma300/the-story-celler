@@ -10,7 +10,6 @@ import api from "@/lib/axios";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
-
 interface Order {
   orderId: string;
   customerName?: string;
@@ -301,7 +300,7 @@ export default function OrdersPage() {
         {loading ? (
           <div className="text-center py-20 flex flex-col items-center justify-center gap-3">
             <Loader2 size={32} className="text-amber-500 animate-spin" />
-            <p className="text-stone-450 font-sans-clean text-sm">Fetching orders from Spring Boot...</p>
+            <p className="text-stone-450 font-sans-clean text-sm">Fetching orders...</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -412,7 +411,7 @@ export default function OrdersPage() {
                 {/* Status and Action bar */}
                 <div className="bg-amber-50 border border-amber-100 rounded-2xl p-5 grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                   <div>
-                    <label className="font-bold text-stone-800 mb-1.5 block">Update Status</label>
+                    <label className="font-bold text-stone-850 mb-1.5 block">Update Status</label>
                     <select
                       value={updatingStatus}
                       onChange={(e) => setUpdatingStatus(e.target.value)}
@@ -428,7 +427,7 @@ export default function OrdersPage() {
                   </div>
 
                   <div>
-                    <label className="font-bold text-stone-800 mb-1.5 block">Upload Final Keepsake PDF Link</label>
+                    <label className="font-bold text-stone-855 mb-1.5 block">Upload Final Keepsake PDF Link</label>
                     <div className="flex gap-2">
                       <input
                         type="text"
