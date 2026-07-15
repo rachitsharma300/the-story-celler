@@ -35,7 +35,7 @@ export default function OurStoryPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <div className="rounded-3xl bg-gradient-to-br from-amber-50 via-stone-50 to-orange-50 h-96 flex items-center justify-center text-9xl border border-stone-200">
+            <div className="rounded-3xl bg-gradient-to-br from-amber-50 via-stone-50 to-orange-50 h-64 sm:h-96 flex items-center justify-center text-7xl sm:text-9xl border border-stone-200">
               📖
             </div>
           </motion.div>
