@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: 'export',
   turbopack: {
     resolveAlias: {
       canvas: "./lib/empty-mock.ts",
