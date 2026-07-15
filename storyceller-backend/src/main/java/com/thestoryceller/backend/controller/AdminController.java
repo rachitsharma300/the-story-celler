@@ -11,9 +11,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @RestController
@@ -185,6 +190,102 @@ public class AdminController {
         stats.put("deliveredOrders", deliveredOrders);
 
         return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/analytics")
+    public ResponseEntity<?> getAnalytics() {
+        List<Order> allOrders = orderRepository.findAll();
+
+        // --- Current month metrics ---
+        YearMonth currentMonth = YearMonth.now();
+        LocalDateTime monthStart = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime monthEnd = currentMonth.atEndOfMonth().atTime(23, 59, 59);
+
+        List<Order> monthlyOrders = allOrders.stream()
+                .filter(o -> o.getCreatedAt() != null
+                        && !o.getCreatedAt().isBefore(monthStart)
+                        && !o.getCreatedAt().isAfter(monthEnd))
+                .collect(Collectors.toList());
+
+        double monthlyRevenue = monthlyOrders.stream()
+                .mapToDouble(o -> o.getTotalAmount() != null ? o.getTotalAmount() : 0.0)
+                .sum();
+
+        int monthlyOrderCount = monthlyOrders.size();
+
+        double avgOrderValue = allOrders.isEmpty() ? 0.0 :
+                allOrders.stream()
+                        .mapToDouble(o -> o.getTotalAmount() != null ? o.getTotalAmount() : 0.0)
+                        .average()
+                        .orElse(0.0);
+
+        long totalOrders = allOrders.size();
+
+        Map<String, Object> keyMetrics = new LinkedHashMap<>();
+        keyMetrics.put("monthlyRevenue", monthlyRevenue);
+        keyMetrics.put("monthlyOrders", monthlyOrderCount);
+        keyMetrics.put("avgOrderValue", Math.round(avgOrderValue * 100.0) / 100.0);
+        keyMetrics.put("totalOrders", totalOrders);
+
+        // --- Revenue trend (last 6 months) ---
+        DateTimeFormatter monthFmt = DateTimeFormatter.ofPattern("MMM");
+        List<Map<String, Object>> revenueTrend = new java.util.ArrayList<>();
+        for (int i = 5; i >= 0; i--) {
+            YearMonth ym = currentMonth.minusMonths(i);
+            LocalDateTime start = ym.atDay(1).atStartOfDay();
+            LocalDateTime end = ym.atEndOfMonth().atTime(23, 59, 59);
+
+            double revenue = allOrders.stream()
+                    .filter(o -> o.getCreatedAt() != null
+                            && !o.getCreatedAt().isBefore(start)
+                            && !o.getCreatedAt().isAfter(end))
+                    .mapToDouble(o -> o.getTotalAmount() != null ? o.getTotalAmount() : 0.0)
+                    .sum();
+
+            Map<String, Object> entry = new LinkedHashMap<>();
+            entry.put("month", ym.format(monthFmt));
+            entry.put("revenue", revenue);
+            revenueTrend.add(entry);
+        }
+
+        // --- Sales by product ---
+        Map<String, Long> productCounts = allOrders.stream()
+                .filter(o -> o.getProductName() != null)
+                .collect(Collectors.groupingBy(Order::getProductName, Collectors.counting()));
+
+        List<Map<String, Object>> salesByProduct = productCounts.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .map(e -> {
+                    Map<String, Object> m = new LinkedHashMap<>();
+                    m.put("product", e.getKey());
+                    m.put("orders", e.getValue());
+                    return m;
+                })
+                .collect(Collectors.toList());
+
+        // --- Popular occasions ---
+        Map<String, Long> occasionCounts = allOrders.stream()
+                .filter(o -> o.getOccasion() != null && !o.getOccasion().isBlank())
+                .collect(Collectors.groupingBy(Order::getOccasion, Collectors.counting()));
+
+        List<Map<String, Object>> popularOccasions = occasionCounts.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .map(e -> {
+                    Map<String, Object> m = new LinkedHashMap<>();
+                    m.put("occasion", e.getKey());
+                    m.put("count", e.getValue());
+                    return m;
+                })
+                .collect(Collectors.toList());
+
+        // --- Assemble response ---
+        Map<String, Object> analytics = new LinkedHashMap<>();
+        analytics.put("keyMetrics", keyMetrics);
+        analytics.put("revenueTrend", revenueTrend);
+        analytics.put("salesByProduct", salesByProduct);
+        analytics.put("popularOccasions", popularOccasions);
+
+        return ResponseEntity.ok(analytics);
     }
 
     @GetMapping("/products")
