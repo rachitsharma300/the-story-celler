@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import {
   Star,
   BookOpen,
@@ -74,8 +75,8 @@ function TapeCorner({
     <span
       aria-hidden="true"
       className={`absolute w-12 h-5 rounded-[2px] pointer-events-none z-20 ${tone === "light"
-          ? "bg-[#FBF1EC]/90 border border-[#A65B62]/15"
-          : "bg-white/15 border border-white/20 backdrop-blur-sm"
+        ? "bg-[#FBF1EC]/90 border border-[#A65B62]/15"
+        : "bg-white/15 border border-white/20 backdrop-blur-sm"
         } shadow-[0_2px_6px_rgba(0,0,0,0.12)] ${className}`}
       style={{ transform: `rotate(${rotate}deg)` }}
     />
@@ -123,8 +124,8 @@ const quickCreate = [
     tag: "Sale!",
     desc: "A cinematic video reel of your best memories. Perfect for sharing on socials.",
     images: [
-      "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=200&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=200&auto=format&fit=crop&q=80"
+      "https://res.cloudinary.com/hco2g9ee/image/upload/v1784108406/reels_kinj2o.png",
+      "https://res.cloudinary.com/hco2g9ee/image/upload/v1784108705/reels2_ex437h.png"
     ]
   },
   {
@@ -136,8 +137,8 @@ const quickCreate = [
     tag: "Sale!",
     desc: "Premium framed print to display your favorite moment on any wall.",
     images: [
-      "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=200&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=200&auto=format&fit=crop&q=80"
+      "https://res.cloudinary.com/hco2g9ee/image/upload/v1784110259/Custum_Frm_mkpn00.png",
+      "https://res.cloudinary.com/hco2g9ee/image/upload/v1784110260/Custom_Frm2_imuymt.png"
     ]
   },
   {
@@ -574,16 +575,23 @@ export default function HomePage() {
         {/* Background Image Crossfade Slider */}
         <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-[#FAF4F5]">
           <AnimatePresence initial={false}>
-            <motion.img
+            <motion.div
               key={bgIndex}
-              src={heroBackgrounds[bgIndex]}
-              alt="Mockup background scene showing couple photo frame"
-              className="absolute inset-0 w-full h-full object-contain object-center lg:object-right pointer-events-none"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 1.8, ease: "easeInOut" }}
-            />
+              className="absolute inset-0 w-full h-full pointer-events-none"
+            >
+              <Image
+                src={heroBackgrounds[bgIndex]}
+                alt="Mockup background scene showing couple photo frame"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-contain object-center lg:object-right"
+                priority
+              />
+            </motion.div>
           </AnimatePresence>
           <div className="absolute inset-0 bg-black/[0.02] z-[1]" />
 
@@ -950,7 +958,7 @@ export default function HomePage() {
                       className={`group cursor-pointer select-none ${focusRing}`}
                     >
                       {/* Book wrapper with explicit size */}
-                      <div className="relative mx-auto" style={{ width: "160px", height: "213px" }}>
+                      <div className="relative mx-auto w-[130px] h-[173px] sm:w-[160px] sm:h-[213px]">
                         {/* Shadow pages behind — bundle illusion */}
                         <div className="absolute rounded-sm bg-stone-300" style={{ top: "7px", left: "7px", right: "-7px", bottom: "-7px" }} />
                         <div className="absolute rounded-sm bg-stone-200" style={{ top: "3.5px", left: "3.5px", right: "-3.5px", bottom: "-3.5px" }} />
@@ -999,7 +1007,7 @@ export default function HomePage() {
                       </div>
 
                       {/* Label below card */}
-                      <div className="mt-4 text-center" style={{ width: "160px" }}>
+                      <div className="mt-4 text-center w-[130px] sm:w-[160px]">
                         <p className="font-sans-clean text-[11px] font-bold text-stone-700 leading-snug">
                           {sample.pageText}: {sample.title}
                         </p>
@@ -1134,11 +1142,10 @@ export default function HomePage() {
                 className="group bg-white border border-stone-100 hover:border-[#A65B62]/20 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between will-change-transform"
               >
                 <div>
-                  {/* Photo Frame Style Container */}
-                  <div className="relative w-full h-56 mb-4 bg-white p-3 border-[10px] border-stone-900 shadow-xl rounded-sm overflow-hidden flex flex-col justify-center">
-                    <TapeCorner className="-top-2 -right-2" tone="dark" rotate={12} />
-                    <AutoImageSlider images={p.images} className="w-full h-full rounded-sm" />
-                    <span className="absolute top-4 right-4 px-2.5 py-0.5 bg-rose-500 text-white text-[9px] font-sans-clean font-bold tracking-wider uppercase rounded-full shadow-md z-10">
+                  {/* Image Container */}
+                  <div className="relative w-full h-72 mb-4 rounded-xl overflow-hidden">
+                    <AutoImageSlider images={p.images} className="w-full h-full" />
+                    <span className="absolute top-3 right-3 px-2.5 py-0.5 bg-rose-500 text-white text-[9px] font-sans-clean font-bold tracking-wider uppercase rounded-full shadow-md z-10">
                       {p.tag}
                     </span>
                   </div>
@@ -1464,51 +1471,35 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
-            className="space-y-4 max-w-3xl mx-auto"
-          >
+          <div className="space-y-4 max-w-3xl mx-auto">
             {faqs.map((faq, idx) => {
               const isOpen = expandedFaq === idx;
               return (
-                <motion.div
+                <div
                   key={idx}
-                  variants={staggerItem}
-                  className={`bg-[#FFFBFB] border-2 border-dashed rounded-2xl overflow-hidden shadow-sm transition-colors duration-300 ${isOpen ? "border-[#A65B62]/50" : "border-stone-200"}`}
+                  className={`bg-[#FFFBFB] border-2 border-dashed rounded-2xl overflow-hidden shadow-sm ${isOpen ? "border-[#A65B62]/50" : "border-stone-200"}`}
                 >
                   <button
                     onClick={() => setExpandedFaq(isOpen ? null : idx)}
                     aria-expanded={isOpen}
-                    className={`w-full flex justify-between items-center gap-4 p-5 text-left font-sans-clean font-bold text-sm text-stone-800 hover:bg-[#FFFBFB]/80 transition-colors ${focusRing}`}
+                    className={`w-full flex justify-between items-center gap-4 p-5 text-left font-sans-clean font-bold text-sm text-stone-800 hover:bg-[#FFFBFB]/80 ${focusRing}`}
                   >
                     <span>{faq.q}</span>
                     <ChevronDown
                       size={16}
-                      className={`text-[#A65B62] shrink-0 transition-transform duration-250 ${isOpen ? "rotate-180" : ""}`}
+                      className={`text-[#A65B62] shrink-0 ${isOpen ? "rotate-180" : ""}`}
                     />
                   </button>
 
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.25, ease: "easeInOut" }}
-                      >
-                        <div className="p-5 border-t border-stone-100 bg-white font-sans-clean text-xs sm:text-sm text-stone-500 leading-relaxed">
-                          {faq.a}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
+                  {isOpen && (
+                    <div className="p-5 border-t border-stone-100 bg-white font-sans-clean text-xs sm:text-sm text-stone-500 leading-relaxed">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
               );
             })}
-          </motion.div>
+          </div>
         </div>
       </section>
 
