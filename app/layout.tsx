@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
+import ScrollProgress from "@/components/layout/ScrollProgress";
 import { Toaster } from "react-hot-toast";
 
 const cormorant = Cormorant_Garamond({
@@ -47,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <body
         className={`${cormorant.variable} ${playfair.variable} ${jakarta.variable} antialiased`}
       >
@@ -55,6 +56,7 @@ export default function RootLayout({
         <main className="min-h-screen">{children}</main>
         <Footer />
         <WhatsAppButton />
+        <ScrollProgress />
         <Toaster
           position="top-right"
           toastOptions={{
