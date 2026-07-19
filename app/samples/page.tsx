@@ -203,7 +203,8 @@ export default function SamplesPage() {
     setLoading(true);
     setError(null);
 
-    fetch("/api/samples", { signal: controller.signal })
+    const BACKEND = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+    fetch(`${BACKEND}/api/samples`, { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
