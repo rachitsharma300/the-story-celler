@@ -52,7 +52,8 @@ export default function AddSamplePage() {
       formData.append("file", file);
       formData.append("folder", isPdf ? "storyceller/samples/pdf" : "storyceller/samples/covers");
 
-      const response = await fetch("/api/upload", {
+      const BACKEND = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+      const response = await fetch(`${BACKEND}/api/upload`, {
         method: "POST",
         body: formData,
       });

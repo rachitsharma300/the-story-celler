@@ -19,10 +19,12 @@ import {
   Gift,
   Sparkles,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Play
 } from "lucide-react";
 import SampleFlipbookModal from "@/components/sections/SampleFlipbookModal";
 import api from "@/lib/axios";
+import ReelModal, { ReelItem } from "@/components/sections/ReelModal";
 
 function AutoImageSlider({ images, className = "" }: { images: string[]; className?: string }) {
   const [index, setIndex] = useState(0);
@@ -454,6 +456,45 @@ function StatCountUp({ end, suffix }: { end: number; suffix: string }) {
 
 const heroBackgrounds = ["/default.png", "/default2.png"];
 
+const reelsData: ReelItem[] = [
+  {
+    id: "reel-1",
+    videoUrl: "https://player.vimeo.com/external/384761655.sd.mp4?s=38285db21d033fbefce60e2dbef23d4097f5f9e2&profile_id=165&oauth2_token_id=57447761",
+    title: "Couple Memories Recap",
+    description: "A gorgeous compilation of lazy Sunday mornings, travel scrapbooks, and little moments of joy built into a cinematic memory reel.",
+    likes: "1,248",
+    views: "15.4K",
+    productLink: "/product/recap-reel"
+  },
+  {
+    id: "reel-2",
+    videoUrl: "https://player.vimeo.com/external/403844523.sd.mp4?s=a7199187a55eddb65a3d0f7a637a7b8e19e1e194&profile_id=165&oauth2_token_id=57447761",
+    title: "Our Wedding Day Story",
+    description: "A cinematic summary of vows, dance floors, and emotional embraces. Tailored and synced to your favorite backing soundtrack.",
+    likes: "3,110",
+    views: "48.2K",
+    productLink: "/product/recap-reel"
+  },
+  {
+    id: "reel-3",
+    videoUrl: "https://player.vimeo.com/external/459389137.sd.mp4?s=894395c4777d130ed6b1fc6f6db6645391e57c6b&profile_id=165&oauth2_token_id=57447761",
+    title: "Aesthetic Keepsake Unboxing",
+    description: "Watch the unboxing of our premium customized memory magazines. Textured covers, thick satin paper, and elegant custom gift packs.",
+    likes: "852",
+    views: "9.8K",
+    productLink: "/product/custom-magazine"
+  },
+  {
+    id: "reel-4",
+    videoUrl: "https://player.vimeo.com/external/485854617.sd.mp4?s=ffbdb81329fb84db22f99df899201944af08d66c&profile_id=165&oauth2_token_id=57447761",
+    title: "A Year of Memories",
+    description: "An annual review summarizing birthdays, weekend road trips, late night coffee talks, and warm memories from the past 12 months.",
+    likes: "2,403",
+    views: "22.6K",
+    productLink: "/product/recap-reel"
+  }
+];
+
 export default function HomePage() {
   const [isSampleModalOpen, setIsSampleModalOpen] = useState(false);
   const [samplePdfUrl, setSamplePdfUrl] = useState<string | undefined>(undefined);
@@ -465,6 +506,9 @@ export default function HomePage() {
   const [sampleIndex, setSampleIndex] = useState(0);
   const [itemsToShow, setItemsToShow] = useState(3);
   const [samplesList, setSamplesList] = useState(staticSamples);
+
+  const [isReelModalOpen, setIsReelModalOpen] = useState(false);
+  const [activeReelIndex, setActiveReelIndex] = useState(0);
 
   const reviewsContainerRef = useRef<HTMLDivElement>(null);
   const [bgIndex, setBgIndex] = useState(0);
@@ -763,10 +807,10 @@ export default function HomePage() {
 
       {/* ── 2. PRODUCT FEATURES ROW ── */}
       <section className="relative z-20 -mt-0 mt-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white border border-stone-100 shadow-xl rounded-2xl py-6 px-4 sm:px-8 md:px-12 flex overflow-x-auto snap-x snap-mandatory scrollbar-none md:grid md:grid-cols-5 gap-y-6 gap-x-4 md:divide-x divide-stone-100">
+        <div className="bg-white border border-stone-100 shadow-xl rounded-2xl py-6 px-5 sm:px-8 md:px-12 grid grid-cols-2 md:grid-cols-5 gap-y-6 gap-x-4 md:divide-x divide-stone-100">
 
           {/* Feature 1 */}
-          <div className="flex items-center gap-3.5 px-4 md:px-2 shrink-0 min-w-[200px] md:min-w-0 snap-center group">
+          <div className="flex items-center gap-3 md:gap-3.5 px-2 md:px-4 group">
             <div className="p-2.5 bg-[#A65B62]/5 rounded-xl text-[#A65B62] shrink-0 transition-colors duration-300 group-hover:bg-[#A65B62] group-hover:text-white">
               <ShieldCheck size={20} />
             </div>
@@ -777,7 +821,7 @@ export default function HomePage() {
           </div>
 
           {/* Feature 2 */}
-          <div className="flex items-center gap-3.5 px-4 md:pl-4 md:px-0 shrink-0 min-w-[200px] md:min-w-0 snap-center group">
+          <div className="flex items-center gap-3 md:gap-3.5 px-2 md:pl-6 group">
             <div className="p-2.5 bg-[#A65B62]/5 rounded-xl text-[#A65B62] shrink-0 transition-colors duration-300 group-hover:bg-[#A65B62] group-hover:text-white">
               <Truck size={20} />
             </div>
@@ -788,7 +832,7 @@ export default function HomePage() {
           </div>
 
           {/* Feature 3 */}
-          <div className="flex items-center gap-3.5 px-4 md:pl-4 md:px-0 shrink-0 min-w-[200px] md:min-w-0 snap-center group">
+          <div className="flex items-center gap-3 md:gap-3.5 px-2 md:pl-6 group">
             <div className="p-2.5 bg-[#A65B62]/5 rounded-xl text-[#A65B62] shrink-0 transition-colors duration-300 group-hover:bg-[#A65B62] group-hover:text-white">
               <Wallet size={20} />
             </div>
@@ -799,7 +843,7 @@ export default function HomePage() {
           </div>
 
           {/* Feature 4 */}
-          <div className="flex items-center gap-3.5 px-4 md:pl-4 md:px-0 shrink-0 min-w-[200px] md:min-w-0 snap-center group">
+          <div className="flex items-center gap-3 md:gap-3.5 px-2 md:pl-6 group">
             <div className="p-2.5 bg-[#A65B62]/5 rounded-xl text-[#A65B62] shrink-0 transition-colors duration-300 group-hover:bg-[#A65B62] group-hover:text-white">
               <Eye size={20} />
             </div>
@@ -810,11 +854,11 @@ export default function HomePage() {
           </div>
 
           {/* Feature 5 */}
-          <div className="flex items-center gap-3.5 px-4 md:pl-4 md:px-0 shrink-0 min-w-[200px] md:min-w-0 snap-center group">
+          <div className="flex items-center gap-3 md:gap-3.5 px-2 md:pl-6 col-span-2 md:col-span-1 justify-center md:justify-start group">
             <div className="p-2.5 bg-[#A65B62]/5 rounded-xl text-[#A65B62] shrink-0 transition-colors duration-300 group-hover:bg-[#A65B62] group-hover:text-white">
               <Heart className="fill-current text-[#A65B62] group-hover:text-white" size={18} />
             </div>
-            <div>
+            <div className="text-left">
               <h4 className="font-sans-clean text-xs font-bold text-stone-900 leading-tight">Loved by 10,000+</h4>
               <p className="font-sans-clean text-[10px] text-stone-400 mt-0.5">Happy Customers</p>
             </div>
@@ -823,88 +867,149 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 3. EXPLORE COLLECTIONS GRID ── */}
-      <section className="py-24 bg-transparent relative">
+      {/* ── 6. QUICK CREATE ── */}
+      <section className="py-24 bg-white relative border-b border-stone-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          <div className="text-center mb-14">
-            <span className="font-sans-clean text-[10px] tracking-[0.25em] uppercase text-[#A65B62] font-bold block mb-3">
-              ✦ Explore Our Collections ✦
-            </span>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-stone-900">
-              Find the perfect frame for your story
+          <div className="text-center mb-16">
+            <span className="font-sans-clean text-xs tracking-[0.2em] uppercase text-[#A65B62] font-bold block mb-4">Fast Keepsakes</span>
+            <h2 className="font-display text-3xl lg:text-5xl font-bold text-stone-900">
+              Quick Create
             </h2>
+            <p className="font-sans-clean text-stone-500 max-w-2xl mx-auto mt-4 text-xs sm:text-sm leading-relaxed">
+              Choose a design, upload your memories, and create meaningful keepsakes in just a few clicks. Best for last-minute gifting.
+            </p>
           </div>
 
-          {/* 6 Category Grid Layout */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-
-            {[
-              {
-                href: "/shop?category=photo-frames",
-                img: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=500&auto=format&fit=crop&q=80",
-                title: "Photo Frames",
-                sub: "Timeless & Classic"
-              },
-              {
-                href: "/shop?category=magazine-frames",
-                img: "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&fit=crop&q=80",
-                title: "Magazine Frames",
-                sub: "Trendy & Personal"
-              },
-              {
-                href: "/shop?category=spotify-frames",
-                img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=80",
-                title: "Spotify Frames",
-                sub: "Your Music, Your Story"
-              },
-              {
-                href: "/shop?category=qr-frames",
-                img: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=500&auto=format&fit=crop&q=80",
-                title: "QR Memory Frames",
-                sub: "Scan, Watch, Relive"
-              },
-              {
-                href: "/shop?category=collage-frames",
-                img: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&auto=format&fit=crop&q=80",
-                title: "Collage Frames",
-                sub: "Multiple Memories"
-              },
-              {
-                href: "/shop?category=scrapbook-frames",
-                img: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=500&auto=format&fit=crop&q=80",
-                title: "Scrapbook Frames",
-                sub: "Handmade With Love"
-              }
-            ].map((c, i) => (
-              <Link
-                key={c.href}
-                href={c.href}
-                className={`group flex flex-col items-center ${focusRing} rounded-2xl`}
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          >
+            {quickCreate.map((p) => (
+              <motion.div
+                key={p.id}
+                variants={staggerItem}
+                whileHover={{ y: -6 }}
+                className="group bg-white border border-stone-100 hover:border-[#A65B62]/20 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between will-change-transform"
               >
-                <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-white p-3 shadow-md border border-stone-100 group-hover:shadow-xl group-hover:border-[#A65B62]/25 transition-all duration-300">
-                  <TapeCorner className="-top-1.5 -left-1.5" rotate={i % 2 === 0 ? -10 : 8} />
-                  <img
-                    src={c.img}
-                    alt={c.title}
-                    className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
-                  />
+                <div>
+                  {/* Image Container */}
+                  <div className="relative w-full h-72 mb-4 rounded-xl overflow-hidden">
+                    <AutoImageSlider images={p.images} className="w-full h-full" />
+                    <span className="absolute top-3 right-3 px-2.5 py-0.5 bg-rose-500 text-white text-[9px] font-sans-clean font-bold tracking-wider uppercase rounded-full shadow-md z-10">
+                      {p.tag}
+                    </span>
+                  </div>
+
+                  <h3 className="font-display text-lg font-bold text-stone-900 mb-2 group-hover:text-[#A65B62] transition-colors">
+                    {p.name}
+                  </h3>
+                  <p className="font-sans-clean text-xs text-stone-500 mb-6 leading-relaxed">
+                    {p.desc}
+                  </p>
                 </div>
-                <h3 className="font-display text-sm font-bold text-stone-850 mt-3.5 group-hover:text-[#A65B62] transition-colors text-center">
-                  {c.title}
-                </h3>
-                <p className="font-sans-clean text-[10px] text-stone-400 mt-0.5 text-center">{c.sub}</p>
-              </Link>
+
+                <div>
+                  <div className="border-t border-stone-100 pt-4 mb-4">
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-display text-xl font-black text-stone-900">{p.price}</span>
+                      {p.originalPrice && (
+                        <span className="font-sans-clean text-xs text-stone-400 line-through">{p.originalPrice}</span>
+                      )}
+                    </div>
+                    <p className="font-sans-clean text-[9px] text-stone-400 mt-1.5 italic">
+                      Variants available on checkout.
+                    </p>
+                  </div>
+                  <Link href={`/product/${p.slug}`}
+                    className={`block text-center py-3 bg-[#A65B62] hover:bg-[#8F4A50] text-white text-[10px] tracking-wider font-sans-clean font-bold uppercase rounded-lg transition-all duration-300 ${focusRing}`}>
+                    Select options
+                  </Link>
+                </div>
+              </motion.div>
             ))}
+          </motion.div>
 
+        </div>
+      </section>
+
+      {/* ── 7. CUSTOM COLLECTION ── */}
+      <section className="py-24 bg-[#FAF4F5] relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          <div className="text-center mb-16">
+            <span className="font-sans-clean text-xs tracking-[0.2em] uppercase text-[#A65B62] font-bold block mb-2">Luxury Keepsakes</span>
+            <h2 className="font-display text-3xl lg:text-4xl font-bold text-stone-900">
+              Custom Collection
+            </h2>
+            <p className="font-sans-clean text-stone-500 max-w-xl mx-auto mt-2 text-xs sm:text-sm leading-relaxed">
+              Crafted around your memories with personalized storytelling, custom layouts, and thoughtful details. Best for deeply personal keepsakes & gifts!
+            </p>
           </div>
 
-          <div className="flex justify-center mt-12">
-            <Link href="/shop"
-              className={`px-8 py-3.5 border-2 border-[#A65B62]/35 text-[#A65B62] hover:bg-[#A65B62]/5 hover:border-[#A65B62] font-sans-clean font-bold rounded-xl transition-all duration-300 text-xs tracking-widest uppercase ${focusRing}`}>
-              View All Collections
-            </Link>
-          </div>
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto"
+          >
+            {customCollection.map((p) => (
+              <motion.div
+                key={p.id}
+                variants={staggerItem}
+                whileHover={{ y: -8 }}
+                className="group relative bg-white border border-stone-100 hover:border-[#A65B62]/20 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between will-change-transform"
+              >
+                <div className="absolute top-5 right-5 bg-rose-500 text-white text-[10px] font-sans-clean font-extrabold tracking-wider uppercase px-3 py-1 rounded-full shadow-sm z-10">
+                  {p.tag}
+                </div>
+
+                <div>
+                  {/* Photo Album Style Container */}
+                  <div className="relative w-full aspect-[16/10] sm:aspect-[16/11] mb-4 bg-[#FAF4F5] p-2.5 pb-4 shadow-lg rounded-r-xl rounded-l-sm border-l-[6px] border-stone-900 overflow-hidden flex flex-col justify-center before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1.5 before:bg-black/20 before:z-10 shadow-[8px_8px_15px_-3px_rgba(0,0,0,0.15)] outline outline-1 outline-stone-200/50">
+                    <TapeCorner className="top-2 left-8" rotate={-8} />
+                    <AutoImageSlider images={p.images} className="w-full h-full rounded shadow-inner" />
+                  </div>
+
+                  {/* Reviews rating */}
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, idx) => (
+                        <Star key={idx} size={11} className="fill-amber-400 text-amber-400" />
+                      ))}
+                    </div>
+                    <span className="font-sans-clean text-xs text-stone-400 font-semibold">{p.rating} ({p.reviewsCount})</span>
+                  </div>
+
+                  <h3 className="font-display text-xl lg:text-2xl font-bold text-stone-900 mb-2 group-hover:text-[#A65B62] transition-colors">
+                    {p.name}
+                  </h3>
+                  <p className="font-sans-clean text-stone-500 text-xs leading-relaxed mb-4">
+                    {p.desc}
+                  </p>
+                </div>
+
+                <div>
+                  <div className="border-t border-stone-100 pt-4 mt-3">
+                    <p className="font-sans-clean text-[9px] text-stone-400 tracking-wider uppercase mb-0.5">Price Details</p>
+                    <p className="font-display text-2xl font-extrabold text-stone-900 group-hover:text-[#A65B62] transition-colors">{p.price}</p>
+                    <p className="font-sans-clean text-[9px] text-stone-400 leading-tight mt-1.5 italic">
+                      This product has multiple variants. The options may be chosen on the product page.
+                    </p>
+                  </div>
+
+                  <Link href={`/product/${p.slug}`}
+                    className={`mt-4 flex items-center justify-center gap-2 w-full py-3 bg-[#A65B62] hover:bg-[#8F4A50] text-[#ffffff] text-xs tracking-widest font-sans-clean font-bold uppercase rounded-xl transition-all duration-300 shadow-md ${focusRing}`}>
+                    Select options <ArrowRight size={14} />
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
 
         </div>
       </section>
@@ -1068,6 +1173,185 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── 3. EXPLORE COLLECTIONS GRID ── */}
+      <section className="py-24 bg-transparent relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          <div className="text-center mb-14">
+            <span className="font-sans-clean text-[10px] tracking-[0.25em] uppercase text-[#A65B62] font-bold block mb-3">
+              ✦ Explore Our Collections ✦
+            </span>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-stone-900">
+              Find the perfect frame for your story
+            </h2>
+          </div>
+
+          {/* 6 Category Grid Layout */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+
+            {[
+              {
+                href: "/shop?category=photo-frames",
+                img: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=500&auto=format&fit=crop&q=80",
+                title: "Photo Frames",
+                sub: "Timeless & Classic"
+              },
+              {
+                href: "/shop?category=magazine-frames",
+                img: "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&fit=crop&q=80",
+                title: "Magazine Frames",
+                sub: "Trendy & Personal"
+              },
+              {
+                href: "/shop?category=spotify-frames",
+                img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=80",
+                title: "Spotify Frames",
+                sub: "Your Music, Your Story"
+              },
+              {
+                href: "/shop?category=qr-frames",
+                img: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=500&auto=format&fit=crop&q=80",
+                title: "QR Memory Frames",
+                sub: "Scan, Watch, Relive"
+              },
+              {
+                href: "/shop?category=collage-frames",
+                img: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&auto=format&fit=crop&q=80",
+                title: "Collage Frames",
+                sub: "Multiple Memories"
+              },
+              {
+                href: "/shop?category=scrapbook-frames",
+                img: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=500&auto=format&fit=crop&q=80",
+                title: "Scrapbook Frames",
+                sub: "Handmade With Love"
+              }
+            ].map((c, i) => (
+              <Link
+                key={c.href}
+                href={c.href}
+                className={`group flex flex-col items-center ${focusRing} rounded-2xl`}
+              >
+                <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-white p-3 shadow-md border border-stone-100 group-hover:shadow-xl group-hover:border-[#A65B62]/25 transition-all duration-300">
+                  <TapeCorner className="-top-1.5 -left-1.5" rotate={i % 2 === 0 ? -10 : 8} />
+                  <img
+                    src={c.img}
+                    alt={c.title}
+                    className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <h3 className="font-display text-sm font-bold text-stone-850 mt-3.5 group-hover:text-[#A65B62] transition-colors text-center">
+                  {c.title}
+                </h3>
+                <p className="font-sans-clean text-[10px] text-stone-400 mt-0.5 text-center">{c.sub}</p>
+              </Link>
+            ))}
+
+          </div>
+
+          <div className="flex justify-center mt-12">
+            <Link href="/shop"
+              className={`px-8 py-3.5 border-2 border-[#A65B62]/35 text-[#A65B62] hover:bg-[#A65B62]/5 hover:border-[#A65B62] font-sans-clean font-bold rounded-xl transition-all duration-300 text-xs tracking-widest uppercase ${focusRing}`}>
+              View All Collections
+            </Link>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── PRODUCT FEATURES GRID ── */}
+      <section className="py-24 bg-stone-50 border-t border-stone-100 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <span className="font-sans-clean text-[#A65B62] text-[10px] font-bold tracking-[0.3em] uppercase block mb-4">
+              ✦ Made For Memories ✦
+            </span>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-stone-900 mb-4">
+              Crafted For Your Stories
+            </h2>
+            <p className="font-sans-clean text-stone-500 max-w-xl mx-auto text-sm leading-relaxed">
+              Every keepsake is carefully designed to transform your milestones into beautiful physical pieces.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Card 1 */}
+            <div className="group bg-white border border-stone-200/60 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:border-[#A65B62]/20 transition-all duration-300 flex flex-col h-full">
+              <div className="relative aspect-[3/2] w-full overflow-hidden">
+                <img
+                  src="/custom_designs_feature.png"
+                  alt="Custom-Made Designs"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/20 to-transparent pointer-events-none" />
+              </div>
+              <div className="p-8 flex flex-col flex-grow justify-between">
+                <div>
+                  <h3 className="font-display text-xl font-bold text-stone-900 mb-3 group-hover:text-[#A65B62] transition-colors duration-300">
+                    Custom-Made Designs
+                  </h3>
+                  <p className="font-sans-clean text-stone-500 text-sm leading-relaxed mb-6">
+                    Every product is crafted from your memories, tailored to your story. Custom layouts, colors, and content.
+                  </p>
+                </div>
+                <Link href="/shop" className="inline-flex items-center gap-1.5 text-xs tracking-wider uppercase font-sans-clean font-bold text-[#A65B62] hover:text-[#8F4A50] transition-colors">
+                  Explore Designs <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Card 2 */}
+            <div className="group bg-white border border-stone-200/60 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:border-[#A65B62]/20 transition-all duration-300 flex flex-col h-full">
+              <div className="relative aspect-[3/2] w-full overflow-hidden">
+                <img
+                  src="/best_gifting_feature.png"
+                  alt="Best For Gifting"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/20 to-transparent pointer-events-none" />
+              </div>
+              <div className="p-8 flex flex-col flex-grow justify-between">
+                <div>
+                  <h3 className="font-display text-xl font-bold text-stone-900 mb-3 group-hover:text-[#A65B62] transition-colors duration-300">
+                    Best For Gifting
+                  </h3>
+                  <p className="font-sans-clean text-stone-500 text-sm leading-relaxed mb-6">
+                    Every order is packed and designed to wow! Perfect for birthdays, weddings, anniversaries, or surprise gestures.
+                  </p>
+                </div>
+                <Link href="/shop" className="inline-flex items-center gap-1.5 text-xs tracking-wider uppercase font-sans-clean font-bold text-[#A65B62] hover:text-[#8F4A50] transition-colors">
+                  Order a Gift <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Card 3 */}
+            <div className="group bg-white border border-stone-200/60 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:border-[#A65B62]/20 transition-all duration-300 flex flex-col h-full">
+              <div className="relative aspect-[3/2] w-full overflow-hidden">
+                <img
+                  src="/fast_process_feature.png"
+                  alt="Fast & Friendly Process"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/20 to-transparent pointer-events-none" />
+              </div>
+              <div className="p-8 flex flex-col flex-grow justify-between">
+                <div>
+                  <h3 className="font-display text-xl font-bold text-stone-900 mb-3 group-hover:text-[#A65B62] transition-colors duration-300">
+                    Fast & Friendly Process
+                  </h3>
+                  <p className="font-sans-clean text-stone-500 text-sm leading-relaxed mb-6">
+                    Support via WhatsApp, easy upload forms, fast feedback, and 7-12 day secure express delivery to your doorstep.
+                  </p>
+                </div>
+                <Link href="#how-it-works" className="inline-flex items-center gap-1.5 text-xs tracking-wider uppercase font-sans-clean font-bold text-[#A65B62] hover:text-[#8F4A50] transition-colors">
+                  How it Works <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ── 5. HOW IT WORKS ── */}
       <section id="how-it-works" className="py-24 bg-[#FAF4F5] relative border-b border-stone-100">
@@ -1109,153 +1393,6 @@ export default function HomePage() {
 
             </div>
           </div>
-
-        </div>
-      </section>
-
-      {/* ── 6. QUICK CREATE ── */}
-      <section className="py-24 bg-white relative border-b border-stone-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-          <div className="text-center mb-16">
-            <span className="font-sans-clean text-xs tracking-[0.2em] uppercase text-[#A65B62] font-bold block mb-4">Fast Keepsakes</span>
-            <h2 className="font-display text-3xl lg:text-5xl font-bold text-stone-900">
-              Quick Create
-            </h2>
-            <p className="font-sans-clean text-stone-500 max-w-2xl mx-auto mt-4 text-xs sm:text-sm leading-relaxed">
-              Choose a design, upload your memories, and create meaningful keepsakes in just a few clicks. Best for last-minute gifting.
-            </p>
-          </div>
-
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-          >
-            {quickCreate.map((p) => (
-              <motion.div
-                key={p.id}
-                variants={staggerItem}
-                whileHover={{ y: -6 }}
-                className="group bg-white border border-stone-100 hover:border-[#A65B62]/20 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between will-change-transform"
-              >
-                <div>
-                  {/* Image Container */}
-                  <div className="relative w-full h-72 mb-4 rounded-xl overflow-hidden">
-                    <AutoImageSlider images={p.images} className="w-full h-full" />
-                    <span className="absolute top-3 right-3 px-2.5 py-0.5 bg-rose-500 text-white text-[9px] font-sans-clean font-bold tracking-wider uppercase rounded-full shadow-md z-10">
-                      {p.tag}
-                    </span>
-                  </div>
-
-                  <h3 className="font-display text-lg font-bold text-stone-900 mb-2 group-hover:text-[#A65B62] transition-colors">
-                    {p.name}
-                  </h3>
-                  <p className="font-sans-clean text-xs text-stone-500 mb-6 leading-relaxed">
-                    {p.desc}
-                  </p>
-                </div>
-
-                <div>
-                  <div className="border-t border-stone-100 pt-4 mb-4">
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-display text-xl font-black text-stone-900">{p.price}</span>
-                      {p.originalPrice && (
-                        <span className="font-sans-clean text-xs text-stone-400 line-through">{p.originalPrice}</span>
-                      )}
-                    </div>
-                    <p className="font-sans-clean text-[9px] text-stone-400 mt-1.5 italic">
-                      Variants available on checkout.
-                    </p>
-                  </div>
-                  <Link href={`/product/${p.slug}`}
-                    className={`block text-center py-3 bg-[#A65B62] hover:bg-[#8F4A50] text-white text-[10px] tracking-wider font-sans-clean font-bold uppercase rounded-lg transition-all duration-300 ${focusRing}`}>
-                    Select options
-                  </Link>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-
-        </div>
-      </section>
-
-      {/* ── 7. CUSTOM COLLECTION ── */}
-      <section className="py-24 bg-[#FAF4F5] relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-          <div className="text-center mb-16">
-            <span className="font-sans-clean text-xs tracking-[0.2em] uppercase text-[#A65B62] font-bold block mb-2">Luxury Keepsakes</span>
-            <h2 className="font-display text-3xl lg:text-4xl font-bold text-stone-900">
-              Custom Collection
-            </h2>
-            <p className="font-sans-clean text-stone-500 max-w-xl mx-auto mt-2 text-xs sm:text-sm leading-relaxed">
-              Crafted around your memories with personalized storytelling, custom layouts, and thoughtful details. Best for deeply personal keepsakes & gifts!
-            </p>
-          </div>
-
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto"
-          >
-            {customCollection.map((p) => (
-              <motion.div
-                key={p.id}
-                variants={staggerItem}
-                whileHover={{ y: -8 }}
-                className="group relative bg-white border border-stone-100 hover:border-[#A65B62]/20 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between will-change-transform"
-              >
-                <div className="absolute top-5 right-5 bg-rose-500 text-white text-[10px] font-sans-clean font-extrabold tracking-wider uppercase px-3 py-1 rounded-full shadow-sm z-10">
-                  {p.tag}
-                </div>
-
-                <div>
-                  {/* Photo Album Style Container */}
-                  <div className="relative w-full aspect-[16/10] sm:aspect-[16/11] mb-4 bg-[#FAF4F5] p-2.5 pb-4 shadow-lg rounded-r-xl rounded-l-sm border-l-[6px] border-stone-900 overflow-hidden flex flex-col justify-center before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1.5 before:bg-black/20 before:z-10 shadow-[8px_8px_15px_-3px_rgba(0,0,0,0.15)] outline outline-1 outline-stone-200/50">
-                    <TapeCorner className="top-2 left-8" rotate={-8} />
-                    <AutoImageSlider images={p.images} className="w-full h-full rounded shadow-inner" />
-                  </div>
-
-                  {/* Reviews rating */}
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <div className="flex gap-0.5">
-                      {[...Array(5)].map((_, idx) => (
-                        <Star key={idx} size={11} className="fill-amber-400 text-amber-400" />
-                      ))}
-                    </div>
-                    <span className="font-sans-clean text-xs text-stone-400 font-semibold">{p.rating} ({p.reviewsCount})</span>
-                  </div>
-
-                  <h3 className="font-display text-xl lg:text-2xl font-bold text-stone-900 mb-2 group-hover:text-[#A65B62] transition-colors">
-                    {p.name}
-                  </h3>
-                  <p className="font-sans-clean text-stone-500 text-xs leading-relaxed mb-4">
-                    {p.desc}
-                  </p>
-                </div>
-
-                <div>
-                  <div className="border-t border-stone-100 pt-4 mt-3">
-                    <p className="font-sans-clean text-[9px] text-stone-400 tracking-wider uppercase mb-0.5">Price Details</p>
-                    <p className="font-display text-2xl font-extrabold text-stone-900 group-hover:text-[#A65B62] transition-colors">{p.price}</p>
-                    <p className="font-sans-clean text-[9px] text-stone-400 leading-tight mt-1.5 italic">
-                      This product has multiple variants. The options may be chosen on the product page.
-                    </p>
-                  </div>
-
-                  <Link href={`/product/${p.slug}`}
-                    className={`mt-4 flex items-center justify-center gap-2 w-full py-3 bg-[#A65B62] hover:bg-[#8F4A50] text-[#ffffff] text-xs tracking-widest font-sans-clean font-bold uppercase rounded-xl transition-all duration-300 shadow-md ${focusRing}`}>
-                    Select options <ArrowRight size={14} />
-                  </Link>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
 
         </div>
       </section>
@@ -1423,6 +1560,90 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── MOMENTS IN MOTION: VIDEO REELS ── */}
+      <section className="py-24 bg-white border-t border-stone-100 relative overflow-hidden">
+        {/* Decorative background visual elements */}
+        <div className="pointer-events-none absolute top-1/2 left-0 w-80 h-80 rounded-full bg-rose-50/40 blur-[80px]" />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="text-center mb-16">
+            <span className="font-sans-clean text-[#A65B62] text-[10px] font-bold tracking-[0.3em] uppercase block mb-4">
+              ✦ Watch Our Stories ✦
+            </span>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-stone-900 mb-4">
+              Moments In Motion
+            </h2>
+            <p className="font-sans-clean text-stone-500 max-w-xl mx-auto text-sm leading-relaxed">
+              Scan the vibe! Flip through a sneak peek of the cinematic recap reels we craft to accompany your printed memory archives.
+            </p>
+          </div>
+
+          {/* Reels Mockup Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+            {reelsData.map((reel, idx) => (
+              <div
+                key={reel.id}
+                onMouseEnter={(e) => {
+                  const video = e.currentTarget.querySelector("video");
+                  if (video) video.play().catch(() => {});
+                }}
+                onMouseLeave={(e) => {
+                  const video = e.currentTarget.querySelector("video");
+                  if (video) {
+                    video.pause();
+                    video.currentTime = 0;
+                  }
+                }}
+                onClick={() => {
+                  setActiveReelIndex(idx);
+                  setIsReelModalOpen(true);
+                }}
+                className="group relative aspect-[9/16] rounded-3xl border border-stone-200/80 bg-stone-950 overflow-hidden cursor-pointer shadow-md hover:shadow-2xl transition-all duration-500 ease-out transform hover:-translate-y-2"
+              >
+                {/* Smartphone Notch Mockup Design Element */}
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 w-16 h-4 bg-black/45 backdrop-blur-md rounded-full z-20 flex items-center justify-center border border-white/5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-stone-850" />
+                </div>
+
+                {/* Vertical Video Element */}
+                <video
+                  src={reel.videoUrl}
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700"
+                />
+
+                {/* Dark Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10 transition-opacity duration-300" />
+
+                {/* Interactive Hover Play Icon */}
+                <div className="absolute inset-0 flex items-center justify-center z-20">
+                  <div className="p-3.5 rounded-full bg-white/10 text-white backdrop-blur-sm border border-white/20 transform scale-90 group-hover:scale-100 group-hover:bg-[#A65B62] group-hover:border-[#A65B62] transition-all duration-300 shadow-lg">
+                    <Play size={16} className="fill-current group-hover:translate-x-0.5 transition-transform" />
+                  </div>
+                </div>
+
+                {/* Video Info Overlay (Bottom) */}
+                <div className="absolute bottom-0 left-0 right-0 p-5 z-20 text-left flex flex-col justify-end">
+                  <span className="text-[9px] tracking-wider uppercase font-sans-clean font-bold text-rose-300 mb-1">
+                    {reel.views} views
+                  </span>
+                  <h4 className="font-display text-sm font-bold text-white leading-snug drop-shadow line-clamp-1 group-hover:text-rose-200 transition-colors">
+                    {reel.title}
+                  </h4>
+                  <p className="font-sans-clean text-[10px] text-stone-300 mt-1 line-clamp-2 leading-relaxed opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                    {reel.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
       {/* ── 10. THE STORY OF THE STORY CELLER ── */}
       <section id="about-us" className="py-24 bg-[#FAF4F5] border-t border-stone-100 relative">
         <div className="max-w-4xl mx-auto px-4 text-center">
@@ -1511,6 +1732,15 @@ export default function HomePage() {
         images={sampleImages}
         pageCount={samplePageCount}
         productName={sampleProductName}
+      />
+
+      {/* REELS PREVIEW MODAL */}
+      <ReelModal
+        isOpen={isReelModalOpen}
+        onClose={() => setIsReelModalOpen(false)}
+        reels={reelsData}
+        activeIndex={activeReelIndex}
+        onIndexChange={setActiveReelIndex}
       />
 
     </div>
