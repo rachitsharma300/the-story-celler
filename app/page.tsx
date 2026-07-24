@@ -45,10 +45,12 @@ function AutoImageSlider({ images, className = "" }: { images: string[]; classNa
       >
         {images.map((src, idx) => (
           <div key={idx} className="w-full h-full flex-shrink-0 relative">
-            <img
+            <Image
               src={src}
-              alt={`Slide ${idx + 1}`}
-              className="w-full h-full object-cover"
+              alt={`The Story Celler keepsake magazine layout preview page ${idx + 1}`}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover"
               loading="lazy"
             />
           </div>
@@ -292,7 +294,7 @@ const reviews = [
     name: "Yashvi Changela",
     city: "Ahmedabad",
     stars: 5,
-    text: "A heartfelt thank you to the MSA team for making my husband’s birthday so special! Your efforts created lifelong memories for us, making our evening truly unforgettable.",
+    text: "A heartfelt thank you to the The Story Celler team for making my husband’s birthday so special! Your efforts created lifelong memories for us, making our evening truly unforgettable.",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
   },
   {
@@ -403,7 +405,8 @@ const stats = [
 const marqueeItems = [
   "Free Shipping on All Orders",
   "Cash on Delivery Available",
-  "100+ Happy Clients",
+  "10,000+ Happy Customers",
+  "500+ Couples Helped",
   "Easy WhatsApp Support",
   "Perfect for Gifting",
   "Custom Designed",
@@ -432,8 +435,29 @@ const staggerItem = {
 
 function StatCountUp({ end, suffix }: { end: number; suffix: string }) {
   const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const elementRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (elementRef.current) {
+      observer.observe(elementRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasAnimated]);
+
+  useEffect(() => {
+    if (!hasAnimated) return;
+
     let start = 0;
     const duration = 1500;
     const increment = end / (duration / 16);
@@ -449,17 +473,18 @@ function StatCountUp({ end, suffix }: { end: number; suffix: string }) {
     }, 16);
 
     return () => clearInterval(timer);
-  }, [end]);
+  }, [end, hasAnimated]);
 
-  return <>{suffix === "/5" ? end.toFixed(1) : count.toLocaleString()}{suffix}</>;
+  return <span ref={elementRef}>{suffix === "/5" ? end.toFixed(1) : count.toLocaleString()}{suffix}</span>;
 }
 
 const heroBackgrounds = ["/default.png", "/default2.png"];
 
-const reelsData: ReelItem[] = [
+const reelsData = [
   {
     id: "reel-1",
     videoUrl: "https://player.vimeo.com/external/384761655.sd.mp4?s=38285db21d033fbefce60e2dbef23d4097f5f9e2&profile_id=165&oauth2_token_id=57447761",
+    thumbnailUrl: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=500&auto=format&fit=crop&q=80",
     title: "Couple Memories Recap",
     description: "A gorgeous compilation of lazy Sunday mornings, travel scrapbooks, and little moments of joy built into a cinematic memory reel.",
     likes: "1,248",
@@ -469,6 +494,7 @@ const reelsData: ReelItem[] = [
   {
     id: "reel-2",
     videoUrl: "https://player.vimeo.com/external/403844523.sd.mp4?s=a7199187a55eddb65a3d0f7a637a7b8e19e1e194&profile_id=165&oauth2_token_id=57447761",
+    thumbnailUrl: "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&fit=crop&q=80",
     title: "Our Wedding Day Story",
     description: "A cinematic summary of vows, dance floors, and emotional embraces. Tailored and synced to your favorite backing soundtrack.",
     likes: "3,110",
@@ -478,6 +504,7 @@ const reelsData: ReelItem[] = [
   {
     id: "reel-3",
     videoUrl: "https://player.vimeo.com/external/459389137.sd.mp4?s=894395c4777d130ed6b1fc6f6db6645391e57c6b&profile_id=165&oauth2_token_id=57447761",
+    thumbnailUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&auto=format&fit=crop&q=80",
     title: "Aesthetic Keepsake Unboxing",
     description: "Watch the unboxing of our premium customized memory magazines. Textured covers, thick satin paper, and elegant custom gift packs.",
     likes: "852",
@@ -487,6 +514,7 @@ const reelsData: ReelItem[] = [
   {
     id: "reel-4",
     videoUrl: "https://player.vimeo.com/external/485854617.sd.mp4?s=ffbdb81329fb84db22f99df899201944af08d66c&profile_id=165&oauth2_token_id=57447761",
+    thumbnailUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&auto=format&fit=crop&q=80",
     title: "A Year of Memories",
     description: "An annual review summarizing birthdays, weekend road trips, late night coffee talks, and warm memories from the past 12 months.",
     likes: "2,403",
@@ -509,6 +537,7 @@ export default function HomePage() {
 
   const [isReelModalOpen, setIsReelModalOpen] = useState(false);
   const [activeReelIndex, setActiveReelIndex] = useState(0);
+  const [hoveredReelIndex, setHoveredReelIndex] = useState<number | null>(null);
 
   const reviewsContainerRef = useRef<HTMLDivElement>(null);
   const [bgIndex, setBgIndex] = useState(0);
@@ -601,7 +630,7 @@ export default function HomePage() {
           to { transform: translateX(-50%); }
         }
         .storyceller-marquee-track {
-          animation: storyceller-marquee 28s linear infinite;
+          animation: storyceller-marquee 50s linear infinite;
         }
         @media (prefers-reduced-motion: reduce) {
           .storyceller-marquee-track {
@@ -704,14 +733,14 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.45 }}
-                className="flex flex-wrap gap-4 mb-10"
+                className="flex flex-col sm:flex-row gap-4 mb-10 w-full sm:w-auto"
               >
                 <Link href="/shop"
-                  className={`group px-7 py-3.5 bg-[#A65B62] hover:bg-[#8F4A50] text-white font-sans-clean font-bold rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-[#A65B62]/20 hover:-translate-y-0.5 text-center text-xs tracking-widest uppercase flex items-center justify-center gap-1 ${focusRing}`}>
+                  className={`group px-7 py-3.5 bg-[#A65B62] hover:bg-[#8F4A50] text-white font-sans-clean font-bold rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-[#A65B62]/20 hover:-translate-y-0.5 text-center text-xs tracking-widest uppercase flex items-center justify-center gap-1 w-full sm:w-auto ${focusRing}`}>
                   Design Your Frame <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
                 <Link href="/shop"
-                  className={`px-7 py-3.5 border-2 border-[#A65B62] text-[#A65B62] hover:bg-[#A65B62]/5 font-sans-clean font-bold rounded-xl transition-all duration-300 hover:-translate-y-0.5 text-center text-xs tracking-widest uppercase flex items-center justify-center gap-1 ${focusRing}`}>
+                  className={`px-7 py-3.5 border-2 border-[#A65B62] text-[#A65B62] hover:bg-[#A65B62]/5 font-sans-clean font-bold rounded-xl transition-all duration-300 hover:-translate-y-0.5 text-center text-xs tracking-widest uppercase flex items-center justify-center gap-1 w-full sm:w-auto ${focusRing}`}>
                   View Collections
                 </Link>
               </motion.div>
@@ -753,10 +782,16 @@ export default function HomePage() {
                   {/* Avatars Block */}
                   <div className="hidden sm:flex flex-col items-center justify-center px-4 py-3.5 shrink-0">
                     <div className="flex -space-x-2">
-                      <img className="h-7 w-7 rounded-full object-cover ring-2 ring-white shadow" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&auto=format&fit=crop&q=80" alt="Happy customer" />
-                      <img className="h-7 w-7 rounded-full object-cover ring-2 ring-white shadow" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop&q=80" alt="Happy customer" />
-                      <img className="h-7 w-7 rounded-full object-cover ring-2 ring-white shadow" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&auto=format&fit=crop&q=80" alt="Happy customer" />
-                      <div className="h-7 w-7 rounded-full ring-2 ring-white shadow bg-[#A65B62] flex items-center justify-center">
+                      <div className="relative h-7 w-7 rounded-full ring-2 ring-white shadow overflow-hidden">
+                        <Image className="object-cover" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&auto=format&fit=crop&q=80" alt="Happy customer couple avatar" fill sizes="28px" />
+                      </div>
+                      <div className="relative h-7 w-7 rounded-full ring-2 ring-white shadow overflow-hidden">
+                        <Image className="object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop&q=80" alt="Happy customer testimonial avatar" fill sizes="28px" />
+                      </div>
+                      <div className="relative h-7 w-7 rounded-full ring-2 ring-white shadow overflow-hidden">
+                        <Image className="object-cover" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&auto=format&fit=crop&q=80" alt="Happy client display photo" fill sizes="28px" />
+                      </div>
+                      <div className="h-7 w-7 rounded-full ring-2 ring-white shadow bg-[#A65B62] flex items-center justify-center relative">
                         <span className="font-sans-clean text-[8px] font-black text-white">+497</span>
                       </div>
                     </div>
@@ -792,7 +827,7 @@ export default function HomePage() {
         <motion.div
           className="flex w-max"
           animate={{ x: [0, "-50%"] }}
-          transition={{ repeat: Infinity, repeatType: "loop", duration: 28, ease: "linear" }}
+          transition={{ repeat: Infinity, repeatType: "loop", duration: 50, ease: "linear" }}
         >
           {[...marqueeItems, ...marqueeItems, ...marqueeItems, ...marqueeItems].map((item, i) => (
             <span
@@ -1084,9 +1119,13 @@ export default function HomePage() {
                           }}
                         >
                           {/* Cover image */}
-                          <div
-                            className="absolute inset-0 bg-cover bg-center"
-                            style={{ backgroundImage: `url('${sample.coverImage}')` }}
+                          <Image
+                            src={sample.coverImage}
+                            alt={`Cover of ${sample.title} magazine sample`}
+                            fill
+                            sizes="(max-width: 640px) 130px, 160px"
+                            className="object-cover"
+                            loading="lazy"
                           />
                           {/* Spine shadow */}
                           <div className="absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-black/40 to-transparent pointer-events-none" />
@@ -1234,11 +1273,16 @@ export default function HomePage() {
               >
                 <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-white p-3 shadow-md border border-stone-100 group-hover:shadow-xl group-hover:border-[#A65B62]/25 transition-all duration-300">
                   <TapeCorner className="-top-1.5 -left-1.5" rotate={i % 2 === 0 ? -10 : 8} />
-                  <img
-                    src={c.img}
-                    alt={c.title}
-                    className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
-                  />
+                  <div className="relative w-full h-full overflow-hidden rounded-xl">
+                    <Image
+                      src={c.img}
+                      alt={`Photo frame category showcase: ${c.title}`}
+                      fill
+                      sizes="(max-width: 640px) 50vw, 150px"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                  </div>
                 </div>
                 <h3 className="font-display text-sm font-bold text-stone-850 mt-3.5 group-hover:text-[#A65B62] transition-colors text-center">
                   {c.title}
@@ -1278,12 +1322,15 @@ export default function HomePage() {
             {/* Card 1 */}
             <div className="group bg-white border border-stone-200/60 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:border-[#A65B62]/20 transition-all duration-300 flex flex-col h-full">
               <div className="relative aspect-[3/2] w-full overflow-hidden">
-                <img
+                <Image
                   src="/custom_designs_feature.png"
-                  alt="Custom-Made Designs"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  alt="Personalized custom design layout samples"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/20 to-transparent pointer-events-none z-10" />
               </div>
               <div className="p-8 flex flex-col flex-grow justify-between">
                 <div>
@@ -1303,12 +1350,15 @@ export default function HomePage() {
             {/* Card 2 */}
             <div className="group bg-white border border-stone-200/60 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:border-[#A65B62]/20 transition-all duration-300 flex flex-col h-full">
               <div className="relative aspect-[3/2] w-full overflow-hidden">
-                <img
+                <Image
                   src="/best_gifting_feature.png"
-                  alt="Best For Gifting"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  alt="Premium gift wrapping and presentation keepsakes"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/20 to-transparent pointer-events-none z-10" />
               </div>
               <div className="p-8 flex flex-col flex-grow justify-between">
                 <div>
@@ -1328,12 +1378,15 @@ export default function HomePage() {
             {/* Card 3 */}
             <div className="group bg-white border border-stone-200/60 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:border-[#A65B62]/20 transition-all duration-300 flex flex-col h-full">
               <div className="relative aspect-[3/2] w-full overflow-hidden">
-                <img
+                <Image
                   src="/fast_process_feature.png"
-                  alt="Fast & Friendly Process"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  alt="Fast and simple customer memory creation process"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/20 to-transparent pointer-events-none z-10" />
               </div>
               <div className="p-8 flex flex-col flex-grow justify-between">
                 <div>
@@ -1536,11 +1589,16 @@ export default function HomePage() {
 
                       {/* User Info Line */}
                       <div className="flex items-center gap-3 border-t border-stone-100 pt-4 mt-auto">
-                        <img
-                          src={r.avatar}
-                          alt={r.name}
-                          className="w-10 h-10 rounded-full object-cover shadow-sm border border-stone-200"
-                        />
+                        <div className="relative w-10 h-10 rounded-full overflow-hidden shadow-sm border border-stone-200 shrink-0">
+                          <Image
+                            src={r.avatar}
+                            alt={`Customer avatar of ${r.name}`}
+                            fill
+                            sizes="40px"
+                            className="object-cover"
+                            loading="lazy"
+                          />
+                        </div>
                         <div className="flex-grow">
                           <h5 className="font-sans-clean font-bold text-stone-900 text-xs sm:text-sm leading-tight">{r.name}</h5>
                           <p className="font-sans-clean text-[10px] text-stone-400 mt-0.5">{r.city}</p>
@@ -1581,64 +1639,70 @@ export default function HomePage() {
 
           {/* Reels Mockup Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-            {reelsData.map((reel, idx) => (
-              <div
-                key={reel.id}
-                onMouseEnter={(e) => {
-                  const video = e.currentTarget.querySelector("video");
-                  if (video) video.play().catch(() => {});
-                }}
-                onMouseLeave={(e) => {
-                  const video = e.currentTarget.querySelector("video");
-                  if (video) {
-                    video.pause();
-                    video.currentTime = 0;
-                  }
-                }}
-                onClick={() => {
-                  setActiveReelIndex(idx);
-                  setIsReelModalOpen(true);
-                }}
-                className="group relative aspect-[9/16] rounded-3xl border border-stone-200/80 bg-stone-950 overflow-hidden cursor-pointer shadow-md hover:shadow-2xl transition-all duration-500 ease-out transform hover:-translate-y-2"
-              >
-                {/* Smartphone Notch Mockup Design Element */}
-                <div className="absolute top-3 left-1/2 -translate-x-1/2 w-16 h-4 bg-black/45 backdrop-blur-md rounded-full z-20 flex items-center justify-center border border-white/5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-stone-850" />
-                </div>
+            {reelsData.map((reel, idx) => {
+              const isHovered = hoveredReelIndex === idx;
+              return (
+                <div
+                  key={reel.id}
+                  onMouseEnter={() => setHoveredReelIndex(idx)}
+                  onMouseLeave={() => setHoveredReelIndex(null)}
+                  onClick={() => {
+                    setActiveReelIndex(idx);
+                    setIsReelModalOpen(true);
+                  }}
+                  className="group relative aspect-[9/16] rounded-3xl border border-stone-200/80 bg-stone-950 overflow-hidden cursor-pointer shadow-md hover:shadow-2xl transition-all duration-500 ease-out transform hover:-translate-y-2"
+                >
+                  {/* Smartphone Notch Mockup Design Element */}
+                  <div className="absolute top-3 left-1/2 -translate-x-1/2 w-16 h-4 bg-black/45 backdrop-blur-md rounded-full z-20 flex items-center justify-center border border-white/5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-stone-850" />
+                  </div>
 
-                {/* Vertical Video Element */}
-                <video
-                  src={reel.videoUrl}
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700"
-                />
+                  {/* Vertical Video Element or Thumbnail */}
+                  {isHovered ? (
+                    <video
+                      src={reel.videoUrl}
+                      loop
+                      muted
+                      playsInline
+                      autoPlay
+                      className="w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700"
+                    />
+                  ) : (
+                    <Image
+                      src={reel.thumbnailUrl}
+                      alt={`Cinematic recap reel preview: ${reel.title}`}
+                      fill
+                      sizes="(max-width: 640px) 50vw, 250px"
+                      className="object-cover opacity-85 group-hover:opacity-100 transition-all duration-700"
+                      loading="lazy"
+                    />
+                  )}
 
-                {/* Dark Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10 transition-opacity duration-300" />
+                  {/* Dark Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10 transition-opacity duration-300" />
 
-                {/* Interactive Hover Play Icon */}
-                <div className="absolute inset-0 flex items-center justify-center z-20">
-                  <div className="p-3.5 rounded-full bg-white/10 text-white backdrop-blur-sm border border-white/20 transform scale-90 group-hover:scale-100 group-hover:bg-[#A65B62] group-hover:border-[#A65B62] transition-all duration-300 shadow-lg">
-                    <Play size={16} className="fill-current group-hover:translate-x-0.5 transition-transform" />
+                  {/* Interactive Hover Play Icon */}
+                  <div className="absolute inset-0 flex items-center justify-center z-20">
+                    <div className="p-3.5 rounded-full bg-white/10 text-white backdrop-blur-sm border border-white/20 transform scale-90 group-hover:scale-100 group-hover:bg-[#A65B62] group-hover:border-[#A65B62] transition-all duration-300 shadow-lg">
+                      <Play size={16} className="fill-current group-hover:translate-x-0.5 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Video Info Overlay (Bottom) */}
+                  <div className="absolute bottom-0 left-0 right-0 p-5 z-20 text-left flex flex-col justify-end">
+                    <span className="text-[9px] tracking-wider uppercase font-sans-clean font-bold text-rose-300 mb-1">
+                      {reel.views} views
+                    </span>
+                    <h4 className="font-display text-sm font-bold text-white leading-snug drop-shadow line-clamp-1 group-hover:text-rose-200 transition-colors">
+                      {reel.title}
+                    </h4>
+                    <p className="font-sans-clean text-[10px] text-stone-300 mt-1 line-clamp-2 leading-relaxed opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                      {reel.description}
+                    </p>
                   </div>
                 </div>
-
-                {/* Video Info Overlay (Bottom) */}
-                <div className="absolute bottom-0 left-0 right-0 p-5 z-20 text-left flex flex-col justify-end">
-                  <span className="text-[9px] tracking-wider uppercase font-sans-clean font-bold text-rose-300 mb-1">
-                    {reel.views} views
-                  </span>
-                  <h4 className="font-display text-sm font-bold text-white leading-snug drop-shadow line-clamp-1 group-hover:text-rose-200 transition-colors">
-                    {reel.title}
-                  </h4>
-                  <p className="font-sans-clean text-[10px] text-stone-300 mt-1 line-clamp-2 leading-relaxed opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                    {reel.description}
-                  </p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
         </div>
@@ -1708,15 +1772,25 @@ export default function HomePage() {
                     <span>{faq.q}</span>
                     <ChevronDown
                       size={16}
-                      className={`text-[#A65B62] shrink-0 ${isOpen ? "rotate-180" : ""}`}
+                      className={`text-[#A65B62] shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
                     />
                   </button>
 
-                  {isOpen && (
-                    <div className="p-5 border-t border-stone-100 bg-white font-sans-clean text-xs sm:text-sm text-stone-500 leading-relaxed">
-                      {faq.a}
-                    </div>
-                  )}
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-5 border-t border-stone-100 bg-white font-sans-clean text-xs sm:text-sm text-stone-500 leading-relaxed">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               );
             })}

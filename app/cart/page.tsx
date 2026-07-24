@@ -1,56 +1,38 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Plus, Minus, ShoppingBag, CreditCard, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-type CartItem = {
-  slug: string;
-  name: string;
-  emoji: string;
-  price: number;
-  originalPrice: number;
-  qty: number;
-  occasion: string;
-  deliveryDays: string;
-  pages: string;
-  tag: string;
-  tagColor: string;
-};
+import { useCartStore } from "@/store/cartStore";
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const { items: cartItems, updateQuantity, removeItem, clearCart, initializeCart } = useCartStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    initializeCart();
+    setMounted(true);
+  }, [initializeCart]);
+
+  const activeItems = mounted ? cartItems : [];
 
   const subtotal = useMemo(
-    () => cartItems.reduce((sum, item) => sum + item.price * item.qty, 0),
-    [cartItems]
+    () => activeItems.reduce((sum, item) => sum + item.price * item.qty, 0),
+    [activeItems]
   );
 
   const discount = useMemo(
-    () => cartItems.reduce((sum, item) => sum + (item.originalPrice - item.price) * item.qty, 0),
-    [cartItems]
+    () => activeItems.reduce((sum, item) => sum + (item.originalPrice - item.price) * item.qty, 0),
+    [activeItems]
   );
 
-  function updateQuantity(slug: string, delta: number) {
-    setCartItems((current) =>
-      current
-        .map((item) =>
-          item.slug === slug
-            ? { ...item, qty: Math.max(1, item.qty + delta) }
-            : item
-        )
-        .filter((item) => item.qty > 0)
-    );
-  }
-
-  function removeItem(slug: string) {
-    setCartItems((current) => current.filter((item) => item.slug !== slug));
-  }
-
-  function clearCart() {
-    setCartItems([]);
+  function handleUpdateQuantity(slug: string, delta: number) {
+    const item = activeItems.find((i) => i.slug === slug);
+    if (item) {
+      updateQuantity(slug, item.qty + delta);
+    }
   }
 
   return (
@@ -73,7 +55,7 @@ export default function CartPage() {
           </Button>
         </div>
 
-        {cartItems.length === 0 ? (
+        {activeItems.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -97,7 +79,7 @@ export default function CartPage() {
                 <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
                   <div>
                     <p className="text-sm uppercase tracking-widest text-stone-400 font-semibold font-sans-clean">
-                      {cartItems.length} items in cart
+                      {activeItems.length} items in cart
                     </p>
                     <h2 className="font-display text-2xl font-bold text-stone-900">
                       Review your selections
@@ -115,7 +97,7 @@ export default function CartPage() {
 
                 <div className="space-y-5">
                   <AnimatePresence mode="popLayout">
-                    {cartItems.map((item) => (
+                    {activeItems.map((item) => (
                       <motion.div
                         key={item.slug}
                         layout
@@ -145,7 +127,7 @@ export default function CartPage() {
                           <div className="flex flex-col gap-3">
                             <div className="flex items-center gap-2 rounded-2xl bg-white border border-stone-200 overflow-hidden shadow-sm">
                               <Button
-                                onClick={() => updateQuantity(item.slug, -1)}
+                                onClick={() => handleUpdateQuantity(item.slug, -1)}
                                 variant="ghost"
                                 size="icon"
                                 className="text-stone-600 hover:text-amber-600"
@@ -156,7 +138,7 @@ export default function CartPage() {
                                 {item.qty}
                               </span>
                               <Button
-                                onClick={() => updateQuantity(item.slug, 1)}
+                                onClick={() => handleUpdateQuantity(item.slug, 1)}
                                 variant="ghost"
                                 size="icon"
                                 className="text-stone-600 hover:text-amber-600"
@@ -240,7 +222,7 @@ export default function CartPage() {
 
                 <div className="mt-6 space-y-3">
                   <Button asChild size="lg" variant="default" className="w-full">
-                    <Link href={`/checkout?product=${cartItems[0]?.slug || "custom-magazine"}&qty=${cartItems[0]?.qty || 1}&occasion=${encodeURIComponent(cartItems[0]?.occasion || "Custom")}`}>
+                    <Link href={`/checkout?product=${activeItems[0]?.slug || "custom-magazine"}&qty=${activeItems[0]?.qty || 1}&occasion=${encodeURIComponent(activeItems[0]?.occasion || "Custom")}`}>
                       <CreditCard size={18} /> Proceed to Checkout
                     </Link>
                   </Button>
