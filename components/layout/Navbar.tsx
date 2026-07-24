@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, Menu, X, Heart, User, Search, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCartStore } from "@/store/cartStore";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -22,12 +23,19 @@ export default function Navbar() {
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { items, initializeCart } = useCartStore();
 
   // Force Light Mode globally
   useEffect(() => {
     localStorage.setItem("theme", "light");
     document.documentElement.classList.remove("dark");
   }, []);
+
+  useEffect(() => {
+    initializeCart();
+    setMounted(true);
+  }, [initializeCart]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -37,7 +45,7 @@ export default function Navbar() {
 
   if (isAdminPage) return null;
 
-  const cartCount = 2; // Fixed to 2 to perfectly match the user's screenshot mockup
+  const cartCount = mounted ? items.reduce((sum, item) => sum + item.qty, 0) : 0;
 
   return (
     <>
@@ -139,6 +147,7 @@ export default function Navbar() {
                 variant="ghost"
                 size="icon"
                 className="lg:hidden text-stone-600 hover:text-[#A65B62]"
+                aria-label={mobileOpen ? "Close menu" : "Open menu"}
               >
                 {mobileOpen ? <X size={20} /> : <Menu size={20} />}
               </Button>
