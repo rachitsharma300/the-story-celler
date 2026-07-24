@@ -24,13 +24,23 @@ public class UserService {
     }
 
     public User registerUser(User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalArgumentException("Email already in use");
+        Optional<User> existingUserOpt = userRepository.findByEmail(user.getEmail());
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+            if (existingUser.getIsRegistered() != null && existingUser.getIsRegistered()) {
+                throw new IllegalArgumentException("Email already in use");
+            }
+            existingUser.setName(user.getName());
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+            existingUser.setRole("USER");
+            existingUser.setIsRegistered(true);
+            return userRepository.save(existingUser);
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         if (user.getRole() == null) {
             user.setRole("USER");
         }
+        user.setIsRegistered(true);
         return userRepository.save(user);
     }
 
@@ -42,6 +52,7 @@ public class UserService {
             newUser.setName(email.split("@")[0]);
             newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
             newUser.setRole("USER");
+            newUser.setIsRegistered(false);
             return newUser;
         });
 
@@ -99,13 +110,22 @@ public class UserService {
     }
 
     public User registerGoogleUser(String email, String name) {
-        return userRepository.findByEmail(email).orElseGet(() -> {
-            User newUser = new User();
-            newUser.setEmail(email);
-            newUser.setName(name);
-            newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-            newUser.setRole("USER");
-            return userRepository.save(newUser);
-        });
+        Optional<User> existingUserOpt = userRepository.findByEmail(email);
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+            if (existingUser.getIsRegistered() == null || !existingUser.getIsRegistered()) {
+                existingUser.setIsRegistered(true);
+                existingUser.setName(name);
+                return userRepository.save(existingUser);
+            }
+            return existingUser;
+        }
+        User newUser = new User();
+        newUser.setEmail(email);
+        newUser.setName(name);
+        newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+        newUser.setRole("USER");
+        newUser.setIsRegistered(true);
+        return userRepository.save(newUser);
     }
 }
