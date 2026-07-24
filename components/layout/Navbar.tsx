@@ -4,9 +4,11 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, Menu, X, Heart, User, Search, HelpCircle } from "lucide-react";
+import { ShoppingCart, Menu, X, Heart, User, Search, HelpCircle, LogOut, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cartStore";
+import { useUserStore } from "@/store/userStore";
+import toast from "react-hot-toast";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -25,6 +27,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { items, initializeCart } = useCartStore();
+  const { user, isAuthenticated, initializeAuth, logout } = useUserStore();
 
   // Force Light Mode globally
   useEffect(() => {
@@ -34,12 +37,16 @@ export default function Navbar() {
 
   useEffect(() => {
     initializeCart();
+    initializeAuth();
     setMounted(true);
-  }, [initializeCart]);
+  }, [initializeCart, initializeAuth]);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 20;
+      setScrolled((prev) => (prev !== isScrolled ? isScrolled : prev));
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -114,11 +121,42 @@ export default function Navbar() {
               </Button>
 
               {/* User Dashboard */}
-              <Button asChild variant="ghost" size="icon" className="hidden lg:inline-flex text-stone-600 hover:text-[#A65B62]">
-                <Link href="/dashboard">
-                  <User size={18} />
-                </Link>
-              </Button>
+              {mounted && isAuthenticated && user ? (
+                <div className="relative group hidden lg:inline-flex items-center">
+                  <Link href="/dashboard" className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#A65B62]/10 bg-[#FAF4F5] hover:bg-[#FAF4F5]/85 text-[#A65B62] transition-colors text-xs font-semibold">
+                    <User size={14} className="shrink-0" />
+                    <span className="truncate max-w-[80px]">Hi, {user.name.split(" ")[0]}</span>
+                  </Link>
+                  {/* Dropdown Menu */}
+                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-white border border-[#A65B62]/10 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col p-1.5 text-stone-700 font-sans-clean">
+                    <div className="px-3 py-2 border-b border-stone-100 mb-1">
+                      <p className="text-xs font-bold text-stone-800 truncate">{user.name}</p>
+                      <p className="text-[10px] text-stone-400 truncate">{user.email}</p>
+                    </div>
+                    <Link href="/dashboard?tab=profile" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs hover:bg-[#FAF4F5] hover:text-[#A65B62] transition-colors">
+                      <User size={12} /> Profile Details
+                    </Link>
+                    <Link href="/dashboard?tab=orders" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs hover:bg-[#FAF4F5] hover:text-[#A65B62] transition-colors">
+                      <Package size={12} /> My Orders
+                    </Link>
+                    <button
+                      onClick={() => {
+                        logout();
+                        toast.success("Logged out successfully");
+                      }}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-rose-600 hover:bg-rose-50 transition-colors w-full text-left cursor-pointer"
+                    >
+                      <LogOut size={12} /> Logout
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <Button asChild variant="ghost" size="icon" className="hidden lg:inline-flex text-stone-600 hover:text-[#A65B62]">
+                  <Link href="/dashboard">
+                    <User size={18} />
+                  </Link>
+                </Button>
+              )}
 
               {/* Wishlist */}
               <Button asChild variant="ghost" size="icon" className="hidden lg:inline-flex text-stone-600 hover:text-[#A65B62]">
@@ -191,13 +229,46 @@ export default function Navbar() {
 
               {/* Utility Menu Links */}
               <div className="grid grid-cols-2 gap-4">
-                <Link
-                  href="/dashboard"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2.5 font-sans-clean text-xs font-bold uppercase tracking-wider text-stone-700 hover:text-[#A65B62] py-1 transition-colors"
-                >
-                  <User size={14} /> Account
-                </Link>
+                {mounted && isAuthenticated && user ? (
+                  <div className="flex flex-col gap-2 col-span-2 bg-[#FAF4F5] p-3 rounded-xl border border-[#A65B62]/10 mb-2">
+                    <p className="text-[10px] uppercase font-bold text-stone-400">Logged in as</p>
+                    <p className="text-sm font-bold text-[#A65B62]">{user.name}</p>
+                    <div className="flex gap-4 mt-1 border-t border-stone-200/50 pt-2">
+                      <Link
+                        href="/dashboard?tab=profile"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center gap-1.5 font-sans-clean text-xs font-bold uppercase tracking-wider text-stone-700 hover:text-[#A65B62] transition-colors"
+                      >
+                        <User size={12} /> Profile
+                      </Link>
+                      <Link
+                        href="/dashboard?tab=orders"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center gap-1.5 font-sans-clean text-xs font-bold uppercase tracking-wider text-stone-700 hover:text-[#A65B62] transition-colors"
+                      >
+                        <Package size={12} /> Orders
+                      </Link>
+                      <button
+                        onClick={() => {
+                          setMobileOpen(false);
+                          logout();
+                          toast.success("Logged out successfully");
+                        }}
+                        className="flex items-center gap-1.5 font-sans-clean text-xs font-bold uppercase tracking-wider text-rose-600 transition-colors ml-auto cursor-pointer"
+                      >
+                        <LogOut size={12} /> Logout
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-2.5 font-sans-clean text-xs font-bold uppercase tracking-wider text-stone-700 hover:text-[#A65B62] py-1 transition-colors"
+                  >
+                    <User size={14} /> Account
+                  </Link>
+                )}
                 <Link
                   href="/wishlist"
                   onClick={() => setMobileOpen(false)}

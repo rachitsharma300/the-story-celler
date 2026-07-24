@@ -172,6 +172,13 @@ export default function DashboardPage() {
 
   useEffect(() => {
     initializeAuth();
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get("tab");
+      if (tab && ["orders", "profile", "wishlist", "settings"].includes(tab)) {
+        setActiveTab(tab as TabType);
+      }
+    }
   }, [initializeAuth]);
 
   // Google Sign-In script dynamic loading and button render
