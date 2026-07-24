@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Filter, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
+import Image from "next/image";
 
 const categories = ["All", "Magazine", "Album", "Reels", "Frame"];
 
@@ -289,11 +290,14 @@ export default function ShopPage() {
               whileHover={{ y: -4 }}
               className="group bg-white rounded-2xl overflow-hidden border border-stone-100 hover:border-amber-200 hover:shadow-xl transition-all duration-300"
             >
-              <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-stone-100 flex items-center justify-center">
-                <img
+              <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-stone-100">
+                <Image
                   src={p.image}
-                  alt={p.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  alt={`Custom keepsake design - ${p.name}`}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                 <span className={"absolute top-3 left-3 px-3 py-1 text-[10px] font-sans-clean font-bold tracking-wider uppercase rounded-full shadow-md " + p.tagColor}>

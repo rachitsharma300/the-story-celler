@@ -13,6 +13,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import SampleFlipbookModal from "@/components/sections/SampleFlipbookModal";
+import Image from "next/image";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface Sample {
@@ -131,10 +132,13 @@ function BookCard({
             }}
           >
             {/* Cover image */}
-            <img
+            <Image
               src={coverSrc}
-              alt={sample.title}
-              className="absolute inset-0 w-full h-full object-cover"
+              alt={`Cover of ${sample.title} magazine sample`}
+              fill
+              sizes="(max-width: 640px) 130px, 200px"
+              className="object-cover"
+              loading="lazy"
             />
 
             {/* Spine shadow overlay */}
