@@ -1,25 +1,35 @@
 package com.thestoryceller.backend.controller;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/upload")
 @CrossOrigin(origins = "*")
 public class UploadController {
 
-    private static final String UPLOAD_DIR = "uploads";
+    private final Cloudinary cloudinary;
+
+    public UploadController(
+            @Value("${cloudinary.cloud-name}") String cloudName,
+            @Value("${cloudinary.api-key}") String apiKey,
+            @Value("${cloudinary.api-secret}") String apiSecret) {
+        this.cloudinary = new Cloudinary(ObjectUtils.asMap(
+                "cloud_name", cloudName,
+                "api_key", apiKey,
+                "api_secret", apiSecret,
+                "secure", true
+        ));
+    }
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> uploadFile(
@@ -35,35 +45,30 @@ public class UploadController {
         }
 
         try {
-            // Create upload directory if it doesn't exist
-            File uploadFolder = new File(UPLOAD_DIR);
-            if (!uploadFolder.exists()) {
-                uploadFolder.mkdirs();
-            }
-
-            // Clean file name
+            // Determine resource type: PDF is raw, other files are auto
             String originalFilename = file.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
-            String cleanName = UUID.randomUUID().toString() + extension;
-            Path filepath = Paths.get(UPLOAD_DIR, cleanName);
+            boolean isPdf = originalFilename != null && originalFilename.toLowerCase().endsWith(".pdf");
             
-            // Save file
-            Files.write(filepath, file.getBytes());
-
-            String fileUrl = "http://localhost:8080/uploads/" + cleanName;
+            // Configure upload options
+            Map<String, Object> params = new HashMap<>();
+            params.put("folder", folder != null ? folder : "storyceller");
+            params.put("resource_type", isPdf ? "raw" : "auto");
+            
+            // Upload to Cloudinary
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), params);
+            
+            String fileUrl = (String) uploadResult.get("secure_url");
             
             response.put("success", true);
             response.put("url", fileUrl);
-            response.put("source", "local");
+            response.put("source", "cloudinary");
             return ResponseEntity.ok(response);
             
         } catch (IOException e) {
             response.put("success", false);
-            response.put("error", "Failed to upload file: " + e.getMessage());
+            response.put("error", "Failed to upload to Cloudinary: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 }
+
