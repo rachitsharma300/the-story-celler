@@ -711,7 +711,7 @@ export default function ProductClient() {
                 /* Configurator trigger for customizable products */
                 <button
                   onClick={() => setIsConfiguratorOpen(true)}
-                  className="w-full py-4 bg-amber-500 hover:bg-amber-600 text-white font-sans-clean font-bold text-base rounded-2xl text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2 shadow-sm"
+                  className="w-full py-4 bg-gradient-to-r from-primary to-accent hover:from-primary-dark hover:to-accent text-white font-sans-clean font-bold text-base rounded-2xl text-center transition-all duration-300 shadow-md shadow-primary/10 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Sparkles size={18} /> Start Creating — Custom Configurator
                 </button>
@@ -742,13 +742,13 @@ export default function ProductClient() {
                       }, quantity);
                       toast.success(`${product.name} added to cart!`);
                     }}
-                    className="flex-1 py-4 border-2 border-[#A65B62] text-[#A65B62] hover:bg-[#A65B62]/5 font-sans-clean font-bold text-base rounded-2xl text-center transition-all duration-300 hover:-translate-y-0.5"
+                    className="flex-1 py-4 border-2 border-primary text-primary hover:bg-[#FAF4F5] font-sans-clean font-bold text-base rounded-2xl text-center transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer"
                   >
                     Add to Cart
                   </button>
                   <Link
                     href={"/checkout?product=" + slug + "&qty=" + quantity + "&occasion=" + selectedOccasion}
-                    className="flex-1 py-4 bg-amber-500 hover:bg-amber-600 text-white font-sans-clean font-bold text-base rounded-2xl text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center"
+                    className="flex-1 py-4 bg-gradient-to-r from-primary to-accent hover:from-primary-dark hover:to-accent text-white font-sans-clean font-bold text-base rounded-2xl text-center transition-all duration-300 shadow-md shadow-primary/10 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center cursor-pointer"
                   >
                     {"Order Now — Rs. " + advanceAmount.toLocaleString() + " Advance"}
                   </Link>
@@ -761,13 +761,13 @@ export default function ProductClient() {
                   href={`https://wa.me/919871874041?text=Hi!%20I%20want%20to%20book%20a%20${product.name}.`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="py-3 px-4 bg-green-500 hover:bg-green-600 text-white text-xs font-sans-clean font-bold rounded-xl text-center transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                  className="py-3 px-4 bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#20ba59] hover:to-[#0e7065] text-white text-xs font-sans-clean font-bold rounded-xl text-center transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/10 cursor-pointer"
                 >
                   💬 Book via WhatsApp
                 </a>
                 <a
                   href="tel:+919871874041"
-                  className="py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white dark:text-stone-955 text-xs font-sans-clean font-bold rounded-xl text-center transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                  className="py-3 px-4 bg-stone-900 hover:bg-stone-850 text-white dark:text-stone-100 text-xs font-sans-clean font-bold rounded-xl text-center transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
                 >
                   <Phone size={12} /> Book via Call
                 </a>
