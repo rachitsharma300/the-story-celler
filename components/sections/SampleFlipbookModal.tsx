@@ -387,7 +387,7 @@ export default function SampleFlipbookModal({
                     <div key={index} className="bg-white relative overflow-hidden h-full shadow-inner">
                       <img
                         src={src}
-                        alt={`Page ${index + 1}`}
+                        alt={`Preview page ${index + 1} of ${productName} keepsake design`}
                         className="w-full h-full object-fill pointer-events-none select-none"
                       />
                     </div>
