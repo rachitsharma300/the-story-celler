@@ -87,6 +87,11 @@
 
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
   }
 
   * {
@@ -99,7 +104,9 @@
     color: hsl(var(--foreground));
     font-family: var(--font-body), sans-serif;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
   }
 
   h1,
@@ -213,16 +220,22 @@
     background: linear-gradient(135deg, #1A0F0D 0%, #261510 50%, #1F1210 100%);
   }
 
-  /* Smooth scroll support */
-  html {
-    scroll-behavior: smooth;
-    scroll-padding-top: 80px;
-  }
-
   /* Performance optimization: Hardware acceleration triggers */
   .will-change-transform {
     will-change: transform;
+    -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+
+  .gpu-accelerated {
+    will-change: transform;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    perspective: 1000;
+    -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
   }
 
