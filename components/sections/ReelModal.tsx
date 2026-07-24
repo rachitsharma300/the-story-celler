@@ -183,7 +183,7 @@ export default function ReelModal({
       <div className="relative w-full max-w-4xl h-full sm:h-[90vh] max-h-[850px] bg-stone-900 sm:rounded-3xl border border-stone-850 shadow-2xl flex flex-col md:flex-row overflow-hidden">
         
         {/* Left Side: Video Player Area */}
-        <div className="relative flex-grow bg-black flex items-center justify-center md:w-[60%] h-[70vh] md:h-full group">
+        <div className="relative flex-grow bg-black flex items-center justify-center md:w-[60%] h-[55vh] md:h-full group">
           
           <video
             ref={videoRef}
@@ -272,7 +272,7 @@ export default function ReelModal({
         </div>
 
         {/* Right Side: Reel Info & Metadata Side-Panel (Desktop only, overlays on mobile) */}
-        <div className="md:w-[40%] bg-stone-950 p-6 flex flex-col justify-between border-t md:border-t-0 md:border-l border-stone-850 h-[30vh] md:h-full">
+        <div className="md:w-[40%] bg-stone-950 p-6 flex flex-col justify-between border-t md:border-t-0 md:border-l border-stone-850 flex-1 min-h-[45%] md:h-full">
           
           <div className="flex flex-col gap-4 overflow-y-auto">
             {/* Publisher Brand Info */}
