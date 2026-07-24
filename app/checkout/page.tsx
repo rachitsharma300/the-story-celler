@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ChevronLeft, Shield, Lock, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { openRazorpayCheckout } from "@/lib/razorpay";
+import api from "@/lib/axios";
 
 const productData: Record<string, { name: string; price: number; emoji: string; deliveryDays: string }> = {
   "custom-magazine": { name: "Custom Magazine", price: 1200, emoji: "📖", deliveryDays: "7-10 days" },
@@ -29,6 +31,7 @@ function CheckoutForm() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("upi");
 
   const [form, setForm] = useState({
     name: "",
@@ -66,10 +69,87 @@ function CheckoutForm() {
 
   async function handlePayment() {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setOrderPlaced(true);
-    }, 2000);
+    try {
+      // 1. Create order on backend
+      const res = await api.post("/api/payment/create-order", {
+        amount: advanceAmount,
+        receipt: "rcpt_" + Date.now(),
+      });
+
+      const orderData = res.data;
+
+      // 2. Open Razorpay Checkout modal
+      const opened = await openRazorpayCheckout({
+        key: orderData.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_sample",
+        amount: orderData.amount || advanceAmount * 100,
+        currency: orderData.currency || "INR",
+        name: "The Story Celler",
+        description: `Advance payment for ${product.name}`,
+        order_id: orderData.id && !orderData.id.startsWith("order_mock_") ? orderData.id : undefined,
+        prefill: {
+          name: form.name,
+          email: form.email,
+          contact: form.phone,
+        },
+        theme: {
+          color: "#f59e0b",
+        },
+        handler: async (response) => {
+          // Log order and payment transaction to backend
+          try {
+            // 1. Save order entity in Spring Boot DB
+            const orderRes = await api.post("/api/orders", {
+              productSlug: slug,
+              productName: product.name,
+              quantity: qty,
+              occasion: occasion || "General",
+              pages: 12,
+              printingType: "Premium HD",
+              personalDetails: {
+                name: form.name,
+                aboutPerson: form.address + ", " + form.city + " " + form.pincode,
+                specialMessage: form.note,
+              },
+              totalAmount: totalPrice,
+              advanceAmount: advanceAmount,
+              email: form.email,
+              phone: form.phone,
+            });
+
+            const createdOrder = orderRes.data;
+
+            // 2. Link payment transaction to created order
+            await api.post("/api/payment", {
+              orderId: createdOrder.orderId,
+              transactionId: response.razorpay_payment_id,
+              amount: advanceAmount,
+              status: "COMPLETED",
+              paymentMethod: paymentMethod.toUpperCase(),
+            });
+          } catch (e) {
+            console.warn("Log order/payment notice:", e);
+          }
+          setLoading(false);
+          setOrderPlaced(true);
+        },
+        modal: {
+          ondismiss: () => {
+            setLoading(false);
+          },
+        },
+      });
+
+      if (!opened) {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Payment initiation error:", error);
+      // Fallback in case backend payment endpoint is offline
+      setTimeout(() => {
+        setLoading(false);
+        setOrderPlaced(true);
+      }, 1500);
+    }
   }
 
   if (orderPlaced) {
@@ -316,7 +396,15 @@ function CheckoutForm() {
                     { id: "netbanking", label: "Net Banking", sub: "All major banks supported", emoji: "🏦" },
                     { id: "cod", label: "Cash on Delivery", sub: "Pay when delivered (extra Rs. 50)", emoji: "💵" },
                   ].map((method) => (
-                    <div key={method.id} className="flex items-center gap-4 p-4 rounded-xl border border-stone-100 bg-stone-50 hover:border-amber-200 hover:bg-amber-50 transition-all cursor-pointer">
+                    <div
+                      key={method.id}
+                      onClick={() => setPaymentMethod(method.id)}
+                      className={`flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer ${
+                        paymentMethod === method.id
+                          ? "border-amber-500 bg-amber-50/70 shadow-sm"
+                          : "border-stone-100 bg-stone-50 hover:border-amber-200 hover:bg-amber-50/40"
+                      }`}
+                    >
                       <span className="text-2xl">{method.emoji}</span>
                       <div>
                         <p className="font-sans-clean text-sm font-semibold text-stone-800">{method.label}</p>

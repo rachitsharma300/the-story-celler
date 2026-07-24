@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button";
 import SampleFlipbookModal from "@/components/sections/SampleFlipbookModal";
 import ProductConfiguratorModal from "@/components/sections/ProductConfiguratorModal";
 import api from "@/lib/axios";
+import Image from "next/image";
+import { useCartStore } from "@/store/cartStore";
+import toast from "react-hot-toast";
 
 // Types
 interface FAQ { question: string; answer: string }
@@ -457,39 +460,41 @@ export default function ProductClient() {
             {/* Main Display - Image Gallery */}
             <div className="rounded-3xl overflow-hidden border border-stone-100 shadow-sm">
               <div className="relative bg-white">
-                <motion.img
-                  key={product.images ? product.images[selectedImage] : slug}
-                  src={product.images && product.images.length ? product.images[selectedImage] : "/images/placeholder.png"}
-                  alt={product.name}
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.45 }}
-                  className="w-full h-96 object-contain bg-gradient-to-br from-amber-50 via-stone-50 to-orange-50"
-                />
+                <div className="w-full h-96 relative bg-gradient-to-br from-amber-50 via-stone-50 to-orange-50">
+                  <Image
+                    key={product.images ? product.images[selectedImage] : slug}
+                    src={product.images && product.images.length ? product.images[selectedImage] : "/images/placeholder.png"}
+                    alt={`${product.name} keepsake photo gallery item ${selectedImage + 1}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-contain"
+                    priority={selectedImage === 0}
+                  />
+                </div>
 
                 {product.images && product.images.length > 1 && (
                   <>
                     <button
                       onClick={() => setSelectedImage((s) => (s - 1 + product.images.length) % product.images.length)}
                       aria-label="Previous image"
-                      className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white p-2.5 rounded-full shadow-md"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white p-2.5 rounded-full shadow-md z-10"
                     >
                       <ChevronLeft size={18} />
                     </button>
                     <button
                       onClick={() => setSelectedImage((s) => (s + 1) % product.images.length)}
                       aria-label="Next image"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white p-2.5 rounded-full shadow-md"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white p-2.5 rounded-full shadow-md z-10"
                     >
                       <ChevronLeft size={18} className="rotate-180" />
                     </button>
                   </>
                 )}
 
-                <span className="absolute top-4 left-4 px-3 py-1.5 bg-amber-500 text-white text-xs font-sans-clean font-bold rounded-full">
+                <span className="absolute top-4 left-4 px-3 py-1.5 bg-amber-500 text-white text-xs font-sans-clean font-bold rounded-full z-10">
                   {product.tag || "Premium"}
                 </span>
-                <span className="absolute top-4 right-4 px-3 py-1.5 bg-green-500 text-white text-xs font-sans-clean font-bold rounded-full">
+                <span className="absolute top-4 right-4 px-3 py-1.5 bg-green-500 text-white text-xs font-sans-clean font-bold rounded-full z-10">
                   {discount}% OFF
                 </span>
               </div>
@@ -502,11 +507,17 @@ export default function ProductClient() {
                       key={img}
                       onClick={() => setSelectedImage(idx)}
                       className={
-                        "flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border transition-all " +
+                        "flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border transition-all relative " +
                         (selectedImage === idx ? "ring-2 ring-amber-500" : "border-stone-150 hover:opacity-80")
                       }
                     >
-                      <img src={img} alt={product.name + " " + (idx + 1)} className="w-full h-full object-cover" />
+                      <Image
+                        src={img}
+                        alt={`${product.name} keepsake image thumbnail ${idx + 1}`}
+                        fill
+                        sizes="80px"
+                        className="object-cover"
+                      />
                     </button>
                   ))}
                 </div>
@@ -706,12 +717,42 @@ export default function ProductClient() {
                 </button>
               ) : (
                 /* Standard Checkout fallback */
-                <Link
-                  href={"/checkout?product=" + slug + "&qty=" + quantity + "&occasion=" + selectedOccasion}
-                  className="w-full block py-4 bg-amber-500 hover:bg-amber-600 text-white font-sans-clean font-bold text-base rounded-2xl text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
-                >
-                  {"Order Now — Rs. " + advanceAmount.toLocaleString() + " Advance"}
-                </Link>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => {
+                      const emojiMap: Record<string, string> = {
+                        "custom-magazine": "📖",
+                        "photo-album": "📔",
+                        "recap-reel": "🎬",
+                        "custom-frame": "🖼️",
+                        "birthday-magazine": "🎂",
+                        "anniversary-album": "💑",
+                      };
+                      useCartStore.getState().addItem({
+                        slug,
+                        name: product.name,
+                        emoji: emojiMap[slug] || "🎁",
+                        price: currentUnitPrice,
+                        originalPrice: product.originalPrice,
+                        occasion: selectedOccasion || "Custom",
+                        deliveryDays: product.deliveryDays || "7-10 days",
+                        pages: selectedPageOption ? `${selectedPageOption.pages} pages` : (product.pages || "A4"),
+                        tag: product.tag || "Sale",
+                        tagColor: slug === "photo-album" || slug === "anniversary-album" ? "bg-purple-100 text-purple-700" : "bg-amber-100 text-amber-700",
+                      }, quantity);
+                      toast.success(`${product.name} added to cart!`);
+                    }}
+                    className="flex-1 py-4 border-2 border-[#A65B62] text-[#A65B62] hover:bg-[#A65B62]/5 font-sans-clean font-bold text-base rounded-2xl text-center transition-all duration-300 hover:-translate-y-0.5"
+                  >
+                    Add to Cart
+                  </button>
+                  <Link
+                    href={"/checkout?product=" + slug + "&qty=" + quantity + "&occasion=" + selectedOccasion}
+                    className="flex-1 py-4 bg-amber-500 hover:bg-amber-600 text-white font-sans-clean font-bold text-base rounded-2xl text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center"
+                  >
+                    {"Order Now — Rs. " + advanceAmount.toLocaleString() + " Advance"}
+                  </Link>
+                </div>
               )}
 
               {/* Direct Booking & Support Options */}
