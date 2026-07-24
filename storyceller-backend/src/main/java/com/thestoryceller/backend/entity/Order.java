@@ -41,6 +41,12 @@ public class Order extends BaseEntity {
     @Embedded
     private PersonalDetails personalDetails;
 
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "phone")
+    private String phone;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "order_photos", joinColumns = @JoinColumn(name = "order_id"))
     @Column(name = "photo_url")
