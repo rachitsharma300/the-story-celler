@@ -381,7 +381,7 @@ export default function ProductConfiguratorModal({
               </div>
 
               <div className="flex flex-col gap-3">
-                <Button asChild size="lg" className="w-full bg-green-500 hover:bg-green-600 text-white">
+                <Button asChild size="lg" className="w-full bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#20ba59] hover:to-[#0e7065] text-white border-0 font-bold transition-all duration-300 hover:shadow-lg hover:shadow-[#25D366]/10 hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer">
                   <a
                     href={`https://wa.me/919871874041?text=Hi%20The%20Story%20Celler!%20I%20have%20just%20completed%20the%20creator%20configurator%20for%20an%20order.%20Order%20ID:%20${orderPlaced.orderId}.%20Name:%20${orderPlaced.personalDetails?.name}.`}
                     target="_blank"
@@ -390,7 +390,7 @@ export default function ProductConfiguratorModal({
                     💬 Confirm on WhatsApp
                   </a>
                 </Button>
-                <Button onClick={onClose} variant="secondary" size="lg" className="w-full">
+                <Button onClick={onClose} variant="secondary" size="lg" className="w-full transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer">
                   Close Window
                 </Button>
               </div>
