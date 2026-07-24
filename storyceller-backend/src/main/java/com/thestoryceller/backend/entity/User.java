@@ -33,6 +33,10 @@ public class User extends BaseEntity implements UserDetails {
     @Builder.Default
     private String role = "USER";
 
+    @Column(name = "is_registered")
+    @Builder.Default
+    private Boolean isRegistered = false;
+
     @Column(name = "otp")
     private String otp;
 
