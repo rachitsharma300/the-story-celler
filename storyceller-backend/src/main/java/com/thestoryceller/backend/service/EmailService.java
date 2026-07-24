@@ -46,4 +46,40 @@ public class EmailService {
                 "  OTP: {}\n" +
                 "==================================================\n", toEmail, otp);
     }
+
+    public void sendOrderConfirmationEmail(String toEmail, String orderId, double amount, String recipientName) {
+        String subject = "Order Confirmed - The Story Celler (Order #" + orderId + ")";
+        String content = "Hello " + recipientName + ",\n\n"
+                + "Thank you for your order! Your payment was successful, and your order has been confirmed.\n\n"
+                + "Order Details:\n"
+                + "- Order ID: " + orderId + "\n"
+                + "- Total Paid: INR " + amount + "\n\n"
+                + "We are preparing your stories. You can track your order status in your dashboard.\n\n"
+                + "Warm regards,\nThe Story Celler Team";
+
+        if (mailSender != null) {
+            try {
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setFrom(fromEmail);
+                message.setTo(toEmail);
+                message.setSubject(subject);
+                message.setText(content);
+                mailSender.send(message);
+                log.info("Order confirmation email successfully sent to {}", toEmail);
+                return;
+            } catch (Exception e) {
+                log.error("Failed to send email via SMTP: {}. Falling back to console log.", e.getMessage(), e);
+            }
+        } else {
+            log.warn("JavaMailSender bean is not available. SMTP email config is disabled.");
+        }
+
+        // Fallback for local testing or failure
+        log.info("\n==================================================\n" +
+                "  [ORDER CONFIRMATION EMAIL FALLBACK]\n" +
+                "  To: {}\n" +
+                "  Order ID: {}\n" +
+                "  Amount: {}\n" +
+                "==================================================\n", toEmail, orderId, amount);
+    }
 }
