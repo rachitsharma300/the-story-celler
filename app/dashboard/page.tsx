@@ -178,34 +178,43 @@ export default function DashboardPage() {
   useEffect(() => {
     if (isAuthenticated) return;
 
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    document.body.appendChild(script);
-    
-    script.onload = () => {
-      if ((window as any).google) {
-        (window as any).google.accounts.id.initialize({
-          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "590123512345-dummyclientid.apps.googleusercontent.com",
-          callback: handleGoogleLogin,
-        });
-        
-        const googleBtn = document.getElementById("google-signin-btn");
-        if (googleBtn) {
-          (window as any).google.accounts.id.renderButton(
-            googleBtn,
-            { theme: "outline", size: "large", width: 340, text: "continue_with", shape: "pill" }
-          );
+    const initGoogleAuth = () => {
+      if ((window as any).google?.accounts?.id) {
+        try {
+          (window as any).google.accounts.id.initialize({
+            client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "590123512345-dummyclientid.apps.googleusercontent.com",
+            callback: handleGoogleLogin,
+          });
+
+          const googleBtn = document.getElementById("google-signin-btn");
+          if (googleBtn) {
+            googleBtn.innerHTML = "";
+            (window as any).google.accounts.id.renderButton(
+              googleBtn,
+              { theme: "outline", size: "large", width: 340, text: "continue_with", shape: "pill" }
+            );
+          }
+        } catch (e) {
+          // Ignore re-initialization warnings from GSI
         }
       }
     };
-    
-    return () => {
-      try {
-        document.body.removeChild(script);
-      } catch (e) {}
-    };
+
+    if ((window as any).google?.accounts?.id) {
+      initGoogleAuth();
+      return;
+    }
+
+    const existingScript = document.getElementById("google-gsi-script");
+    if (!existingScript) {
+      const script = document.createElement("script");
+      script.id = "google-gsi-script";
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = initGoogleAuth;
+      document.body.appendChild(script);
+    }
   }, [isAuthenticated, authMode]);
 
   const handleGoogleLogin = async (response: any) => {
