@@ -21,14 +21,12 @@ export default function ScrollProgress() {
       }
 
       const scrolled = (window.scrollY / totalHeight) * 100;
-      setScrollPercentage(Math.min(100, Math.max(0, Math.round(scrolled))));
+      const rounded = Math.min(100, Math.max(0, Math.round(scrolled)));
+      setScrollPercentage((prev) => (prev !== rounded ? rounded : prev));
 
       // Show indicator after scrolling 80px
-      if (window.scrollY > 80) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
+      const shouldBeVisible = window.scrollY > 80;
+      setIsVisible((prev) => (prev !== shouldBeVisible ? shouldBeVisible : prev));
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -39,10 +37,25 @@ export default function ScrollProgress() {
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    const duration = 400; // Snappy 400ms scroll animation
+    const start = window.scrollY;
+    const startTime = performance.now();
+
+    const animateScroll = (currentTime: number) => {
+      const elapsedTime = currentTime - startTime;
+      const progress = Math.min(elapsedTime / duration, 1);
+      
+      // Easing: easeOutQuad
+      const ease = progress * (2 - progress);
+      
+      window.scrollTo(0, start * (1 - ease));
+
+      if (progress < 1) {
+        requestAnimationFrame(animateScroll);
+      }
+    };
+
+    requestAnimationFrame(animateScroll);
   };
 
   if (!isVisible) return null;
