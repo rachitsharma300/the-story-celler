@@ -50,16 +50,12 @@ public class OrderController {
     public ResponseEntity<?> createOrder(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody Order order) {
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        User user = null;
+        if (userDetails != null) {
+            user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
         }
-        
-        return userRepository.findByEmail(userDetails.getUsername())
-                .map(user -> {
-                    Order created = orderService.createOrder(order, user);
-                    return ResponseEntity.status(HttpStatus.CREATED).body(created);
-                })
-                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+        Order created = orderService.createOrder(order, user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{orderId}/status")
