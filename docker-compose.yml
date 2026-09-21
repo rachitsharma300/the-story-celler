@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # ==================================================
+  # 1. MySQL 8 Database Service
+  # ==================================================
+  storyceller-db:
+    image: mysql:8.0
+    container_name: storyceller-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: storyceller
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-parsuram}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================================================
+  # 2. Spring Boot Backend Service (Port 8080)
+  # ==================================================
+  storyceller-backend:
+    build:
+      context: ./storyceller-backend
+      dockerfile: Dockerfile
+    container_name: storyceller-backend
+    restart: always
+    depends_on:
+      storyceller-db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://storyceller-db:3306/storyceller?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-parsuram}
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:-thestoryceller@gmail.com}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD:-ysnodrzeseicpice}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-rzp_test_sample}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-sample_secret}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-cejgf9yf}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-658259496751568}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-Bw2h9Ybb2E5wbntvLoqfRINeWpg}
+      CORS_ALLOWED_ORIGINS: "*"
+    ports:
+      - "8080:8080"
+
+  # ==================================================
+  # 3. Next.js 16 Frontend Service (Port 3000)
+  # ==================================================
+  storyceller-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: storyceller-frontend
+    restart: always
+    depends_on:
+      - storyceller-backend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+      NEXTAUTH_URL: http://localhost:3000
+    ports:
+      - "3000:3000"
+
+volumes:
+  mysql-data:
