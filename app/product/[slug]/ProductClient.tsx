@@ -57,9 +57,9 @@ const productData: Record<string, Product> = {
     originalPrice: 1800,
     tag: "Bestseller",
     images: [
-      "/images/products/custom-magazine/1.jpg",
-      "/images/products/custom-magazine/2.jpg",
-      "/images/products/custom-magazine/3.jpg",
+      "https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&auto=format&fit=crop&q=80",
     ],
     desc: "Fully personalized magazine with your memories and stories.",
     longDesc: "Turn your most cherished memories into a professionally designed custom magazine. Our team of expert designers will craft every page to tell your unique story — from the cover to the last page.",
@@ -77,9 +77,8 @@ const productData: Record<string, Product> = {
     originalPrice: 2000,
     tag: "Premium",
     images: [
-      "/images/products/photo-album/1.jpg",
-      "/images/products/photo-album/2.jpg",
-      "/images/products/photo-album/3.jpg",
+      "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=800&auto=format&fit=crop&q=80",
     ],
     desc: "Beautifully bound album with custom layouts and premium paper quality.",
     longDesc: "A timeless photo album that preserves your memories for generations. Hardbound cover, premium matte paper, and custom layouts make this the perfect keepsake.",
@@ -97,8 +96,7 @@ const productData: Record<string, Product> = {
     originalPrice: 800,
     tag: "New",
     images: [
-      "/images/products/recap-reel/1.jpg",
-      "/images/products/recap-reel/2.jpg",
+      "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800&auto=format&fit=crop&q=80",
     ],
     desc: "A cinematic video reel of your best memories.",
     longDesc: "A beautifully edited 60-90 second video reel of your best moments. Perfect for sharing on Instagram, WhatsApp, or keeping as a digital memory.",
@@ -114,8 +112,7 @@ const productData: Record<string, Product> = {
     originalPrice: 900,
     tag: "Popular",
     images: [
-      "/images/products/custom-frame/1.jpg",
-      "/images/products/custom-frame/2.jpg",
+      "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800&auto=format&fit=crop&q=80",
     ],
     desc: "Premium framed print to display your favorite moment on any wall.",
     longDesc: "Transform your favorite photo into a stunning wall art piece. Premium quality frame with UV-protected glass for long-lasting display.",
@@ -131,8 +128,8 @@ const productData: Record<string, Product> = {
     originalPrice: 2000,
     tag: "Trending",
     images: [
-      "/images/products/birthday-magazine/1.jpg",
-      "/images/products/birthday-magazine/2.jpg",
+      "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1513151233558-d860c5398176?w=800&auto=format&fit=crop&q=80",
     ],
     desc: "Surprise your loved one with a birthday-themed custom magazine.",
     longDesc: "Make their birthday unforgettable with a magazine dedicated entirely to them. Features their photos, memories, messages from friends and family, and more.",
@@ -162,7 +159,7 @@ const productData: Record<string, Product> = {
     occasions: ["1st Anniversary", "25th Anniversary", "50th Anniversary", "Valentine", "Custom"],
     steps: ["Place order and pay 50% advance", "Share your photos and story via WhatsApp", "Receive design preview in 24-48 hrs", "Approve and pay remaining 50%", "Delivered to your doorstep"],
     pageOptions: PAGE_OPTIONS_DEFAULT,
-    samplePdf: "https://res.cloudinary.com/hco2g9ee/raw/upload/v1783178727/storyceller/samples/gdccmqgxonnqgq3qp0rr",
+    samplePdf: "",
   },
 };
 
@@ -711,9 +708,9 @@ export default function ProductClient() {
                 /* Configurator trigger for customizable products */
                 <button
                   onClick={() => setIsConfiguratorOpen(true)}
-                  className="w-full py-4 bg-gradient-to-r from-primary to-accent hover:from-primary-dark hover:to-accent text-white font-sans-clean font-bold text-base rounded-2xl text-center transition-all duration-300 shadow-md shadow-primary/10 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-4 bg-gradient-to-r from-[#A65B62] to-[#8C484E] hover:from-[#8C484E] hover:to-[#733A3F] text-white font-sans-clean font-bold text-base rounded-2xl text-center transition-all duration-300 shadow-lg shadow-[#A65B62]/25 hover:shadow-xl hover:shadow-[#A65B62]/35 hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Sparkles size={18} /> Start Creating — Custom Configurator
+                  <Sparkles size={18} className="text-amber-300 animate-pulse" /> Start Creating — Custom Configurator
                 </button>
               ) : (
                 /* Standard Checkout fallback */
@@ -742,13 +739,13 @@ export default function ProductClient() {
                       }, quantity);
                       toast.success(`${product.name} added to cart!`);
                     }}
-                    className="flex-1 py-4 border-2 border-primary text-primary hover:bg-[#FAF4F5] font-sans-clean font-bold text-base rounded-2xl text-center transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer"
+                    className="flex-1 py-4 border-2 border-[#A65B62] text-[#A65B62] hover:bg-[#FAF4F5] font-sans-clean font-bold text-base rounded-2xl text-center transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer"
                   >
                     Add to Cart
                   </button>
                   <Link
                     href={"/checkout?product=" + slug + "&qty=" + quantity + "&occasion=" + selectedOccasion}
-                    className="flex-1 py-4 bg-gradient-to-r from-primary to-accent hover:from-primary-dark hover:to-accent text-white font-sans-clean font-bold text-base rounded-2xl text-center transition-all duration-300 shadow-md shadow-primary/10 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center cursor-pointer"
+                    className="flex-1 py-4 bg-gradient-to-r from-[#A65B62] to-[#8C484E] hover:from-[#8C484E] hover:to-[#733A3F] text-white font-sans-clean font-bold text-base rounded-2xl text-center transition-all duration-300 shadow-md shadow-[#A65B62]/20 hover:shadow-lg hover:shadow-[#A65B62]/30 hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center cursor-pointer"
                   >
                     {"Order Now — Rs. " + advanceAmount.toLocaleString() + " Advance"}
                   </Link>

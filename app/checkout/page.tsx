@@ -187,7 +187,7 @@ function CheckoutForm() {
           <div className="flex flex-col gap-3">
             <Button asChild size="lg" variant="default" className="w-full">
               <a
-                href="https://wa.me/919871874041"
+                href="https://wa.me/8789952453"
                 target="_blank"
                 rel="noreferrer"
               >
@@ -225,8 +225,8 @@ function CheckoutForm() {
                   (step > i + 1
                     ? "bg-green-500 text-white"
                     : step === i + 1
-                    ? "bg-amber-500 text-white"
-                    : "bg-stone-200 text-stone-500")
+                      ? "bg-amber-500 text-white"
+                      : "bg-stone-200 text-stone-500")
                 }>
                   {step > i + 1 ? <Check size={14} /> : i + 1}
                 </div>
@@ -399,11 +399,10 @@ function CheckoutForm() {
                     <div
                       key={method.id}
                       onClick={() => setPaymentMethod(method.id)}
-                      className={`flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer ${
-                        paymentMethod === method.id
+                      className={`flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer ${paymentMethod === method.id
                           ? "border-amber-500 bg-amber-50/70 shadow-sm"
                           : "border-stone-100 bg-stone-50 hover:border-amber-200 hover:bg-amber-50/40"
-                      }`}
+                        }`}
                     >
                       <span className="text-2xl">{method.emoji}</span>
                       <div>
