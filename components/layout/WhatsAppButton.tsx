@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { MessageCircle, X, Send, Sparkles } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 interface Message {
   id: string;
@@ -51,6 +52,9 @@ const presetQuestions = [
 ];
 
 export default function WhatsAppButton() {
+  const pathname = usePathname();
+  const isAdminPage = pathname.startsWith("/admin");
+
   const [open, setOpen] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -59,6 +63,8 @@ export default function WhatsAppButton() {
   const [lastQuery, setLastQuery] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  if (isAdminPage) return null;
 
   // Initialize messages on client-side to prevent hydration mismatch
   useEffect(() => {
@@ -178,20 +184,20 @@ export default function WhatsAppButton() {
         <div className="whatsapp-popup w-[350px] max-w-[90vw] overflow-hidden rounded-[24px] border border-[#A65B62]/20 dark:border-[#A65B62]/35 bg-[#FAF8F5] dark:bg-[#120B0A] shadow-[0_12px_40px_rgba(166,91,98,0.15)] flex flex-col text-stone-900 dark:text-stone-100 transition-all duration-300">
           
           {/* Header */}
-          <div className="bg-gradient-to-r from-primary to-[#b66a71] p-4 text-white flex items-center justify-between border-b border-white/10">
+          <div className="bg-gradient-to-r from-[#A65B62] to-[#8C484E] p-4 text-white flex items-center justify-between border-b border-white/10">
             <div className="flex items-center gap-3">
-              <div className="relative h-10 w-10 rounded-full bg-white/10 flex items-center justify-center shadow-md border border-white/20">
-                <Sparkles size={18} className="text-white animate-pulse" />
-                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-[#A65B62] bg-emerald-500 animate-pulse"></span>
+              <div className="relative h-10 w-10 rounded-full bg-white/15 flex items-center justify-center shadow-md border border-white/20">
+                <Sparkles size={18} className="text-amber-300 animate-pulse" />
+                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-[#A65B62] bg-emerald-400 animate-pulse"></span>
               </div>
               <div className="flex flex-col text-left">
-                <h3 className="text-sm font-semibold text-stone-100 font-sans-clean">Celler Assistant</h3>
-                <span className="text-[10px] text-stone-200 font-medium">Online & Replies Instantly</span>
+                <h3 className="text-sm font-semibold text-white font-sans-clean">Celler Assistant</h3>
+                <span className="text-[10px] text-rose-100 font-medium">Online & Replies Instantly</span>
               </div>
             </div>
             <button
               type="button"
-              className="rounded-full p-1.5 text-stone-400 hover:text-stone-100 hover:bg-white/10 transition-colors cursor-pointer"
+              className="rounded-full p-1.5 text-rose-100 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
               onClick={handleClose}
               aria-label="Close chat assistant"
             >
@@ -297,12 +303,12 @@ export default function WhatsAppButton() {
         <button
           type="button"
           onClick={handleToggle}
-          className="whatsapp-button relative inline-flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-primary to-[#c27a81] text-white shadow-[0_8px_30px_rgba(166,91,98,0.35)] hover:shadow-[0_8px_30px_rgba(166,91,98,0.55)] transition duration-300 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
+          className="whatsapp-button relative inline-flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-[#A65B62] to-[#8C484E] text-white shadow-[0_8px_30px_rgba(166,91,98,0.45)] hover:shadow-[0_8px_30px_rgba(166,91,98,0.65)] transition duration-300 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#A65B62] cursor-pointer"
           aria-label="Open WhatsApp chat"
         >
           {/* Radar Ring Glow Waves */}
-          <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping pointer-events-none" style={{ animationDuration: '3s' }} />
-          <div className="absolute inset-0 rounded-full bg-primary/20 animate-pulse pointer-events-none" />
+          <div className="absolute inset-0 rounded-full bg-[#A65B62]/30 animate-ping pointer-events-none" style={{ animationDuration: '3s' }} />
+          <div className="absolute inset-0 rounded-full bg-[#A65B62]/20 animate-pulse pointer-events-none" />
 
           {/* Modern WhatsApp Logo SVG Path */}
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="w-7 h-7 fill-current z-10 text-white relative drop-shadow-md">

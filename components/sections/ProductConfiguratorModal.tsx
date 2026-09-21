@@ -159,12 +159,23 @@ export default function ProductConfiguratorModal({
         formData.append("file", file);
         formData.append("folder", `storyceller/orders/${productSlug}`);
 
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
+        let response;
+        try {
+          response = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+        } catch {
+          const BACKEND = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+          response = await fetch(`${BACKEND}/api/upload`, {
+            method: "POST",
+            body: formData,
+          });
+        }
 
-        if (!response.ok) throw new Error("Upload failed");
+        if (!response.ok) {
+          throw new Error("Upload failed");
+        }
 
         const data = await response.json();
         if (data.success && data.url) {
@@ -204,12 +215,23 @@ export default function ProductConfiguratorModal({
       formData.append("file", file);
       formData.append("folder", `storyceller/orders/${productSlug}/covers`);
 
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+      let response;
+      try {
+        response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+      } catch {
+        const BACKEND = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+        response = await fetch(`${BACKEND}/api/upload`, {
+          method: "POST",
+          body: formData,
+        });
+      }
 
-      if (!response.ok) throw new Error("Upload failed");
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
 
       const data = await response.json();
       if (data.success && data.url) {
@@ -851,7 +873,7 @@ export default function ProductConfiguratorModal({
             {currentStep < steps.length ? (
               <button
                 onClick={handleNext}
-                className="px-6 py-3 bg-stone-900 hover:bg-stone-800 text-white dark:text-stone-950 text-sm font-bold rounded-xl transition-all flex items-center gap-1"
+                className="px-6 py-3 bg-stone-900 hover:bg-stone-800 text-white text-sm font-bold rounded-xl transition-all flex items-center gap-1 cursor-pointer"
               >
                 Next <ArrowRight size={16} />
               </button>
@@ -859,7 +881,7 @@ export default function ProductConfiguratorModal({
               <button
                 onClick={handleSubmitOrder}
                 disabled={loading}
-                className="px-8 py-3.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-all shadow-md flex items-center gap-1.5 disabled:opacity-50"
+                className="px-8 py-3.5 bg-[#A65B62] hover:bg-[#8C484E] text-white text-sm font-bold rounded-xl transition-all shadow-md flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
               >
                 {loading ? (
                   <>
