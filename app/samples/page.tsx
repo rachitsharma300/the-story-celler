@@ -22,6 +22,7 @@ interface Sample {
   pdfUrl: string;
   coverImageUrl?: string;
   category?: string;
+  pageCount?: number;
 }
 
 // ── Stagger variants ───────────────────────────────────────────────────────────
@@ -103,27 +104,19 @@ function BookCard({
         className={`group cursor-pointer select-none ${focusRing} rounded-xl`}
       >
         {/* Relative container gives consistent size across all cards */}
-        <div
-          className="relative mx-auto w-[130px] h-[173px] sm:w-[200px] sm:h-[267px]"
-        >
+        <div className="relative mx-auto w-[180px] h-[245px] sm:w-[220px] sm:h-[300px] perspective-[1000px]">
           {/* Shadow pages — bundle illusion */}
-          <div
-            className="absolute rounded-sm bg-stone-300"
-            style={{ top: "8px", left: "8px", right: "-8px", bottom: "-8px" }}
-          />
-          <div
-            className="absolute rounded-sm bg-stone-200"
-            style={{ top: "4px", left: "4px", right: "-4px", bottom: "-4px" }}
-          />
+          <div className="absolute rounded-r-md bg-stone-300 border-r-2 border-stone-400/60" style={{ top: "8px", left: "8px", right: "-10px", bottom: "-8px" }} />
+          <div className="absolute rounded-r-md bg-stone-200 border-r-2 border-stone-300/80" style={{ top: "4px", left: "4px", right: "-5px", bottom: "-4px" }} />
 
           {/* Main cover */}
           <div
-            className="absolute inset-0 rounded-sm overflow-hidden shadow-[0_16px_40px_-6px_rgba(0,0,0,0.28)] cursor-pointer"
-            style={{ transition: "transform 0.4s ease, box-shadow 0.4s ease" }}
+            className="absolute inset-0 rounded-r-sm rounded-l-md overflow-hidden shadow-[0_20px_45px_-8px_rgba(0,0,0,0.35)] cursor-pointer bg-stone-900 border-l-2 border-amber-500/30"
+            style={{ transition: "transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.45s ease" }}
             onMouseEnter={(e) => {
               const el = e.currentTarget as HTMLElement;
-              el.style.transform = "translateY(-12px) rotate(-3deg) scale(1.04)";
-              el.style.boxShadow = "0 28px 56px -8px rgba(166,91,98,0.55)";
+              el.style.transform = "translateY(-14px) rotateY(-10deg) scale(1.04)";
+              el.style.boxShadow = "0 30px 60px -10px rgba(166,91,98,0.55), 0 15px 25px -5px rgba(0,0,0,0.4)";
             }}
             onMouseLeave={(e) => {
               const el = e.currentTarget as HTMLElement;
@@ -136,34 +129,34 @@ function BookCard({
               src={coverSrc}
               alt={`Cover of ${sample.title} magazine sample`}
               fill
-              sizes="(max-width: 640px) 130px, 200px"
+              sizes="(max-width: 640px) 180px, 220px"
               className="object-cover"
               loading="lazy"
             />
 
             {/* Spine shadow overlay */}
-            <div className="absolute inset-y-0 left-0 w-5 bg-gradient-to-r from-black/45 to-transparent pointer-events-none" />
+            <div className="absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-stone-950/70 via-black/30 to-transparent pointer-events-none border-l border-white/20" />
 
             {/* Bottom gradient + title */}
-            <div className="absolute bottom-0 left-0 right-0 h-[80px] bg-gradient-to-t from-black/92 via-black/55 to-transparent flex flex-col justify-end px-3.5 pb-3">
-              <span className="text-white font-display text-[13px] font-bold leading-tight drop-shadow line-clamp-2">
+            <div className="absolute bottom-0 left-0 right-0 h-[85px] bg-gradient-to-t from-stone-950/95 via-stone-900/60 to-transparent flex flex-col justify-end px-3.5 pb-3">
+              <span className="text-white font-display text-[13px] sm:text-[14px] font-bold leading-snug drop-shadow-md line-clamp-2">
                 {sample.title}
               </span>
             </div>
 
             {/* Category badge */}
             {sample.category && (
-              <div className="absolute top-3 right-3">
-                <span className="bg-[#A65B62] text-white font-sans-clean text-[8px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full shadow">
+              <div className="absolute top-2.5 right-2.5">
+                <span className="bg-[#A65B62] text-white font-sans-clean text-[9px] font-black tracking-widest uppercase px-2.5 py-1 rounded-full shadow-md backdrop-blur-sm">
                   {sample.category}
                 </span>
               </div>
             )}
 
             {/* Hover "View Flipbook" pill */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/12">
-              <span className="bg-white/95 backdrop-blur text-[#A65B62] font-sans-clean font-black text-[9px] tracking-widest uppercase px-3.5 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
-                <BookOpen size={10} /> View Flipbook
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-stone-950/20 backdrop-blur-[2px]">
+              <span className="bg-white/95 text-[#A65B62] font-sans-clean font-black text-[10px] tracking-widest uppercase px-4 py-2 rounded-full shadow-xl flex items-center gap-1.5 border border-stone-200/50 transform group-hover:scale-105 transition-transform">
+                <BookOpen size={12} /> View Flipbook
               </span>
             </div>
           </div>
@@ -171,15 +164,13 @@ function BookCard({
       </div>
 
       {/* Label below card */}
-      <div className="mt-5 text-center w-[130px] sm:w-[200px]">
-        <p className="font-display text-sm font-bold text-stone-850 leading-snug group-hover:text-[#A65B62] transition-colors">
+      <div className="mt-5 text-center w-[180px] sm:w-[220px]">
+        <p className="font-display text-sm font-bold text-stone-850 leading-snug group-hover:text-[#A65B62] transition-colors truncate" title={sample.title}>
           {sample.title}
         </p>
-        {sample.category && (
-          <p className="font-sans-clean text-[10px] text-stone-400 mt-1 uppercase tracking-wider">
-            {sample.category}
-          </p>
-        )}
+        <p className="font-sans-clean text-[10px] text-stone-400 mt-1 uppercase tracking-wider font-semibold">
+          {sample.category || "Interactive Keepsake"}
+        </p>
       </div>
     </motion.div>
   );
@@ -436,7 +427,7 @@ export default function SamplesPage() {
             setModalSample(null);
           }}
           pdfUrl={modalSample.pdfUrl}
-          pageCount={12}
+          pageCount={modalSample.pageCount || 20}
           productName={modalSample.title}
         />
       )}
