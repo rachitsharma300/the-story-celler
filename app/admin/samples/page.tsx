@@ -3,10 +3,13 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Plus, Trash2, Eye, Edit2, Loader2, Save, X, PackageOpen, FileText } from "lucide-react";
+import { Plus, Trash2, Eye, Edit2, Loader2, Save, X, PackageOpen, FileText, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
+import dynamic from "next/dynamic";
+
+const SampleFlipbookModal = dynamic(() => import("@/components/sections/SampleFlipbookModal"), { ssr: false });
 
 interface Sample {
   id: number;
@@ -47,6 +50,7 @@ export default function CatalogPage() {
   const [samples, setSamples] = useState<Sample[]>([]);
   const [samplesLoading, setSamplesLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [previewSample, setPreviewSample] = useState<Sample | null>(null);
 
   useEffect(() => {
     if (activeTab === "products") {
@@ -361,9 +365,22 @@ export default function CatalogPage() {
                     </h3>
 
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1" asChild>
-                        <a href={sample.pdfUrl} target="_blank" rel="noopener noreferrer">
-                          <Eye size={14} className="mr-1" /> View PDF
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-semibold"
+                        onClick={() => setPreviewSample(sample)}
+                      >
+                        <BookOpen size={14} className="mr-1" /> Flipbook
+                      </Button>
+                      <Button variant="outline" size="sm" asChild>
+                        <a
+                          href={sample.pdfUrl ? sample.pdfUrl.replace("/image/upload/", "/raw/upload/").replace(/\.pdf\.pdf$/i, ".pdf") : "#"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Open PDF File in New Tab"
+                        >
+                          <Eye size={14} />
                         </a>
                       </Button>
                       <Button
@@ -504,6 +521,17 @@ export default function CatalogPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* ADMIN FLIPBOOK PREVIEW MODAL */}
+      {previewSample && (
+        <SampleFlipbookModal
+          isOpen={!!previewSample}
+          onClose={() => setPreviewSample(null)}
+          pdfUrl={previewSample.pdfUrl}
+          pageCount={20}
+          productName={previewSample.title}
+        />
+      )}
     </div>
   );
 }

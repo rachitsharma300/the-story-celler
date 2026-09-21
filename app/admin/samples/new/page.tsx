@@ -52,11 +52,19 @@ export default function AddSamplePage() {
       formData.append("file", file);
       formData.append("folder", isPdf ? "storyceller/samples/pdf" : "storyceller/samples/covers");
 
-      const BACKEND = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-      const response = await fetch(`${BACKEND}/api/upload`, {
-        method: "POST",
-        body: formData,
-      });
+      let response;
+      try {
+        response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+      } catch {
+        const BACKEND = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+        response = await fetch(`${BACKEND}/api/upload`, {
+          method: "POST",
+          body: formData,
+        });
+      }
 
       if (!response.ok) {
         throw new Error("Upload request failed");
