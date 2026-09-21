@@ -13,32 +13,31 @@ export async function uploadBuffer(
   filename?: string
 ): Promise<any> {
   return new Promise((resolve, reject) => {
-    // Check if file is a PDF
-    const isPdf = filename?.toLowerCase().endsWith(".pdf");
-    const resourceType = isPdf ? "raw" : "auto";
-    
-    // For raw files like PDFs, keep the extension in the public_id to serve it correctly.
-    // For other files, strip the extension.
-    const publicId = filename
-      ? (isPdf ? filename : filename.split(".").slice(0, -1).join("."))
-      : undefined;
+    let publicId: string | undefined = undefined;
+    if (filename) {
+      const nameWithoutExt = filename.includes(".")
+        ? filename.split(".").slice(0, -1).join(".")
+        : filename;
+      publicId = nameWithoutExt.trim();
+    }
 
-    // Use upload_chunked_stream for PDFs/large files to bypass the 10MB limit on standard raw uploads.
-    // Use upload_stream for other files.
+    const isLargeFile = buffer.length > 10 * 1024 * 1024; // > 10MB
+
     const options: any = {
       folder: folder,
       public_id: publicId,
-      resource_type: resourceType,
+      resource_type: "auto",
     };
 
     let uploadStream;
 
-    if (isPdf) {
-      options.chunk_size = 6000000; // 6MB chunks (Cloudinary requires >= 5MB chunk_size)
+    if (isLargeFile) {
+      options.chunk_size = 6000000; // 6MB chunks for large files > 10MB
       uploadStream = cloudinary.uploader.upload_chunked_stream(
         options,
         (error, result) => {
           if (error) {
+            console.error("Cloudinary upload_chunked_stream error:", error);
             reject(error);
           } else {
             resolve(result);
@@ -50,6 +49,7 @@ export async function uploadBuffer(
         options,
         (error, result) => {
           if (error) {
+            console.error("Cloudinary upload_stream error:", error);
             reject(error);
           } else {
             resolve(result);
