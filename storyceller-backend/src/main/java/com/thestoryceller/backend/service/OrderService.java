@@ -1,10 +1,13 @@
 package com.thestoryceller.backend.service;
 
+import com.thestoryceller.backend.entity.Notification;
 import com.thestoryceller.backend.entity.Order;
 import com.thestoryceller.backend.entity.User;
 import com.thestoryceller.backend.entity.enums.OrderStatus;
+import com.thestoryceller.backend.repository.NotificationRepository;
 import com.thestoryceller.backend.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -13,9 +16,12 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final NotificationRepository notificationRepository;
+    private final EmailService emailService;
 
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
@@ -50,7 +56,38 @@ public class OrderService {
         return orderRepository.findByOrderId(orderId)
             .map(order -> {
                 order.setStatus(status);
-                return orderRepository.save(order);
+                Order saved = orderRepository.save(order);
+
+                // 1. Create in-app user notification if user exists
+                if (order.getUser() != null) {
+                    try {
+                        Notification notification = Notification.builder()
+                                .user(order.getUser())
+                                .title("Order #" + orderId + " Updated")
+                                .message("Your order status has been updated to: " + status.name())
+                                .isRead(false)
+                                .build();
+                        notificationRepository.save(notification);
+                    } catch (Exception e) {
+                        log.error("Failed to save order notification: {}", e.getMessage());
+                    }
+                }
+
+                // 2. Trigger email update
+                try {
+                    String recipientEmail = order.getEmail();
+                    if (recipientEmail == null && order.getUser() != null) {
+                        recipientEmail = order.getUser().getEmail();
+                    }
+                    if (recipientEmail != null && !recipientEmail.isBlank()) {
+                        String recipientName = order.getPersonalDetails() != null ? order.getPersonalDetails().getName() : "Customer";
+                        emailService.sendOrderStatusUpdateEmail(recipientEmail, orderId, status.name(), recipientName);
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to send order status email: {}", e.getMessage());
+                }
+
+                return saved;
             });
     }
 
