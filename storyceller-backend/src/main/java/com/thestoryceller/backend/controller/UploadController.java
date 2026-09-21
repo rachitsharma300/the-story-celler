@@ -47,12 +47,10 @@ public class UploadController {
         try {
             // Determine resource type: PDF is raw, other files are auto
             String originalFilename = file.getOriginalFilename();
-            boolean isPdf = originalFilename != null && originalFilename.toLowerCase().endsWith(".pdf");
-            
-            // Configure upload options
+            // Configure upload options - use auto resource_type for image page transformations
             Map<String, Object> params = new HashMap<>();
             params.put("folder", folder != null ? folder : "storyceller");
-            params.put("resource_type", isPdf ? "raw" : "auto");
+            params.put("resource_type", "auto");
             
             // Upload to Cloudinary
             Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), params);
