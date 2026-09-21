@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Lock, Mail, Eye, EyeOff } from "lucide-react";
+import { Lock, Mail, Eye, EyeOff, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUserStore } from "@/store/userStore";
 import toast from "react-hot-toast";
@@ -11,114 +11,125 @@ import toast from "react-hot-toast";
 export default function AdminLoginPage() {
   const router = useRouter();
   const { loginWithPassword, logout } = useUserStore();
-  const [email, setEmail] = useState("admin@storyceller.in");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
-    toast.loading("Authenticating admin...", { id: "admin-login" });
+    toast.loading("Authenticating admin credentials...", { id: "admin-login" });
     const result = await loginWithPassword(email, password);
     if (result.success) {
-      // Fetch user profile from the store state to verify their role
       const currentUser = useUserStore.getState().user;
       if (currentUser && currentUser.role === "ADMIN") {
         const token = useUserStore.getState().token;
-        document.cookie = `adminToken=${token}; path=/; max-age=86400`;
-        toast.success("Welcome, Administrator!", { id: "admin-login" });
+        document.cookie = `adminToken=${token}; path=/; max-age=86400; SameSite=Strict`;
+        toast.success("Welcome back, Administrator!", { id: "admin-login" });
         setTimeout(() => {
           router.push("/admin");
         }, 500);
       } else {
         logout();
-        setError("Access Denied: You do not have admin permissions.");
+        setError("Access Denied: You do not have administrator permissions.");
         toast.error("Access Denied.", { id: "admin-login" });
         setLoading(false);
       }
     } else {
-      setError(result.error || "Invalid email or password");
+      setError(result.error || "Invalid administrator credentials.");
       toast.error(result.error || "Authentication failed", { id: "admin-login" });
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-50 to-orange-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#180C0E] via-[#120708] to-[#0A0304] flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.4 }}
         className="w-full max-w-md"
       >
-        <div className="rounded-3xl bg-white border border-stone-200 shadow-xl p-8">
-          {/* Logo */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 flex items-center justify-center text-white text-2xl font-black shadow-md mx-auto mb-4">
-              S
+        <div className="rounded-3xl bg-[#1A1012] border border-[#A65B62]/30 shadow-2xl p-8 text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-[#A65B62]/10 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Header */}
+          <div className="text-center mb-8 relative z-10">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#A65B62] to-[#8C484E] flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-[#A65B62]/30 mx-auto mb-4 border border-white/10">
+              <Lock size={26} />
             </div>
-            <h1 className="font-display text-2xl font-bold text-stone-900">
-              Admin Dashboard
+            <h1 className="font-display text-2xl font-bold text-white">
+              Admin Portal
             </h1>
-            <p className="font-sans-clean text-sm text-stone-500 mt-2">
-              The Story Celler Control Center
+            <p className="font-sans-clean text-xs text-[#C8B4B6] mt-2">
+              The Story Celler Secure Control Center
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-5 relative z-10" autoComplete="off">
             {/* Email */}
             <div>
-              <label className="font-sans-clean text-sm font-semibold text-stone-700 block mb-2">
-                Email Address
+              <label className="font-sans-clean text-xs font-bold text-[#E8D5D7] uppercase tracking-wider block mb-2">
+                Admin Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-3.5 text-stone-400" size={18} />
+                <Mail className="absolute left-4 top-3.5 text-[#9E888A]" size={18} />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@storyceller.in"
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-stone-200 bg-stone-50 font-sans-clean text-sm text-stone-800 placeholder-stone-300 outline-none focus:border-amber-400 focus:bg-white transition-all"
+                  required
+                  autoComplete="off"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-stone-800 bg-[#221517] font-sans-clean text-sm text-white placeholder-stone-600 outline-none focus:border-[#A65B62] focus:bg-[#2A191C] transition-all"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label className="font-sans-clean text-sm font-semibold text-stone-700 block mb-2">
-                Password
+              <label className="font-sans-clean text-xs font-bold text-[#E8D5D7] uppercase tracking-wider block mb-2">
+                Master Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-3.5 text-stone-400" size={18} />
+                <Lock className="absolute left-4 top-3.5 text-[#9E888A]" size={18} />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-12 pr-12 py-3 rounded-xl border border-stone-200 bg-stone-50 font-sans-clean text-sm text-stone-800 placeholder-stone-300 outline-none focus:border-amber-400 focus:bg-white transition-all"
+                  placeholder="••••••••••••"
+                  required
+                  autoComplete="current-password"
+                  className="w-full pl-12 pr-12 py-3 rounded-xl border border-stone-800 bg-[#221517] font-sans-clean text-sm text-white placeholder-stone-600 outline-none focus:border-[#A65B62] focus:bg-[#2A191C] transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-3.5 text-stone-400 hover:text-stone-600"
+                  className="absolute right-4 top-3.5 text-[#9E888A] hover:text-white transition-colors"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
 
-            {/* Error */}
+            {/* Error Banner */}
             {error && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-4 bg-red-50 border border-red-200 rounded-xl"
+                className="p-4 bg-rose-950/60 border border-rose-500/40 rounded-xl flex items-center gap-3 text-rose-200 text-xs font-sans-clean"
               >
-                <p className="font-sans-clean text-sm text-red-600">{error}</p>
+                <ShieldAlert size={18} className="shrink-0 text-rose-400" />
+                <span>{error}</span>
               </motion.div>
             )}
 
@@ -126,26 +137,11 @@ export default function AdminLoginPage() {
             <Button
               type="submit"
               disabled={loading}
-              size="lg"
-              variant="default"
-              className="w-full"
+              className="w-full py-3.5 bg-gradient-to-r from-[#A65B62] to-[#8C484E] hover:from-[#8C484E] hover:to-[#733A3F] text-white font-sans-clean font-bold text-sm rounded-xl transition-all shadow-lg shadow-[#A65B62]/25 cursor-pointer disabled:opacity-50"
             >
-              {loading ? "Logging in..." : "Login to Admin Panel"}
+              {loading ? "Authenticating Admin..." : "Authorize Admin Access"}
             </Button>
           </form>
-
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-amber-50 rounded-xl border border-amber-200">
-            <p className="font-sans-clean text-xs text-amber-700 font-semibold mb-2">
-              Demo Credentials:
-            </p>
-            <p className="font-sans-clean text-xs text-amber-600">
-              Email: admin@storyceller.in
-            </p>
-            <p className="font-sans-clean text-xs text-amber-600">
-              Password: admin123
-            </p>
-          </div>
         </div>
       </motion.div>
     </div>

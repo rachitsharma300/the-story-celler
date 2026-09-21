@@ -70,47 +70,82 @@ export default function OrdersPage() {
   const [updatingStatus, setUpdatingStatus] = useState<string>("");
   const [pdfUrlInput, setPdfUrlInput] = useState<string>("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [uploadingFinalPdf, setUploadingFinalPdf] = useState(false);
   const [zipping, setZipping] = useState(false);
+
+  const handleFinalPdfUpload = async (file: File) => {
+    setUploadingFinalPdf(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "storyceller/final_designs");
+
+      let res;
+      try {
+        res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+      } catch {
+        const BACKEND = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+        res = await fetch(`${BACKEND}/api/upload`, {
+          method: "POST",
+          body: formData,
+        });
+      }
+      const data = await res.json();
+      if (data.success && data.url) {
+        setPdfUrlInput(data.url);
+        toast.success("Uploaded to Cloudinary: storyceller/final_designs!");
+      } else {
+        toast.error(data.error || "Failed to upload final design PDF.");
+      }
+    } catch (err: any) {
+      toast.error("Upload error: " + (err.message || "Failed to upload"));
+    } finally {
+      setUploadingFinalPdf(false);
+    }
+  };
 
   const downloadPhotosAsZip = async (order: Order) => {
     const urls = [...order.uploadedPhotos];
     if (order.frontCoverPhoto) {
       urls.push(order.frontCoverPhoto);
     }
-    
+
     if (urls.length === 0) {
       toast.error("This order has no uploaded photos.");
       return;
     }
-    
+
     setZipping(true);
     toast.loading("Downloading and zipping files...", { id: "zip-download" });
-    
+
     try {
       const zip = new JSZip();
-      
+
       const downloadPromises = urls.map(async (url, index) => {
         try {
           const response = await fetch(url);
           const blob = await response.blob();
-          
+
           let ext = "jpg";
           const match = url.match(/\.([a-zA-Z0-9]+)(?:[\?#]|$)/);
           if (match) {
             ext = match[1];
           }
-          
+
           const isCover = url === order.frontCoverPhoto;
           const fileName = isCover ? `front_cover.${ext}` : `photo_${index + 1}.${ext}`;
-          
+
           zip.file(fileName, blob);
         } catch (err) {
           console.error(`Failed to fetch photo from url: ${url}`, err);
         }
       });
-      
+
       await Promise.all(downloadPromises);
-      
+
       const content = await zip.generateAsync({ type: "blob" });
       saveAs(content, `order_${order.orderId}_photos.zip`);
       toast.success("Photos zipped and downloaded successfully!", { id: "zip-download" });
@@ -128,7 +163,7 @@ export default function OrdersPage() {
     try {
       const response = await api.get("/api/admin/orders");
       const data = response.data;
-      
+
       const statusMap: Record<string, Order["status"]> = {
         PENDING: "Pending",
         DESIGNING: "Designing",
@@ -162,8 +197,8 @@ export default function OrdersPage() {
     return [
       {
         orderId: "MV-2026-0001",
-        customerName: "Rahul Sharma",
-        customerEmail: "rahul@example.com",
+        customerName: "Rachit Sharma",
+        customerEmail: "rachit@example.com",
         customerPhone: "+91 98718 74041",
         customerAddress: "Flat 402, Block A, Green Meadows Apartments",
         customerCity: "Gurugram",
@@ -176,7 +211,7 @@ export default function OrdersPage() {
         pages: 12,
         printingType: "Water Resistant Lamination",
         personalDetails: {
-          name: "Rahul & Priya",
+          name: "Rachit & Priya",
           age: 5,
           relationship: "Spouse",
           aboutPerson: "Married for 5 years. Loves traveling, drinking chai and eating together.",
@@ -232,7 +267,7 @@ export default function OrdersPage() {
 
       toast.success("Order updated successfully!");
       setSelectedOrder(updatedOrder);
-      
+
       // Refresh local orders list
       setOrders((prev) =>
         prev.map((o) => (o.orderId === selectedOrder.orderId ? updatedOrder : o))
@@ -427,15 +462,36 @@ export default function OrdersPage() {
                   </div>
 
                   <div>
-                    <label className="font-bold text-stone-855 mb-1.5 block">Upload Final Keepsake PDF Link</label>
+                    <label className="font-bold text-stone-855 mb-1.5 block">Final Keepsake PDF (Cloudinary Link)</label>
                     <div className="flex gap-2">
                       <input
                         type="text"
-                        placeholder="https://cloudinary.com/.../output.pdf"
+                        placeholder="https://res.cloudinary.com/.../output.pdf"
                         value={pdfUrlInput}
                         onChange={(e) => setPdfUrlInput(e.target.value)}
                         className="flex-1 px-3 py-2 border border-stone-200 rounded-xl bg-white outline-none focus:border-amber-400 text-xs text-stone-800 placeholder-stone-300"
                       />
+                      <label className="px-3 py-2 bg-stone-900 hover:bg-stone-800 text-white font-sans-clean font-bold text-xs rounded-xl cursor-pointer flex items-center gap-1.5 shrink-0 transition-colors">
+                        {uploadingFinalPdf ? (
+                          <>
+                            <Loader2 size={12} className="animate-spin" /> Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload size={12} /> Upload PDF
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          disabled={uploadingFinalPdf}
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleFinalPdfUpload(file);
+                          }}
+                        />
+                      </label>
                     </div>
                   </div>
 
@@ -527,7 +583,15 @@ export default function OrdersPage() {
                   <div className="space-y-3">
                     <h3 className="font-display text-base font-bold text-stone-900 border-b pb-2">Front Cover Page Photo</h3>
                     <div className="relative w-44 h-56 rounded-xl overflow-hidden border border-stone-200 shadow-sm">
-                      <img src={selectedOrder.frontCoverPhoto} alt="Cover Preview" className="w-full h-full object-cover" />
+                      <img
+                        src={selectedOrder.frontCoverPhoto}
+                        alt="Cover Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src =
+                            "https://images.unsplash.com/photo-1519741497674-611481863552?w=300&auto=format&fit=crop&q=80";
+                        }}
+                      />
                       <a
                         href={selectedOrder.frontCoverPhoto}
                         target="_blank"
@@ -567,7 +631,15 @@ export default function OrdersPage() {
                           key={index}
                           className="relative aspect-square bg-stone-50 rounded-lg overflow-hidden border border-stone-200 shadow-sm group"
                         >
-                          <img src={url} alt={`Upload ${index + 1}`} className="w-full h-full object-cover" />
+                          <img
+                            src={url}
+                            alt={`Upload ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src =
+                                "https://images.unsplash.com/photo-1519741497674-611481863552?w=300&auto=format&fit=crop&q=80";
+                            }}
+                          />
                           <a
                             href={url}
                             target="_blank"
