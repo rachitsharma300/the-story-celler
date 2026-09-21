@@ -82,4 +82,34 @@ public class EmailService {
                 "  Amount: {}\n" +
                 "==================================================\n", toEmail, orderId, amount);
     }
+
+    public void sendOrderStatusUpdateEmail(String toEmail, String orderId, String statusName, String recipientName) {
+        String subject = "Order Status Update - The Story Celler (Order #" + orderId + ")";
+        String content = "Hello " + recipientName + ",\n\n"
+                + "Great news! Your order #" + orderId + " status has been updated to: " + statusName + ".\n\n"
+                + "You can view full order progress and tracking details in your account dashboard.\n\n"
+                + "Warm regards,\nThe Story Celler Team";
+
+        if (mailSender != null) {
+            try {
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setFrom(fromEmail);
+                message.setTo(toEmail);
+                message.setSubject(subject);
+                message.setText(content);
+                mailSender.send(message);
+                log.info("Order status update email sent to {}", toEmail);
+                return;
+            } catch (Exception e) {
+                log.error("Failed to send status email via SMTP: {}", e.getMessage(), e);
+            }
+        }
+
+        log.info("\n==================================================\n" +
+                "  [ORDER STATUS EMAIL FALLBACK]\n" +
+                "  To: {}\n" +
+                "  Order ID: {}\n" +
+                "  New Status: {}\n" +
+                "==================================================\n", toEmail, orderId, statusName);
+    }
 }
